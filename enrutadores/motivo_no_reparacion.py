@@ -1,67 +1,51 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 
+from conexion_db import Sesion_dependencia
 from modelos.motivo_no_reparacion import (
     MotivoNoReparacion,
     MotivoCrear,
     MotivoEditar
 )
 
-from conexion_db import sesion_dependencia
-
-ruta_tipo_motivo = APIRouter()
-
-
-@ruta_tipo_motivo.get(
-    "/motivos-no-reparacion",
-    response_model=list[MotivoNoReparacion]
+asis = APIRouter(
+    prefix="/motivos-no-reparacion",
+    tags=["Motivos no reparación"]
 )
-async def listar_motivos(
-    sesion: sesion_dependencia
-):
 
-    motivos = sesion.exec(
-        select(MotivoNoReparacion)
-    ).all()
+
+@asis.get("/", response_model=list[MotivoNoReparacion])
+async def listar_motivos(sesion: Sesion_dependencia):
+
+    motivos = sesion.exec(select(MotivoNoReparacion)).all()
 
     return motivos
 
 
-@ruta_tipo_motivo.get(
-    "/motivos-no-reparacion/{id}",
-    response_model=MotivoNoReparacion
-)
+@asis.get("/{id}", response_model=MotivoNoReparacion)
 async def obtener_motivo(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
-    motivo_bd = sesion.get(
-        MotivoNoReparacion,
-        id
-    )
+    motivo = sesion.get(MotivoNoReparacion, id)
 
-    if not motivo_bd:
+    if not motivo:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Motivo no encontrado"
         )
 
-    return motivo_bd
+    return motivo
 
 
-@ruta_tipo_motivo.post(
-    "/motivos-no-reparacion",
-    response_model=MotivoNoReparacion
-)
+@asis.post("/", response_model=MotivoNoReparacion)
 async def crear_motivo(
     datos: MotivoCrear,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
-    nuevo_motivo = MotivoNoReparacion.model_validate(
-        datos.model_dump()
-    )
+    nuevo_motivo = MotivoNoReparacion.model_validate(datos)
 
     sesion.add(nuevo_motivo)
     sesion.commit()
@@ -70,63 +54,48 @@ async def crear_motivo(
     return nuevo_motivo
 
 
-@ruta_tipo_motivo.put(
-    "/motivos-no-reparacion/{id}",
-    response_model=MotivoNoReparacion
-)
+@asis.patch("/{id}", response_model=MotivoNoReparacion)
 async def editar_motivo(
     id: int,
     datos: MotivoEditar,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
-    motivo_bd = sesion.get(
-        MotivoNoReparacion,
-        id
-    )
+    motivo = sesion.get(MotivoNoReparacion, id)
 
-    if not motivo_bd:
+    if not motivo:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Motivo no encontrado"
         )
 
-    motivo_dict = datos.model_dump(
-        exclude_unset=True
-    )
+    motivo_dict = datos.model_dump(exclude_unset=True)
+    motivo.sqlmodel_update(motivo_dict)
 
-    motivo_bd.sqlmodel_update(
-        motivo_dict
-    )
-
-    sesion.add(motivo_bd)
+    sesion.add(motivo)
     sesion.commit()
-    sesion.refresh(motivo_bd)
+    sesion.refresh(motivo)
 
-    return motivo_bd
+    return motivo
 
 
-@ruta_tipo_motivo.delete(
-    "/motivos-no-reparacion/{id}",
-    response_model=MotivoNoReparacion
-)
+@asis.delete("/{id}", response_model=MotivoNoReparacion)
 async def eliminar_motivo(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
-    motivo_bd = sesion.get(
-        MotivoNoReparacion,
-        id
-    )
+    motivo = sesion.get(MotivoNoReparacion, id)
 
-    if not motivo_bd:
+    if not motivo:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Motivo no encontrado"
         )
 
-    sesion.delete(motivo_bd)
+    motivo_eliminado = MotivoNoReparacion.model_validate(motivo)
+
+    sesion.delete(motivo)
     sesion.commit()
 
-    return motivo_bd
+    return motivo_eliminado

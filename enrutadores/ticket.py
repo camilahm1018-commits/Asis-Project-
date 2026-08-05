@@ -3,24 +3,24 @@ from modelos.tickets import *
 from conexion_db import Sesion_dependencia
 from sqlmodel import select
 
-router = APIRouter(
+asis = APIRouter(
     prefix="/tickets",
     tags=["Tickets"]
 )
 
-@router.get("/", response_model=list[tickets])
+@asis.get("/", response_model=list[tickets])
 async def listar_tickets(session: Sesion_dependencia):
     listTi = session.exec(select(tickets)).all()
     return listTi
 
-@router.get("/{id}", response_model=tickets)
+@asis.get("/{id}", response_model=tickets)
 async def listar_tickets_id(id: str, session: Sesion_dependencia):
     tik_bd = session.get(tickets, id)
     if not tik_bd:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El ticket con ID {id}, no existe.")
     return tik_bd
 
-@router.post("/", response_model=tickets)
+@asis.post("/", response_model=tickets)
 async def crear_ticket(datos_tik: TicketsCrear, session: Sesion_dependencia):
     tik_validado = tickets.model_validate(
         datos_tik.model_dump()
@@ -31,7 +31,7 @@ async def crear_ticket(datos_tik: TicketsCrear, session: Sesion_dependencia):
     session.refresh(tik_validado)
     return tik_validado
 
-@router.patch("/{id}", response_model=tickets)
+@asis.patch("/{id}", response_model=tickets)
 async def editar_ticket(id: str, datos_tik: TicketsEditar, session: Sesion_dependencia):
     tik_bd = session.get(tickets, id)
     if not tik_bd:
@@ -44,7 +44,7 @@ async def editar_ticket(id: str, datos_tik: TicketsEditar, session: Sesion_depen
     session.refresh(tik_bd)
     return tik_bd
 
-@router.delete("/{id}", response_model=tickets)
+@asis.delete("/{id}", response_model=tickets)
 async def eliminar_ticket(id: str, session: Sesion_dependencia):
     tik_bd = session.get(tickets, id)
     

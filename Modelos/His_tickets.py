@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
-from Modelos.Usuarios import Usuario, UsuarioLeer
+from modelos.Usuarios import Usuario, UsuarioLeer
 
 class His_ticketBase (SQLModel):
     #atributos

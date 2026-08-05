@@ -1,116 +1,102 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from fastapi import APIRouter, HTTPException, status
+from sqlmodel import select
 
-from conexion_db import get_session
-from modelos.ambientes import Ambiente, AmbienteCrear, AmbienteEditar, AmbienteLeer
+from conexion_db import Sesion_dependencia
+from modelos.ambientes import (
+    Ambiente,
+    AmbienteCrear,
+    AmbienteEditar,
+    AmbienteLeer
+)
 
-
-router = APIRouter(
+asis = APIRouter(
     prefix="/ambientes",
     tags=["Ambientes"]
 )
 
 
-# Crear ambiente
-@router.post("/", response_model=AmbienteLeer)
-def crear_ambiente(
-    ambiente: AmbienteCrear,
-    session: Session = Depends(get_session)
+@asis.get("/", response_model=list[AmbienteLeer])
+async def listar_ambientes(sesion: Sesion_dependencia):
+
+    lista_ambientes = sesion.exec(select(Ambiente)).all()
+
+    return lista_ambientes
+
+
+@asis.get("/{id_ambiente}", response_model=AmbienteLeer)
+async def obtener_ambiente(
+    id_ambiente: int,
+    sesion: Sesion_dependencia
 ):
 
-    nuevo_ambiente = Ambiente.model_validate(ambiente)
+    ambiente = sesion.get(Ambiente, id_ambiente)
 
-    session.add(nuevo_ambiente)
-    session.commit()
-    session.refresh(nuevo_ambiente)
+    if not ambiente:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ambiente no encontrado"
+        )
+
+    return ambiente
+
+
+@asis.post("/", response_model=AmbienteLeer)
+async def crear_ambiente(
+    datos_ambiente: AmbienteCrear,
+    sesion: Sesion_dependencia
+):
+
+    nuevo_ambiente = Ambiente.model_validate(datos_ambiente)
+
+    sesion.add(nuevo_ambiente)
+    sesion.commit()
+    sesion.refresh(nuevo_ambiente)
 
     return nuevo_ambiente
 
 
-
-# Obtener todos los ambientes
-@router.get("/", response_model=list[AmbienteLeer])
-def listar_ambientes(
-    session: Session = Depends(get_session)
-):
-
-    ambientes = session.exec(
-        select(Ambiente)
-    ).all()
-
-    return ambientes
-
-
-
-# Obtener un ambiente por id
-@router.get("/{id_ambiente}", response_model=AmbienteLeer)
-def obtener_ambiente(
+@asis.patch("/{id_ambiente}", response_model=AmbienteLeer)
+async def editar_ambiente(
     id_ambiente: int,
-    session: Session = Depends(get_session)
+    datos_ambiente: AmbienteEditar,
+    sesion: Sesion_dependencia
 ):
 
-    ambiente = session.get(Ambiente, id_ambiente)
+    ambiente = sesion.get(Ambiente, id_ambiente)
 
     if not ambiente:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ambiente no encontrado"
         )
+
+    ambiente_dict = datos_ambiente.model_dump(exclude_unset=True)
+    ambiente.sqlmodel_update(ambiente_dict)
+
+    sesion.add(ambiente)
+    sesion.commit()
+    sesion.refresh(ambiente)
 
     return ambiente
 
 
-
-# Editar ambiente
-@router.put("/{id_ambiente}", response_model=AmbienteLeer)
-def editar_ambiente(
+@asis.delete("/{id_ambiente}", response_model=AmbienteLeer)
+async def eliminar_ambiente(
     id_ambiente: int,
-    datos: AmbienteEditar,
-    session: Session = Depends(get_session)
+    sesion: Sesion_dependencia
 ):
 
-    ambiente = session.get(Ambiente, id_ambiente)
+    ambiente = sesion.get(Ambiente, id_ambiente)
 
     if not ambiente:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ambiente no encontrado"
         )
 
+    ambiente_eliminado = AmbienteLeer.model_validate(ambiente)
 
-    datos_actualizados = datos.model_dump()
+    sesion.delete(ambiente)
+    sesion.commit()
 
-    for campo, valor in datos_actualizados.items():
-        setattr(ambiente, campo, valor)
-
-
-    session.add(ambiente)
-    session.commit()
-    session.refresh(ambiente)
-
-    return ambiente
-
-
-
-# Eliminar ambiente
-@router.delete("/{id_ambiente}")
-def eliminar_ambiente(
-    id_ambiente: int,
-    session: Session = Depends(get_session)
-):
-
-    ambiente = session.get(Ambiente, id_ambiente)
-
-    if not ambiente:
-        raise HTTPException(
-            status_code=404,
-            detail="Ambiente no encontrado"
-        )
-
-
-    session.delete(ambiente)
-    session.commit()
-
-    return {
-        "mensaje": "Ambiente eliminado correctamente"
-    }
+    return ambiente_eliminado

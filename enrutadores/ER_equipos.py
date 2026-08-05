@@ -1,116 +1,102 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from fastapi import APIRouter, HTTPException, status
+from sqlmodel import select
 
-from conexion_db import get_session
-from modelos.equipos import Equipo, EquipoCrear, EquipoEditar, EquipoLeer
+from conexion_db import Sesion_dependencia
+from modelos.equipos import (
+    Equipo,
+    EquipoCrear,
+    EquipoEditar,
+    EquipoLeer
+)
 
-
-router = APIRouter(
+asis = APIRouter(
     prefix="/equipos",
     tags=["Equipos"]
 )
 
 
-# Crear equipo
-@router.post("/", response_model=EquipoLeer)
-def crear_equipo(
-    equipo: EquipoCrear,
-    session: Session = Depends(get_session)
+@asis.get("/", response_model=list[EquipoLeer])
+async def listar_equipos(sesion: Sesion_dependencia):
+
+    lista_equipos = sesion.exec(select(Equipo)).all()
+
+    return lista_equipos
+
+
+@asis.get("/{serial}", response_model=EquipoLeer)
+async def obtener_equipo(
+    serial: str,
+    sesion: Sesion_dependencia
 ):
 
-    nuevo_equipo = Equipo.model_validate(equipo)
+    equipo = sesion.get(Equipo, serial)
 
-    session.add(nuevo_equipo)
-    session.commit()
-    session.refresh(nuevo_equipo)
+    if not equipo:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Equipo no encontrado"
+        )
+
+    return equipo
+
+
+@asis.post("/", response_model=EquipoLeer)
+async def crear_equipo(
+    datos_equipo: EquipoCrear,
+    sesion: Sesion_dependencia
+):
+
+    nuevo_equipo = Equipo.model_validate(datos_equipo)
+
+    sesion.add(nuevo_equipo)
+    sesion.commit()
+    sesion.refresh(nuevo_equipo)
 
     return nuevo_equipo
 
 
-
-# Listar equipos
-@router.get("/", response_model=list[EquipoLeer])
-def listar_equipos(
-    session: Session = Depends(get_session)
-):
-
-    equipos = session.exec(
-        select(Equipo)
-    ).all()
-
-    return equipos
-
-
-
-# Buscar equipo por serial
-@router.get("/{serial}", response_model=EquipoLeer)
-def obtener_equipo(
+@asis.patch("/{serial}", response_model=EquipoLeer)
+async def editar_equipo(
     serial: str,
-    session: Session = Depends(get_session)
+    datos_equipo: EquipoEditar,
+    sesion: Sesion_dependencia
 ):
 
-    equipo = session.get(Equipo, serial)
+    equipo = sesion.get(Equipo, serial)
 
     if not equipo:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Equipo no encontrado"
         )
+
+    equipo_dict = datos_equipo.model_dump(exclude_unset=True)
+    equipo.sqlmodel_update(equipo_dict)
+
+    sesion.add(equipo)
+    sesion.commit()
+    sesion.refresh(equipo)
 
     return equipo
 
 
-
-# Editar equipo
-@router.put("/{serial}", response_model=EquipoLeer)
-def editar_equipo(
+@asis.delete("/{serial}", response_model=EquipoLeer)
+async def eliminar_equipo(
     serial: str,
-    datos: EquipoEditar,
-    session: Session = Depends(get_session)
+    sesion: Sesion_dependencia
 ):
 
-    equipo = session.get(Equipo, serial)
+    equipo = sesion.get(Equipo, serial)
 
     if not equipo:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Equipo no encontrado"
         )
 
+    equipo_eliminado = EquipoLeer.model_validate(equipo)
 
-    datos_actualizados = datos.model_dump()
+    sesion.delete(equipo)
+    sesion.commit()
 
-    for campo, valor in datos_actualizados.items():
-        setattr(equipo, campo, valor)
-
-
-    session.add(equipo)
-    session.commit()
-    session.refresh(equipo)
-
-    return equipo
-
-
-
-# Eliminar equipo
-@router.delete("/{serial}")
-def eliminar_equipo(
-    serial: str,
-    session: Session = Depends(get_session)
-):
-
-    equipo = session.get(Equipo, serial)
-
-    if not equipo:
-        raise HTTPException(
-            status_code=404,
-            detail="Equipo no encontrado"
-        )
-
-
-    session.delete(equipo)
-    session.commit()
-
-    return {
-        "mensaje": "Equipo eliminado correctamente"
-    }
+    return equipo_eliminado

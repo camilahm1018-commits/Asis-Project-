@@ -7,30 +7,33 @@ from modelos.tipo_equipo import (
     TipoEquipoEditar
 )
 
-from conexion_db import sesion_dependencia
+from conexion_db import Sesion_dependencia
 
-ruta_tipo_equipo = APIRouter()
+asis = APIRouter(
+    prefix="/tipo_equipo",
+    tags=["Tipo de equipo"]
+)
 
 
-@ruta_tipo_equipo.get(
+@asis.get(
     "/tipos-equipo",
     response_model=list[TipoEquipo]
 )
 async def listar_tipos_equipo(
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
     return sesion.exec(
         select(TipoEquipo)
     ).all()
 
 
-@ruta_tipo_equipo.get(
+@asis.get(
     "/tipos-equipo/{id}",
     response_model=TipoEquipo
 )
 async def obtener_tipo_equipo(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
     tipo_bd = sesion.get(
         TipoEquipo,
@@ -46,13 +49,13 @@ async def obtener_tipo_equipo(
     return tipo_bd
 
 
-@ruta_tipo_equipo.post(
+@asis.post(
     "/tipos-equipo",
     response_model=TipoEquipo
 )
 async def crear_tipo_equipo(
     datos: TipoEquipoCrear,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     nuevo = TipoEquipo.model_validate(
@@ -66,14 +69,14 @@ async def crear_tipo_equipo(
     return nuevo
 
 
-@ruta_tipo_equipo.put(
+@asis.put(
     "/tipos-equipo/{id}",
     response_model=TipoEquipo
 )
 async def editar_tipo_equipo(
     id: int,
     datos: TipoEquipoEditar,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     tipo_bd = sesion.get(
@@ -100,13 +103,13 @@ async def editar_tipo_equipo(
     return tipo_bd
 
 
-@ruta_tipo_equipo.delete(
+@asis.delete(
     "/tipos-equipo/{id}",
     response_model=TipoEquipo
 )
 async def eliminar_tipo_equipo(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     tipo_bd = sesion.get(

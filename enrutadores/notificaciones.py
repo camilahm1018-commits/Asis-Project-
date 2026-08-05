@@ -7,17 +7,19 @@ from modelos.notificaciones import (
     NotificacionEditar
 )
 
-from conexion_db import sesion_dependencia
+from conexion_db import Sesion_dependencia
 
-ruta_notificaciones = APIRouter()
+asis = APIRouter(
+    prefix="/notificaciones",
+    tags=["notificaciones"]
+)
 
-
-@ruta_notificaciones.get(
+@asis.get(
     "/notificaciones",
     response_model=list[Notificacion]
 )
 async def listar_notificaciones(
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     notificaciones = sesion.exec(
@@ -27,13 +29,13 @@ async def listar_notificaciones(
     return notificaciones
 
 
-@ruta_notificaciones.get(
+@asis.get(
     "/notificaciones/{id}",
     response_model=Notificacion
 )
 async def obtener_notificacion(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     notificacion_bd = sesion.get(
@@ -50,13 +52,13 @@ async def obtener_notificacion(
     return notificacion_bd
 
 
-@ruta_notificaciones.post(
+@asis.post(
     "/notificaciones",
     response_model=Notificacion
 )
 async def crear_notificacion(
     datos: NotificacionCrear,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     nueva_notificacion = Notificacion.model_validate(
@@ -70,14 +72,14 @@ async def crear_notificacion(
     return nueva_notificacion
 
 
-@ruta_notificaciones.put(
+@asis.put(
     "/notificaciones/{id}",
     response_model=Notificacion
 )
 async def editar_notificacion(
     id: int,
     datos: NotificacionEditar,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     notificacion_bd = sesion.get(
@@ -106,13 +108,13 @@ async def editar_notificacion(
     return notificacion_bd
 
 
-@ruta_notificaciones.delete(
+@asis.delete(
     "/notificaciones/{id}",
     response_model=Notificacion
 )
 async def eliminar_notificacion(
     id: int,
-    sesion: sesion_dependencia
+    sesion: Sesion_dependencia
 ):
 
     notificacion_bd = sesion.get(

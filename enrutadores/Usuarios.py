@@ -4,18 +4,18 @@ from conexion_db import Sesion_dependencia
 from sqlmodel import select
 
 
-app = APIRouter(
+asis = APIRouter(
     prefix="/usuarios",
     tags=["Usuarios"]
 )
 
-@app.get("/usuarios", response_model=list[Usuario])
+@asis.get("/", response_model=list[Usuario])
 async def listar_usuarios(sesion: Sesion_dependencia):
     lista_usu = sesion.exec(select(Usuario)).all()
     return lista_usu
 
 
-@app.get("/usuarios/{id_usuario}", response_model=Usuario)
+@asis.get("/usuarios/{id_usuario}", response_model=Usuario)
 async def listar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia): # type: ignore
 
     usuario = mi_sesion.get(Usuario, id_usuario)
@@ -27,7 +27,7 @@ async def listar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia): # type
     return usuario
 
 
-@app.post("/usuarios", response_model =Usuario)
+@asis.post("/usuarios", response_model =Usuario)
 async def crear_usuario(datos_usuario: UsuarioCrear,  mi_sesion: Sesion_dependencia): # type: ignore
     nuevo_usuario = Usuario.model_validate(datos_usuario)
     
@@ -39,7 +39,7 @@ async def crear_usuario(datos_usuario: UsuarioCrear,  mi_sesion: Sesion_dependen
     return nuevo_usuario
 
 
-@app.patch("/usuarios/{id_usuario}", response_model=Usuario)
+@asis.patch("/usuarios/{id_usuario}", response_model=Usuario)
 async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar,  mi_sesion: Sesion_dependencia):
 
     usuario = mi_sesion.get(Usuario, id_usuario)
@@ -61,7 +61,7 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar,  mi_sesi
     return usuario
         
 
-@app.delete("/usuarios/{id_usuario}", response_model=Usuario)
+@asis.delete("/usuarios/{id_usuario}", response_model=Usuario)
 async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia):
 
     usuario = mi_sesion.get(Usuario, id_usuario)
