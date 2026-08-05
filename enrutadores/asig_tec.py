@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from modulos.asig_tec import *
+from modelos.asig_tec import *
 from conexion_bd import Sesion_dependencia
 from sqlmodel import select
 

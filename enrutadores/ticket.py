@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from modulos.tickets import *
-from conexion_bd import Sesion_dependencia
+from modelos.tickets import *
+from conexion_db import Sesion_dependencia
 from sqlmodel import select
 
 router = APIRouter(

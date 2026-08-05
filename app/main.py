@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from app.conexion_bd import engine
+from conexion_bdpp import engine
 
-from app.modelos.tipo_equipo import TipoEquipo
-from app.modelos.motivo_no_reparacion import MotivoNoReparacion
-from app.modelos.notificaciones import Notificacion
+from modelos.tipo_equipo import TipoEquipo
+from modelos.motivo_no_reparacion import MotivoNoReparacion
+from modelos.notificaciones import Notificacion
 
-from app.rutas.tipo_equipo import ruta_tipo_equipo
-from app.rutas.motivo_no_reparacion import ruta_tipo_motivo
-from app.rutas.notificaciones import ruta_notificaciones
+from enrutadores.tipo_equipo import ruta_tipo_equipo
+from enrutadores.motivo_no_reparacion import ruta_tipo_motivo
+from enrutadores.notificaciones import ruta_notificaciones
 
 app = FastAPI(
     title="API Reparaciones"
