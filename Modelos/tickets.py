@@ -37,4 +37,4 @@ class TicketsEditar(TicketsBase):
     pass
 
 class TicketsLeer(TicketsBase):
-    id_ticket: str 
+    id_ticket: int 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from modelos.tickets import *
+from Modelos.tickets import tickets,TicketsCrear,TicketsEditar
 from conexion_db import Sesion_dependencia
 from sqlmodel import select
 

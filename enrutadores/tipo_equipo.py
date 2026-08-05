@@ -1,11 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
-from modelos.tipo_equipo import (
-    TipoEquipo,
-    TipoEquipoCrear,
-    TipoEquipoEditar
-)
+from Modelos.tipo_equipo import TipoEquipo,TipoEquipoCrear,TipoEquipoEditar
+
 
 from conexion_db import Sesion_dependencia
 

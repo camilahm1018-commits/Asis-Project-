@@ -2,12 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 
 from conexion_db import Sesion_dependencia
-from modelos.equipos import (
-    Equipo,
-    EquipoCrear,
-    EquipoEditar,
-    EquipoLeer
-)
+from Modelos.equipos import Equipo,EquipoCrear,EquipoEditar,EquipoLeer
+
 
 asis = APIRouter(
     prefix="/equipos",
@@ -23,13 +19,13 @@ async def listar_equipos(sesion: Sesion_dependencia):
     return lista_equipos
 
 
-@asis.get("/{serial}", response_model=EquipoLeer)
+@asis.get("/{id_equipo}", response_model=EquipoLeer)
 async def obtener_equipo(
-    serial: str,
+    id_equipo: int,
     sesion: Sesion_dependencia
 ):
 
-    equipo = sesion.get(Equipo, serial)
+    equipo = sesion.get(Equipo, id_equipo)
 
     if not equipo:
         raise HTTPException(
@@ -55,14 +51,14 @@ async def crear_equipo(
     return nuevo_equipo
 
 
-@asis.patch("/{serial}", response_model=EquipoLeer)
+@asis.patch("/{id_equipo}", response_model=EquipoLeer)
 async def editar_equipo(
-    serial: str,
+    id_equipo: int,
     datos_equipo: EquipoEditar,
     sesion: Sesion_dependencia
 ):
 
-    equipo = sesion.get(Equipo, serial)
+    equipo = sesion.get(Equipo, id_equipo)
 
     if not equipo:
         raise HTTPException(
@@ -80,13 +76,13 @@ async def editar_equipo(
     return equipo
 
 
-@asis.delete("/{serial}", response_model=EquipoLeer)
+@asis.delete("/{id_equipo}", response_model=EquipoLeer)
 async def eliminar_equipo(
-    serial: str,
+    id_equipo: int,
     sesion: Sesion_dependencia
 ):
 
-    equipo = sesion.get(Equipo, serial)
+    equipo = sesion.get(Equipo, id_equipo)
 
     if not equipo:
         raise HTTPException(

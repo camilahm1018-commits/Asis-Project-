@@ -1,4 +1,4 @@
-from modelos.His_tickets import His_ticket, His_ticketCrear, His_ticketEditar
+from Modelos.His_tickets import His_ticket, His_ticketCrear, His_ticketEditar
 from fastapi import APIRouter, status, HTTPException
 from conexion_db import Sesion_dependencia
 from sqlmodel import select

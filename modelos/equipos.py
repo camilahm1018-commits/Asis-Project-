@@ -1,24 +1,34 @@
+from typing import TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
-from modelos.ambientes import Ambiente
+
+if TYPE_CHECKING:
+    from modelos.ambientes import Ambiente
 
 
 class EquipoBase(SQLModel):
-    serial: str = Field(primary_key=True)
-
-    nombre: str = Field(default=None)
-    marca: str = Field(default=None)
-    descripcion: str = Field(default=None)
-    estado: str = Field(default=None)
+    codigo: str
+    nombre: str
+    marca: str | None = None
+    serial: str | None = None
+    descripcion: str | None = None
+    estado: str
 
     id_ambiente: int = Field(
-        default=None,
-        foreign_key="ambiente.id_ambiente"
+        foreign_key="ambientes.id_ambiente"
     )
 
-    id_tipo: int = Field(default=None)
+    id_tipo: int = Field(
+        foreign_key="tipo_equipo.id_tipo"
+    )
 
 
 class Equipo(EquipoBase, table=True):
+    __tablename__ = "equipos"
+
+    id_equipo: int | None = Field(
+        default=None,
+        primary_key=True
+    )
 
     ambiente: "Ambiente" = Relationship(
         back_populates="equipos"
@@ -29,9 +39,16 @@ class EquipoCrear(EquipoBase):
     pass
 
 
-class EquipoEditar(EquipoBase):
-    pass
+class EquipoEditar(SQLModel):
+    codigo: str | None = None
+    nombre: str | None = None
+    marca: str | None = None
+    serial: str | None = None
+    descripcion: str | None = None
+    estado: str | None = None
+    id_ambiente: int | None = None
+    id_tipo: int | None = None
 
 
 class EquipoLeer(EquipoBase):
-    pass
+    id_equipo: int

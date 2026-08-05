@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
-from modelos.notificaciones import (
-    Notificacion,
-    NotificacionCrear,
-    NotificacionEditar
-)
+from Modelos.notificaciones import Notificacion,NotificacionCrear,NotificacionEditar
 
 from conexion_db import Sesion_dependencia
 

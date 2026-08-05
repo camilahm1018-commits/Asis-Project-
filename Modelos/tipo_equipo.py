@@ -7,7 +7,7 @@ class TipoEquipoBase(SQLModel):
 class TipoEquipo(TipoEquipoBase, table=True):
     __tablename__ = "tipo_equipo"
 
-    id_tipo: Optional[int] = Field(
+    id_tipo: int | None = Field(
         default=None,
         primary_key=True
     )

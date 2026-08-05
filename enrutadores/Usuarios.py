@@ -1,4 +1,4 @@
-from modelos.Usuarios import UsuarioCrear, UsuarioEditar,Usuario
+from Modelos.Usuarios import UsuarioCrear, UsuarioEditar,Usuario
 from fastapi import APIRouter, status, HTTPException
 from conexion_db import Sesion_dependencia
 from sqlmodel import select

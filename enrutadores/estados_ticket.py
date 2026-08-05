@@ -1,4 +1,4 @@
-from modelos.estados_ticket import estados_ticket,estados_ticketCrear, estados_ticketEditar
+from Modelos.estados_ticket import estados_ticket,estados_ticketCrear, estados_ticketEditar
 from fastapi import APIRouter, status, HTTPException
 from conexion_db import Sesion_dependencia
 from sqlmodel import select

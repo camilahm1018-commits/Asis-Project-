@@ -2,12 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 
 from conexion_db import Sesion_dependencia
-from modelos.ambientes import (
-    Ambiente,
-    AmbienteCrear,
-    AmbienteEditar,
-    AmbienteLeer
-)
+from Modelos.ambientes import Ambiente,AmbienteCrear,AmbienteEditar,AmbienteLeer
+
 
 asis = APIRouter(
     prefix="/ambientes",

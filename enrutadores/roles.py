@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from modelos.roles import *
+from Modelos.roles import Rol,RolCrear,RolEditar
 from conexion_db import Sesion_dependencia
 from sqlmodel import select
 

@@ -2,11 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 
 from conexion_db import Sesion_dependencia
-from modelos.motivo_no_reparacion import (
-    MotivoNoReparacion,
-    MotivoCrear,
-    MotivoEditar
-)
+from Modelos.motivo_no_reparacion import MotivoNoReparacion,MotivoCrear,MotivoEditar
+
 
 asis = APIRouter(
     prefix="/motivos-no-reparacion",
