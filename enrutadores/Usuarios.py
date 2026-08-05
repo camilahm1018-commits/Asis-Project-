@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, HTTPException
 from conexion_db import Sesion_dependencia
 from sqlmodel import select
 
-
+from Modelos.roles import Rol
 asis = APIRouter(
     prefix="/usuarios",
     tags=["Usuarios"]
@@ -30,8 +30,7 @@ async def listar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia): # type
 @asis.post("/usuarios", response_model =Usuario)
 async def crear_usuario(datos_usuario: UsuarioCrear,  mi_sesion: Sesion_dependencia): # type: ignore
     nuevo_usuario = Usuario.model_validate(datos_usuario)
-    
-    nuevo_usuario.id_rol = 1
+
     
     mi_sesion.add(nuevo_usuario)
     mi_sesion.commit()
@@ -78,3 +77,16 @@ async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia):
     mi_sesion.commit()
 
     return usuario_eliminado
+
+@asis.get("/tecnicos")
+async def listar_solo_tecnicos(sesion: Sesion_dependencia):
+    # Buscamos en la base de datos haciendo un JOIN entre Usuario y Rol
+    # Filtramos donde el nombre del rol sea exactamente 'tecnico'
+    consulta = (
+        select(Usuario)
+        .join(Rol, Usuario.id_rol == Rol.id_rol)
+        .where(Rol.nombre_rol == "tecnico")
+    )
+    
+    tecnicos = sesion.exec(consulta).all()
+    return tecnicos

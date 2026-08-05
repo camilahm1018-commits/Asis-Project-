@@ -1,19 +1,29 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime
 
-class Asig_tecBase(SQLModel):
-    fecha_asignacion: datetime = Field(default=None)
-    id_tecnico: int = Field(default=None)
-    id_ticket: int = Field(default=None)
 
-class asignacion_tecnico(Asig_tecBase, table=True):
-    id_asignacion: int = Field(default=None, primary_key=True)
-    
+class Asig_tecBase(SQLModel):
+    id_ticket: int
+    id_tecnico: int
+    fecha_asignacion: datetime = Field(default_factory=datetime.now)
+
+
 class Asig_tecCrear(Asig_tecBase):
     pass
-    
+
+
+class Asig_tec(Asig_tecBase, table=True):
+    __tablename__ = "asignacion_tecnico"
+
+    id_asignacion: int | None = Field(
+        default=None,
+        primary_key=True
+    )
+
+
 class Asig_tecEditar(Asig_tecBase):
     pass
-    
+
+
 class Asig_tecLeer(Asig_tecBase):
-    id: int
+    id_asignacion: int

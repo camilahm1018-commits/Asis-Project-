@@ -7,18 +7,25 @@ class TicketsBase(SQLModel):
     motivo: str 
     fecha_salida: Optional[datetime] = Field(default=None)
     fecha_retorno: Optional[datetime] = Field(default=None)
-    
-    # 2. Dejamos que Postgres asigne el CURRENT_TIMESTAMP automáticamente
     creado_en: Optional[datetime] = Field(
-        default=None, 
+        default=None,
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")}
     )
-    id_equipo: Optional[str] = Field(default=None)
-    id_ambiente: Optional[int] = Field(default=None)
-    creado_por: Optional[str] = Field(default=None)
-    asignado_a: Optional[str] = Field(default=None)
+
+    id_equipo: Optional[int] = Field(
+        default=None,
+        foreign_key="equipos.id_equipo"
+    )
+
+    id_ambiente: Optional[int] = Field(
+        default=None,
+        foreign_key="ambientes.id_ambiente"
+    )
+
+    creado_por: Optional[int] = None
+    asignado_a: Optional[int] = None
     id_estado: int
-    id_motivo_no_reparacion: Optional[int] = Field(default=None)
+    id_motivo_no_reparacion: Optional[int] = None
     
 class tickets(TicketsBase, table=True):
     __tablename__: str = "tickets" # Aseguramos que busque la tabla en minúsculas
