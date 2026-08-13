@@ -36,7 +36,7 @@ async def crear_his_ticket(datos_his_ticket: His_ticketCrear,  mi_sesion: Sesion
     return nuevo_his_ticket
 
 
-@asis.patch("/his_tickets/{id_historial}", response_model=His_ticket)
+@asis.put("/his_tickets/{id_historial}", response_model=His_ticket)
 async def editar_his_ticket(id_historial: int, datos_his_ticket: His_ticketEditar,  mi_sesion: Sesion_dependencia):
 
     his_ticket = mi_sesion.get(His_ticket, id_historial)

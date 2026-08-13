@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 # 1. URL de conexión limpia (Sin ñ, sin caracteres raros). 
 # Si NO tienes contraseña, se deja vacío entre los dos puntos (:)
-url_bd = "postgresql://postgres:@localhost:5432/asis"
+url_bd = "postgresql://postgres:1234@localhost:5432/asisdb"
 
 # 2. Motor de base de datos
 motor_bd = create_engine(url_bd, echo=False)

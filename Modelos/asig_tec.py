@@ -6,7 +6,7 @@ class Asig_tecBase(SQLModel):
     id_ticket: int
     id_tecnico: int
     fecha_asignacion: datetime = Field(default_factory=datetime.now)
-
+    asignado_por: int
 
 class Asig_tecCrear(Asig_tecBase):
     pass

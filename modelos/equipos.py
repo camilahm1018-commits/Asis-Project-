@@ -16,7 +16,6 @@ class EquipoBase(SQLModel):
     id_ambiente: int = Field(
         foreign_key="ambientes.id_ambiente"
     )
-
     id_tipo: int = Field(
         foreign_key="tipo_equipo.id_tipo"
     )

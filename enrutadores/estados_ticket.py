@@ -37,7 +37,7 @@ async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Ses
     return nuevo_estado
 
 
-@asis.patch("/estados_ticket/{id_estado}", response_model=estados_ticket)
+@asis.put("/estados_ticket/{id_estado}", response_model=estados_ticket)
 async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEditar,  mi_sesion: Sesion_dependencia):
 
     estado = mi_sesion.get(estados_ticket, id_estado)

@@ -51,7 +51,7 @@ async def crear_ambiente(
     return nuevo_ambiente
 
 
-@asis.patch("/{id_ambiente}", response_model=AmbienteLeer)
+@asis.put("/{id_ambiente}", response_model=AmbienteLeer)
 async def editar_ambiente(
     id_ambiente: int,
     datos_ambiente: AmbienteEditar,

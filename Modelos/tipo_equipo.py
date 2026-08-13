@@ -15,5 +15,5 @@ class TipoEquipo(TipoEquipoBase, table=True):
 class TipoEquipoCrear(TipoEquipoBase):
     pass
 
-class TipoEquipoEditar(SQLModel):
-    nombre_t: Optional[str] = None
+class TipoEquipoEditar(TipoEquipoBase):
+    pass

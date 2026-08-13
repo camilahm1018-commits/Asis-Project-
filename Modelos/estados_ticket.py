@@ -11,6 +11,7 @@ class estados_ticketBase (SQLModel):
 class estados_ticketCrear(estados_ticketBase):
     pass
 
+
 class estados_ticketEditar(estados_ticketBase):
     pass
 

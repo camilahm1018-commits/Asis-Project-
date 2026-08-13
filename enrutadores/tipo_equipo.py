@@ -12,30 +12,14 @@ asis = APIRouter(
 )
 
 
-@asis.get(
-    "/tipos-equipo",
-    response_model=list[TipoEquipo]
-)
-async def listar_tipos_equipo(
-    sesion: Sesion_dependencia
-):
-    return sesion.exec(
-        select(TipoEquipo)
-    ).all()
+@asis.get("/tipos-equipo",response_model=list[TipoEquipo])
+async def listar_tipos_equipo(sesion: Sesion_dependencia):
+    return sesion.exec(select(TipoEquipo)).all()
 
 
-@asis.get(
-    "/tipos-equipo/{id}",
-    response_model=TipoEquipo
-)
-async def obtener_tipo_equipo(
-    id: int,
-    sesion: Sesion_dependencia
-):
-    tipo_bd = sesion.get(
-        TipoEquipo,
-        id
-    )
+@asis.get("/tipos-equipo/{id}",response_model=TipoEquipo)
+async def obtener_tipo_equipo(id: int,sesion: Sesion_dependencia):
+    tipo_bd = sesion.get(TipoEquipo,id)
 
     if not tipo_bd:
         raise HTTPException(
@@ -46,18 +30,10 @@ async def obtener_tipo_equipo(
     return tipo_bd
 
 
-@asis.post(
-    "/tipos-equipo",
-    response_model=TipoEquipo
-)
-async def crear_tipo_equipo(
-    datos: TipoEquipoCrear,
-    sesion: Sesion_dependencia
-):
+@asis.post("/tipos-equipo",response_model=TipoEquipo)
+async def crear_tipo_equipo(datos: TipoEquipoCrear,sesion: Sesion_dependencia):
 
-    nuevo = TipoEquipo.model_validate(
-        datos.model_dump()
-    )
+    nuevo = TipoEquipo.model_validate(datos.model_dump())
 
     sesion.add(nuevo)
     sesion.commit()
@@ -66,20 +42,10 @@ async def crear_tipo_equipo(
     return nuevo
 
 
-@asis.put(
-    "/tipos-equipo/{id}",
-    response_model=TipoEquipo
-)
-async def editar_tipo_equipo(
-    id: int,
-    datos: TipoEquipoEditar,
-    sesion: Sesion_dependencia
-):
+@asis.put("/tipos-equipo/{id}",response_model=TipoEquipo)
+async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_dependencia):
 
-    tipo_bd = sesion.get(
-        TipoEquipo,
-        id
-    )
+    tipo_bd = sesion.get(TipoEquipo,id)
 
     if not tipo_bd:
         raise HTTPException(
@@ -87,11 +53,7 @@ async def editar_tipo_equipo(
             detail="Tipo no encontrado"
         )
 
-    tipo_bd.sqlmodel_update(
-        datos.model_dump(
-            exclude_unset=True
-        )
-    )
+    tipo_bd.sqlmodel_update(datos.model_dump(exclude_unset=True))
 
     sesion.add(tipo_bd)
     sesion.commit()
@@ -100,19 +62,10 @@ async def editar_tipo_equipo(
     return tipo_bd
 
 
-@asis.delete(
-    "/tipos-equipo/{id}",
-    response_model=TipoEquipo
-)
-async def eliminar_tipo_equipo(
-    id: int,
-    sesion: Sesion_dependencia
-):
+@asis.delete("/tipos-equipo/{id}",response_model=TipoEquipo)
+async def eliminar_tipo_equipo(id: int,sesion: Sesion_dependencia):
 
-    tipo_bd = sesion.get(
-        TipoEquipo,
-        id
-    )
+    tipo_bd = sesion.get(TipoEquipo,id)
 
     if not tipo_bd:
         raise HTTPException(

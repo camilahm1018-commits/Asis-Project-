@@ -109,7 +109,7 @@ async def asignar_tecnico_a_ticket(
 
 
 
-@asis.patch("/{id}", response_model=Asig_tec)
+@asis.put("/{id}", response_model=Asig_tec)
 async def editar_asig(
     id: int,
     datos_asig: Asig_tecEditar,

@@ -7,7 +7,6 @@ class Rol(RolBase, table=True):
     id_rol: int = Field(default=None, primary_key=True)
     __tablename__ = "rol"
 
-    
 class RolCrear(RolBase):
     pass
 

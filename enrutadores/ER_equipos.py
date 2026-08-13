@@ -51,7 +51,7 @@ async def crear_equipo(
     return nuevo_equipo
 
 
-@asis.patch("/{id_equipo}", response_model=EquipoLeer)
+@asis.put("/{id_equipo}", response_model=EquipoLeer)
 async def editar_equipo(
     id_equipo: int,
     datos_equipo: EquipoEditar,

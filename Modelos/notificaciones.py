@@ -10,8 +10,10 @@ class NotificacionBase(SQLModel):
     enviada: bool = False
 
     id_ticket: int
-    id_usuario: int
+    notificado_para: int
+    notificado_por: int
 
+   
 class Notificacion(NotificacionBase, table=True):
     __tablename__ = "notificaciones"
 

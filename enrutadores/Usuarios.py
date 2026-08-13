@@ -38,7 +38,7 @@ async def crear_usuario(datos_usuario: UsuarioCrear,  mi_sesion: Sesion_dependen
     return nuevo_usuario
 
 
-@asis.patch("/usuarios/{id_usuario}", response_model=Usuario)
+@asis.put("/usuarios/{id_usuario}", response_model=Usuario)
 async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar,  mi_sesion: Sesion_dependencia):
 
     usuario = mi_sesion.get(Usuario, id_usuario)

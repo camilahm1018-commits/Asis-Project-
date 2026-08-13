@@ -2,10 +2,10 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 
 class MotivoBase(SQLModel):
-    nombre_motivo: str
+    nombre_novedad: str
 
-class MotivoNoReparacion(MotivoBase, table=True):
-    __tablename__ = "motivo_no_reparacion"
+class MotivoNovedad(MotivoBase, table=True):
+    __tablename__ = "motivo_novedad"
 
     id_motivo: Optional[int] = Field(
         default=None,
@@ -15,5 +15,5 @@ class MotivoNoReparacion(MotivoBase, table=True):
 class MotivoCrear(MotivoBase):
     pass
 
-class MotivoEditar(SQLModel):
-    nombre_motivo: Optional[str] = None
+class MotivoEditar(MotivoBase):
+    pass

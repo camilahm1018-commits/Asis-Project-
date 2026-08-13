@@ -32,7 +32,7 @@ async def crear_rol(datos_rol: RolCrear, session: Sesion_dependencia):
     session.refresh(rol_validado)
     return rol_validado
 
-@asis.patch("/{id}", response_model=Rol)
+@asis.put("/{id}", response_model=Rol)
 async def editar_rol(id: int, datos_rol: RolEditar, session: Sesion_dependencia):
     
     rol_bd = session.get(Rol, id)
