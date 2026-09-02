@@ -1,11 +1,14 @@
+import os
 from sqlmodel import Session, SQLModel, create_engine
 from typing import Annotated
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 
-# 1. URL de conexión limpia (Sin ñ, sin caracteres raros). 
-# Si NO tienes contraseña, se deja vacío entre los dos puntos (:)
-url_bd = "postgresql://postgres:1234@localhost:5432/asisdb"
+# 1. URL de conexión DESDE VARIABLE DE ENTORNO (con fallback para desarrollo local)
+url_bd = os.getenv(
+    "DATABASE_URL", 
+    "postgresql+psycopg2://postgres:1234@localhost:5432/asisdb"
+)
 
 # 2. Motor de base de datos
 motor_bd = create_engine(url_bd, echo=False)
@@ -14,9 +17,9 @@ motor_bd = create_engine(url_bd, echo=False)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(motor_bd)
-    yield  # Aquí la aplicación queda corriendo
+    yield
 
-# 4. Función para obtener la sesión (Inyección de dependencias)
+# 4. Función para obtener la sesión
 def obtener_sesion():
     with Session(motor_bd) as mi_sesion:
         yield mi_sesion
