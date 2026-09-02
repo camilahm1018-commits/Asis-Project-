@@ -1,0 +1,391 @@
+/* ---------- Variables ---------- */
+
+:root{
+    --asis-bg-contenedor:#ffffff;
+    --asis-bg-input:#f0f6ff;
+    --asis-principal:#2665ad;
+    --asis-enlace:#016ead;
+    --asis-hover:#41B3BF;
+    --asis-borde:#ccc;
+    --asis-blanco:#fff;
+    --asis-texto:#1a1a1a;
+    --asis-texto-suave:#4a5568;
+}
+
+/* ---------- Reset ---------- */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:var(--asis-bg-input);
+    color:var(--asis-texto);
+}
+
+/* ---------- Barra superior ---------- */
+
+.barraSuperior{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--asis-bg-contenedor);
+    padding:15px 30px;
+    border-bottom:1px solid var(--asis-borde);
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.barraSuperiorIzq{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.barraSuperiorDer{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo{
+    width:55px;
+    height:55px;
+    border-radius:10px;
+    object-fit:cover;
+}
+
+.tituloApp{
+    display:flex;
+    flex-direction:column;
+    font-size:22px;
+    font-weight:bold;
+    color:black;
+}
+
+.tituloApp span{
+    font-size:13px;
+    color:var(--asis-texto-suave);
+    font-weight:500;
+}
+
+.volver{
+     padding:6px 14px;
+    border-radius:20px;
+    background:#6fadf3;
+    border:1px solid #02428b;
+    color:black;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+    align-self:center;
+    box-shadow:0 2px 10px rgba(2,66,139,0.18);
+}
+
+.volver:hover{
+    background:#02428b;
+    color:#fff;
+    border:1px solid #6fadf3;
+}
+
+.etiquetaRol{
+    background:var(--asis-bg-input);
+    color:var(--asis-principal);
+    border:1px solid var(--asis-borde);
+    padding:8px 14px;
+    border-radius:20px;
+    font-weight:600;
+}
+
+.avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:var(--asis-principal);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+
+/* ---------- Tarjeta ---------- */
+
+.ticket{
+    width:90%;
+    max-width:700px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    border:1px solid var(--asis-borde);
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.ticket h2{
+    color:var(--asis-principal);
+    margin-bottom:20px;
+}
+
+.ticket p{
+    margin:12px 0;
+}
+
+.ticket label{
+    display:block;
+    margin-top:25px;
+    margin-bottom:10px;
+    font-weight:600;
+}
+
+.ticket select{
+    width:100%;
+    padding:12px;
+    border:1px solid var(--asis-borde);
+    background:var(--asis-bg-input);
+    border-radius:8px;
+    font-size:15px;
+}
+
+.ticket button{
+    width:100%;
+    margin-top:25px;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:var(--asis-principal);
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.ticket button:hover{
+    background:var(--asis-hover);
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:768px){
+
+    .barraSuperior{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+        padding:20px;
+    }
+
+    .barraSuperiorIzq,
+    .barraSuperiorDer{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .tituloApp{
+        font-size:20px;
+    }
+
+    .tituloApp span{
+        font-size:12px;
+    }
+
+    .ticket{
+        width:95%;
+        padding:20px;
+        margin:25px auto;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .logo{
+        width:45px;
+        height:45px;
+    }
+
+    .volver{
+        width:100%;
+    }
+
+    .etiquetaRol{
+        font-size:13px;
+    }
+
+    .ticket h2{
+        font-size:22px;
+    }
+
+}
+
+/* ---------- Alerta al cambiar el estado ---------- */
+
+.alerta{
+    margin-top:20px;
+    background:var(--asis-bg-contenedor);
+    border-left:6px solid var(--asis-principal);
+    color:var(--asis-texto);
+    padding:18px;
+    border-radius:10px;
+    display:none;
+    animation:aparecer .4s ease;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+.alerta h3{
+    color:var(--asis-principal);
+    margin-bottom:8px;
+    font-size:18px;
+}
+
+.alerta p{
+    color:var(--asis-texto-suave);
+    margin:0;
+}
+
+@keyframes aparecer{
+
+    from{
+        opacity:0;
+        transform:translateY(-10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+/* ---------- Información general del ticket ---------- */
+
+.informacionTicket{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.dato{
+    background:var(--asis-bg-input);
+    border:1px solid var(--asis-borde);
+    border-radius:8px;
+    padding:12px;
+}
+
+.dato strong{
+    color:var(--asis-principal);
+    display:block;
+    margin-bottom:5px;
+}
+
+.dato p{
+    margin:0;
+    color:var(--asis-texto);
+    font-size:14px;
+}
+
+/* ---------- Separador ---------- */
+
+.ticket hr{
+    border:none;
+    border-top:1px solid var(--asis-borde);
+    margin:20px 0;
+}
+
+/* ---------- Título de la sección ---------- */
+
+.ticket h3{
+    color:var(--asis-principal);
+    margin-bottom:15px;
+}
+
+/* ---------- Seguimiento del ticket ---------- */
+
+.progreso{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
+
+.paso{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    font-size:13px;
+    color:var(--asis-texto-suave);
+}
+
+.paso p{
+    margin-top:6px;
+}
+
+.paso.activo{
+    font-weight:bold;
+    color:var(--asis-principal);
+}
+
+/* ---------- Observaciones ---------- */
+
+.ticket textarea{
+    width:100%;
+    min-height:100px;
+    resize:vertical;
+    padding:12px;
+    border:1px solid var(--asis-borde);
+    border-radius:8px;
+    background:var(--asis-bg-input);
+    font-size:14px;
+    font-family:inherit;
+    color:var(--asis-texto);
+}
+
+.ticket textarea:focus{
+    outline:none;
+    border-color:var(--asis-principal);
+}
+
+/* ---------- Información del sistema ---------- */
+
+.infoSistema{
+    margin-top:20px;
+    background:var(--asis-bg-input);
+    border-left:5px solid var(--asis-hover);
+    padding:15px;
+    border-radius:8px;
+}
+
+.infoSistema strong{
+    color:var(--asis-principal);
+}
+
+.infoSistema p{
+    margin-top:8px;
+    font-size:14px;
+    color:var(--asis-texto-suave);
+}
+
+/* ---------- Responsive para la información del ticket ---------- */
+
+@media(max-width:768px){
+
+    .informacionTicket{
+        grid-template-columns:1fr;
+    }
+
+    .progreso{
+        justify-content:center;
+        gap:18px;
+    }
+
+}

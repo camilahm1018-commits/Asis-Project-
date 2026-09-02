@@ -1,0 +1,172 @@
+/* ==========================================================
+   RECUPERAR_C.CSS
+   Estilos propios de la página de recuperación de contraseña.
+   Header, nav y variables de color están en global.css
+   ========================================================== */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  color: var(--asis-texto);
+  background-color: #e4e5e673;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  z-index: -1;
+}
+
+/* CONTENEDOR PRINCIPAL ASIS */
+.container {
+  width: 500px;
+  max-width: 90%;
+  height: 500px;
+  margin-top: 80px;
+  background-color: var(--asis-bg-contenedor);
+  border-radius: 25px;
+  border: 1px solid rgb(17, 73, 226);
+  padding: 35px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* PASOS DE LA INTERFAZ */
+.step {
+  color: #000000;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* EL TÍTULO CENTRAL DESTACADO */
+.step h2 {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  color: #000000;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+/* SUBTÍTULOS / DESCRIPCIONES */
+.step p {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--asis-texto-suave);
+  margin-bottom: 25px;
+}
+
+/* FORMULARIOS */
+.step form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CONTENEDORES DE ENTRADA (Cajas de texto) */
+.inputContenedor {
+  width: 100%;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.step label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--asis-texto);
+}
+
+/* INPUTS TRADICIONALES */
+.step input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--asis-borde);
+  border-radius: 8px;
+  background-color: var(--asis-bg-input);
+  font-size: 14px;
+  color: var(--asis-texto);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.step input:focus {
+  border-color: var(--asis-principal);
+  box-shadow: 0 0 0 3px rgba(38, 101, 173, 0.15);
+}
+
+/* INDICACIONES / REGLAS DEBAJO DE LOS INPUTS */
+.step span {
+  font-size: 11px;
+  color: var(--asis-texto-suave);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* BOTÓN PRINCIPAL */
+.btnPrincipal {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--asis-principal);
+  color: var(--asis-blanco);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  margin-top: 5px;
+}
+
+.btnPrincipal:hover {
+  background-color: var(--asis-hover);
+  color: #000000;
+}
+
+/* ENLACES Y NAVEGACIÓN SECUNDARIA */
+.step a {
+  margin-top: 20px;
+  color: var(--asis-enlace);
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: text-decoration 0.2s;
+}
+
+.step a:hover {
+  text-decoration: underline;
+}
+
+/* ICONO DE CONTROL FINAL DE ÉXITO */
+.successIcon {
+  font-size: 56px;
+  font-weight: bold;
+  color: var(--asis-principal);
+  margin-bottom: 15px;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (MÓVILES)
+   ========================================================== */
+@media (max-width: 600px) {
+  .container {
+    height: auto;
+    margin-top: 100px;
+    padding: 25px 20px;
+  }
+}

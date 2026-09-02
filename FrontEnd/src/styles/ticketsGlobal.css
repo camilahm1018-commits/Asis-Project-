@@ -1,0 +1,182 @@
+/* ==========================================================
+   TICKETSGLOBAL.CSS
+   Estilos compartidos entre Consultar_t.html y Registrar_t.html:
+   variables de color, reset, tipografía base y barra superior.
+   ========================================================== */
+
+:root{
+    --bg: #F3F5F7;
+    --surface: #FFFFFF;
+    --surface-2: #FAFBFC;
+    --border: #E1E5EA;
+    --text: #1C2530;
+    --text-soft: #5B6675;
+    --text-faint: #8B94A3;
+    --brand: #2F6F5E;
+    --brand-dark: #234F42;
+    --brand-tint: #E8F1EE;
+
+    --rojo: #E5484D;
+    --naranja: #F0740B;
+    --amarillo: #D6A400;
+    --verde: #2F9E44;
+    --negro: #1C2530;
+    --morado: #7C4FDB;
+
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(20,30,40,0.04), 0 8px 24px -12px rgba(20,30,40,0.10);
+}
+*{
+    box-sizing:border-box;
+}
+html,body{
+    margin:0;
+    padding:0;
+}
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.palabraMarca,.tituloApp{
+    font-family:'Space Grotesk', 'Inter', sans-serif;
+}
+.monoespaciado{
+    font-family:'JetBrains Mono', monospace;
+}
+
+/* ---------- Botón volver ---------- */
+.volver{
+    padding:6px 14px;
+    border-radius:20px;
+    background:#6fadf3;
+    border:1px solid #02428b;
+    color:black;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+    align-self:center;
+    box-shadow:0 2px 10px rgba(2,66,139,0.18);
+}
+.volver:hover{
+    background:#02428b;
+    color:#fff;
+    border:1px solid #6fadf3;
+}
+
+/* ---------- Barra superior ---------- */
+.barraSuperior{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:20px 44px;
+    background:var(--surface);
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+.barraSuperiorIzq{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    min-width:0;
+}
+.logo{
+    width:56px;
+    height:56px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    background:linear-gradient(155deg, var(--brand) 0%, var(--brand-dark) 100%);
+    color:#fff;
+    font-weight:700;
+    font-family:'Space Grotesk', sans-serif;
+}
+.tituloApp{
+    font-size:24px;
+    font-weight:900;
+    line-height:1.1;
+    white-space:nowrap;
+}
+.tituloApp span{
+    display:block;
+    font-family:'Inter';
+    font-weight:400;
+    font-size:12px;
+    color:#808285;
+    margin-top:2px;
+    white-space:normal;
+}
+.barraSuperiorDer{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-shrink:0;
+}
+.etiquetaRol{
+    font-size:14px;
+    color:rgb(0, 0, 0);
+    background:rgb(80, 162, 209);
+    padding:6px 12px;
+    border-radius:100px;
+    font-weight:600;
+    border:1px solid #054da0;
+    white-space:nowrap;
+}
+.avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#dcedf5;
+    color:black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+    flex-shrink:0;
+}
+
+/* =========================================================
+    MEDIA QUERIES (BARRA SUPERIOR)
+    ========================================================= */
+@media (max-width: 640px){
+    .barraSuperior{
+    justify-content:flex-start;
+    row-gap:10px;
+    }
+    .barraSuperiorIzq{
+    flex:1 1 100%;
+    }
+    .barraSuperiorDer{
+    flex:1 1 100%;
+    justify-content:space-between;
+    }
+    .tituloApp span{
+    display:none;
+    }
+}
+
+@media (max-width: 400px){
+    .tituloApp{
+    font-size:18px;
+    }
+    .etiquetaRol{
+    font-size:12px;
+    padding:5px 10px;
+    }
+    .volver{
+    font-size:12.5px;
+    padding:5px 10px;
+    }
+}

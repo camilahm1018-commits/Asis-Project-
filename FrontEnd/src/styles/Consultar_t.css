@@ -1,0 +1,471 @@
+/* Variables, reset, tipografía base y barra superior están en ticketsGlobal.css */
+
+/* ---------- Estructura general ---------- */
+.diseno{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    max-width:1320px;
+    margin:0 auto;
+    align-items:start;
+}
+
+/* ---------- Panel de filtros ---------- */
+.filtros{
+    padding:26px 18px 24px 28px;
+    position:sticky;
+    top:0;
+    height:calc(100vh - 63px);
+    overflow-y:auto;
+}
+.filtros h3{
+    font-size:14px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgb(95, 88, 88);
+    margin:0 0 20px;
+    font-weight:700;
+}
+.listaEstados{
+    list-style:none;
+    margin:0 0 26px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+}
+.itemEstado{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:14px;
+    color:rgb(145, 146, 148);
+    border:1px solid transparent;
+    user-select:none;
+}
+.itemEstado:hover{
+    background:var(--surface-2);
+}
+.itemEstado.activo{
+    background:#dcedf5;
+    border-color:#6fabf0;
+    color:black;
+    box-shadow:var(--shadow);
+    font-weight:900;
+}
+.punto{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    flex-shrink:0;
+}
+.itemEstado .contador{
+    margin-left:auto;
+    font-size:11.5px;
+    color:#024469;
+    font-weight:600;
+}
+
+.leyenda{
+    background:#dcedf5;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px;
+}
+.leyenda h3{
+    margin-bottom:8px;
+}
+.filaLeyenda{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:#000000;
+    padding:3px 0;
+}
+
+/* ---------- Contenido principal ---------- */
+.contenidoPrincipal{
+    padding:24px 28px 60px;
+    min-width:0;
+}
+.encabezadoPagina{
+    margin-bottom:18px;
+}
+.encabezadoPagina h1{
+    font-size:25px;
+    margin:0 0 9px;
+    font-weight:900;
+}
+.encabezadoPagina p{
+    margin:0;
+    color:#524f4f;
+    font-size:14px;
+}
+
+.barraHerramientas{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:16px;
+}
+.cajaBusqueda{
+    flex:1 1 260px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#dcedf5;
+    border:1px solid #6fabf0;
+    border-radius:8px;
+    padding:9px 12px;
+}
+.cajaBusqueda svg{
+    flex-shrink:0;
+    color:var(--text-faint);
+}
+.cajaBusqueda input{
+    border:none;
+    outline:none;
+    background:transparent;
+    font-size:13.5px;
+    width:100%;
+    color:var(--text);
+    font-family:inherit;
+}
+select,
+.barraHerramientas select{
+    border:1px solid #6fabf0;
+    background:#dcedf5;
+    border-radius:8px;
+    padding:9px 12px;
+    font-size:13px;
+    color:#524f4f;
+    font-family:inherit;
+    cursor:pointer;
+}
+select:focus,
+input:focus{
+    outline:2px solid rgb(0, 85, 241);
+    outline-offset:1px;
+}
+
+.contadorResultados{
+    font-size:12.5px;
+    color:#000000;
+    margin:2px 2px 14px;
+    font-weight:600;
+}
+
+/* ---------- Lista de tickets ---------- */
+.listaTickets{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.tarjetaTicket{
+    display:flex;
+    background:#ffffff;
+    border:1px solid #787879;
+    border-radius:var(--radius);
+    overflow:hidden;
+    cursor:pointer;
+    transition:box-shadow .15s ease, transform .15s ease;
+}
+.tarjetaTicket:hover{
+    box-shadow:var(--shadow);
+    transform:translateY(-1px);
+}
+.tarjetaTicket:focus-visible{
+    outline:2px solid var(--brand);
+    outline-offset:2px;
+}
+.barraEstado{
+    width:10px;
+    flex-shrink:0;
+}
+
+.cuerpoTicket{
+    flex:1;
+    display:grid;
+    grid-template-columns:110px 1.3fr 1fr 1fr 110px 130px;
+    gap:15px;
+    align-items:center;
+    padding:20px 16px;
+    min-width:0;
+}
+.cuerpoTicket > *{
+    min-width:0;
+}
+
+.idTicket{
+    font-size:13px;
+    font-weight:900;
+    color:var(--brand-dark);
+}
+.infoTicket .nombreActivo{
+    font-size:14px;
+    font-weight:600;
+}
+.infoTicket .descripcionCorta{
+    font-size:12.5px;
+    color:#424242;
+    margin-top:2px;
+    line-height:1.4;
+}
+.ubicacionTicket{
+    font-size:13px;
+    color:#424242;
+}
+.personasTicket{
+    font-size:12.5px;
+    color:#424242;
+    line-height:1.5;
+}
+.personasTicket b{
+    color:#424242;
+    font-weight:900;
+}
+.fechaTicket{
+    font-size:12.5px;
+    color:#424242;
+}
+
+.insignia{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:100px;
+    justify-self:start;
+}
+.insignia .punto{
+    width:7px;
+    height:7px;
+}
+
+.estadoVacio{
+    background:var(--surface);
+    border:1px dashed var(--border);
+    border-radius:var(--radius);
+    padding:48px 20px;
+    text-align:center;
+    color:#424242;
+}
+.estadoVacio svg{
+    margin-bottom:10px;
+    color:#000000;
+}
+.estadoVacio strong{
+    display:block;
+    color:#c01616;
+    margin-bottom:4px;
+    font-size:14px;
+}
+
+/* ---------- Panel de detalle ---------- */
+.superposicion{
+    position:fixed;
+    inset:0;
+    background:rgba(177, 207, 243, 0.32);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease;
+    z-index:30;
+}
+.superposicion.visible{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.panelDetalle{
+    position:fixed;
+    top:0;
+    right:0px;
+    height:100%;
+    width:min(500px, 100%);
+    background:#ffffff;
+    box-shadow:-16px 0 40px rgba(1, 61, 226, 0.158);
+    transform:translateX(100%);
+    transition:transform .22s ease;
+    z-index:31;
+    display:flex;
+    flex-direction:column;
+}
+.panelDetalle.visible{
+    transform:translateX(0);
+}
+
+.encabezadoPanel{
+    padding:20px 22px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+}
+.encabezadoPanel h2{
+    font-size:27px;
+    margin:0 0 4px;
+}
+.encabezadoPanel .subtitulo{
+    font-size:13px;
+    color:#797878;
+}
+.botonCerrar{
+    border:none;
+    background:#ffffff;
+    width:30px;
+    height:30px;
+    border-radius:10px;
+    cursor:pointer;
+    color:#0544a3;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.botonCerrar:hover{
+    background:#dcedf5;
+}
+
+.cuerpoPanel{
+    padding:18px 22px 30px;
+    overflow-y:auto;
+    flex:1;
+}
+.estadoPanel{
+    margin-bottom:18px;
+}
+.cuadriculaCampos{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 16px;
+    margin-bottom:20px;
+}
+.cuadriculaCampos.completa{
+    grid-template-columns:1fr;
+}
+.campo label{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#000000;
+    margin-bottom:4px;
+    font-weight:600;
+}
+.campo div{
+    font-size:13px;
+    color:var(--text);
+    line-height:1.45;
+}
+
+.tituloSeccion{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    color:#000000;
+    font-weight:600;
+    margin:22px 0 10px;
+}
+
+.lineaTiempo{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+.itemTiempo{
+    display:flex;
+    gap:10px;
+}
+.puntoTiempo{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    margin-top:5px;
+    flex-shrink:0;
+}
+.textoTiempo{
+    font-size:13px;
+}
+.textoTiempo .fechaEvento{
+    display:block;
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:1px;
+}
+
+/* =========================================================
+    MEDIA QUERIES
+    ========================================================= */
+
+@media (max-width: 1150px){
+    .cuerpoTicket{
+    grid-template-columns:1fr;
+    grid-auto-rows:auto;
+    gap:6px;
+    padding:16px;
+    }
+    .cuerpoTicket .etiquetaColumna{
+    display:inline;
+    color:var(--text-faint);
+    font-weight:600;
+    margin-right:6px;
+    }
+    .insignia{
+    justify-self:start;
+    margin-top:4px;
+    }
+}
+
+@media (max-width: 880px){
+    .diseno{
+    grid-template-columns:1fr;
+    }
+    .filtros{
+    position:static;
+    height:auto;
+    border-bottom:1px solid var(--border);
+    padding-bottom:18px;
+    }
+    .barraSuperior{
+    padding:16px 20px;
+    }
+    .tituloApp{
+    font-size:20px;
+    }
+    .logoMarca{
+    width:44px;
+    height:44px;
+    }
+}
+
+@media (max-width: 640px){
+    .contenidoPrincipal,
+    .filtros{
+    padding-left:16px;
+    padding-right:16px;
+    }
+    .barraHerramientas select,
+    .cajaBusqueda{
+    flex:1 1 100%;
+    }
+    .panelDetalle{
+    width:100%;
+    }
+    .cuadriculaCampos{
+    grid-template-columns:1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .panelDetalle,
+    .superposicion,
+    .tarjetaTicket{
+    transition:none;
+    }
+}

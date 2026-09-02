@@ -1,0 +1,171 @@
+/* ==========================================================
+   LOGIN.CSS
+   Estilos propios de la página de login.
+   Header, nav y variables de color están en global.css
+   ========================================================== */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+
+  filter: blur(5px);
+
+  z-index: -1;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+.container {
+  width: 500px;
+  max-width: 90%;
+  height: 500px;
+  margin-top: 80px;
+  background-color: #ffffff;
+
+  border-radius: 25px;
+  border: 1px solid rgb(17, 73, 226);
+
+  padding: 25px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* TEXTO SUPERIOR */
+
+.infoContainer {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* LOGIN */
+
+.loginContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loginForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TITULO */
+
+.loginForm h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* LABELS */
+
+.loginForm label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* INPUTS Y SELECT */
+
+.loginForm input,
+.loginForm select {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f0f6ff;
+}
+
+/* BOTON */
+
+.btnPrincipal {
+  width: 100%;
+  padding: 12px;
+
+  background-color: #2665ad;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.btnPrincipal:hover {
+  background-color: #41B3BF;
+  color: black;
+}
+
+/* MENSAJE REGISTRO */
+
+.textoSecundario {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.textoSecundario a {
+  color: #016ead;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.textoSecundario a:hover {
+  text-decoration: underline;
+}
+
+/* CAMPOS CON ICONO */
+
+.inputContenedor {
+  position: relative;
+  width: 100%;
+  margin-bottom: 35px; /* Espacio entre campos */
+}
+
+.inputIcono {
+  position: absolute;
+  left: 8px;
+  top: 20px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9ca3af; /* Color gris suave */
+  pointer-events: none; /* Permite hacer clic a través del icono */
+}
+
+.inputContenedor input {
+  width: 100%;
+  padding: 10px 10px 10px 40px; /* Importante: 40px a la izquierda para no tapar el texto */
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (MÓVILES)
+   ========================================================== */
+@media (max-width: 600px) {
+  .container {
+    height: auto;
+    margin-top: 100px;
+    padding: 20px;
+  }
+}
