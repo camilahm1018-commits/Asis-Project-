@@ -1,6 +1,7 @@
+// src/pages/Login.jsx
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../services/api' // 👉 1. Importamos la función de nuestra API
+import { login } from '../services/api'
 import Header from '../components/Header.jsx'
 import '../styles/login.css'
 
@@ -9,7 +10,7 @@ function Login() {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mensajeError, setMensajeError] = useState('')
-  const [cargando, setCargando] = useState(false) // 👉 2. Estado para deshabilitar el botón mientras carga
+  const [cargando, setCargando] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -17,31 +18,33 @@ function Login() {
     setCargando(true)
 
     try {
-      // 👉 3. Usamos nuestra función de api.js en lugar de fetch manual
       const data = await login(correo, contrasena)
 
-      // 👉 4. Guardamos el token y los datos del usuario
+      // Guardar token y datos del usuario
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('usuario', JSON.stringify(data))
 
-      // 👉 5. Redirigir según el rol. 
-      // OJO: Tu backend devuelve el NOMBRE del rol (texto), no el ID (número).
-      // Ajusta estos textos a como se llamen EXACTAMENTE en tu base de datos.
-      const rolNombre = data.rol.toLowerCase()
+      // 🔴 IMPORTANTE: El orden de estas condiciones es CRÍTICO
+      // Las más específicas van PRIMERO
+      const rolNombre = data.rol.toLowerCase().trim()
+      alert(`CÓDIGO NUEVO LEÍDO. El rol es: ${rolNombre}`)
 
-      if (rolNombre.includes('instructor')) {
+      if (rolNombre === 'administrador_mesa_ayuda') {
+        navigate('/administrador-mesa-ayuda')
+      } else if (rolNombre === 'administrador') {
+        navigate('/administrador')
+      } else if (rolNombre === 'cuentadante') {
+        navigate('/cuentadante')
+      } else if (rolNombre === 'instructor') {
         navigate('/instructor')
-      } else if (rolNombre.includes('tecnico')) {
+      } else if (rolNombre === 'tecnico') {
         navigate('/tecnico')
-      } else if (rolNombre.includes('admin') || rolNombre.includes('administrador')) {
-        navigate('/admin')
       } else {
-        // Si el rol no coincide con ninguno, lo mandamos a una ruta por defecto
-        navigate('/') 
+        setMensajeError(`Rol no reconocido: "${data.rol}"`)
+        navigate('/')
       }
 
     } catch (error) {
-      // 👉 6. Si falla, mostramos el error que viene del backend o uno genérico
       setMensajeError(error.message)
     } finally {
       setCargando(false)
@@ -67,7 +70,6 @@ function Login() {
               </p>
             )}
 
-            {/* Campo: Correo */}
             <label htmlFor="correo_usuario">Correo</label>
             <div className="inputContenedor">
               <svg className="inputIcono" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -81,11 +83,10 @@ function Login() {
                 required
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                disabled={cargando} // 👉 Deshabilitar mientras carga
+                disabled={cargando}
               />
             </div>
 
-            {/* Campo: Contraseña */}
             <label htmlFor="contrasena_usuario">Contraseña</label>
             <div className="inputContenedor">
               <svg className="inputIcono" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -99,7 +100,7 @@ function Login() {
                 required
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                disabled={cargando} // 👉 Deshabilitar mientras carga
+                disabled={cargando}
               />
             </div>
 
