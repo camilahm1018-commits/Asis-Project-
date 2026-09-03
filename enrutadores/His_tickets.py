@@ -1,77 +1,143 @@
-from Modelos.His_tickets import His_ticket, His_ticketCrear, His_ticketEditar
-from fastapi import APIRouter, status, HTTPException
+from datetime import datetime
+
+from fastapi import APIRouter, HTTPException, status
+from sqlmodel import select, Session
+
+from Modelos.His_tickets import His_ticket
+from Modelos.tickets import tickets
 from conexion_db import Sesion_dependencia
-from sqlmodel import select
 
 
 asis = APIRouter(
     prefix="/His_tickets",
-    tags=["Historial de tickets"]
+    tags=["Historial de Tickets"]
 )
 
-@asis.get("/his_tickets", response_model=list[His_ticket])
-async def listar_his_tickets(sesion: Sesion_dependencia):
-    lista_his = sesion.exec(select(His_ticket)).all()
-    return lista_his
+
+# ============================================================
+# FUNCIÓN INTERNA PARA CREAR HISTORIAL
+# ============================================================
+
+def crear_historial(
+    session: Session,
+    id_ticket: int,
+    id_usuario: int,
+    accion: str,
+    estado_resultante: str,
+    observacion: str | None = None,
+    fecha: datetime | None = None
+):
+    historial = His_ticket(
+        accion=accion,
+        observacion=observacion,
+        estado_resultante=estado_resultante,
+        id_ticket=id_ticket,
+        id_usuario=id_usuario,
+        fecha=fecha if fecha is not None else datetime.now()
+    )
+
+    session.add(historial)
+
+    return historial
 
 
-@asis.get("/his_tickets/{id_historial}", response_model=His_ticket)
-async def listar_his_ticket_id(id_historial: int, mi_sesion: Sesion_dependencia): # type: ignore
+# ============================================================
+# HISTORIAL DE UN TICKET
+# ============================================================
 
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
-    if not his_ticket:
+@asis.get(
+    "/ticket/{id_ticket}",
+    response_model=list[His_ticket]
+)
+async def historial_por_ticket(
+    id_ticket: int,
+    session: Sesion_dependencia
+):
+
+    ticket = session.get(tickets, id_ticket)
+
+    if not ticket:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado")
-
-    return his_ticket
-
-
-@asis.post("/his_tickets", response_model =His_ticket)
-async def crear_his_ticket(datos_his_ticket: His_ticketCrear,  mi_sesion: Sesion_dependencia): # type: ignore
-    nuevo_his_ticket = His_ticket.model_validate(datos_his_ticket.model_dump())
-    mi_sesion.add(nuevo_his_ticket)
-    mi_sesion.commit()
-    mi_sesion.refresh(nuevo_his_ticket)
-    return nuevo_his_ticket
-
-
-@asis.put("/his_tickets/{id_historial}", response_model=His_ticket)
-async def editar_his_ticket(id_historial: int, datos_his_ticket: His_ticketEditar,  mi_sesion: Sesion_dependencia):
-
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
-
-    if not his_ticket:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"El ticket con ID {id_ticket} no existe."
         )
 
+    historial = session.exec(
+        select(His_ticket)
+        .where(His_ticket.id_ticket == id_ticket)
+        .order_by(His_ticket.fecha)
+    ).all()
 
-    his_ticket_dict = datos_his_ticket.model_dump(exclude_unset=True)
-    his_ticket.sqlmodel_update(his_ticket_dict)
+    return historial
 
-    mi_sesion.add(his_ticket)
-    mi_sesion.commit()
-    mi_sesion.refresh(his_ticket)
 
-    return his_ticket
-        
+# ============================================================
+# HISTORIAL DE ACTIVIDAD DE UN USUARIO
+# ============================================================
 
-@asis.delete("/his_tickets/{id_historial}", response_model=His_ticket)
-async def eliminar_his_ticket(id_historial: int, mi_sesion: Sesion_dependencia):
+@asis.get(
+    "/usuario/{id_usuario}",
+    response_model=list[His_ticket]
+)
+async def historial_por_usuario(
+    id_usuario: int,
+    session: Sesion_dependencia
+):
 
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
+    historial = session.exec(
+        select(His_ticket)
+        .where(His_ticket.id_usuario == id_usuario)
+        .order_by(His_ticket.fecha.desc())
+    ).all()
 
-    if not his_ticket:
+    return historial
+
+
+# ============================================================
+# HISTORIAL DE UN EQUIPO
+# ============================================================
+
+@asis.get(
+    "/equipo/{id_equipo}",
+    response_model=list[His_ticket]
+)
+async def historial_por_equipo(
+    id_equipo: int,
+    session: Sesion_dependencia
+):
+
+    historial = session.exec(
+        select(His_ticket)
+        .join(
+            tickets,
+            His_ticket.id_ticket == tickets.id_ticket
+        )
+        .where(tickets.id_equipo == id_equipo)
+        .order_by(His_ticket.fecha.desc())
+    ).all()
+
+    return historial
+
+
+# ============================================================
+# OBTENER UN REGISTRO ESPECÍFICO DEL HISTORIAL
+# ============================================================
+
+@asis.get(
+    "/{id_historial}",
+    response_model=His_ticket
+)
+async def obtener_historial(
+    id_historial: int,
+    session: Sesion_dependencia
+):
+
+    historial = session.get(His_ticket, id_historial)
+
+    if not historial:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"El registro de historial con ID {id_historial} no existe."
         )
 
-    his_ticket_eliminado = His_ticket.model_validate(his_ticket)
-
-    mi_sesion.delete(his_ticket)
-    mi_sesion.commit()
-
-    return his_ticket_eliminado
+    return historial

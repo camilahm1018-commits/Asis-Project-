@@ -9,13 +9,13 @@ asis = APIRouter(
     tags=["Estados de Tickets"]
 )
 
-@asis.get("/estados_ticket", response_model=list[estados_ticket])
+@asis.get("/", response_model=list[estados_ticket])
 async def listar_estados_ticket(sesion: Sesion_dependencia):
     lista_estados = sesion.exec(select(estados_ticket)).all()
     return lista_estados
 
 
-@asis.get("/estados_ticket/{id_estado}", response_model=estados_ticket)
+@asis.get("/{id_estado}", response_model=estados_ticket)
 async def listar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia): # type: ignore
 
     estado = mi_sesion.get(estados_ticket, id_estado)
@@ -27,7 +27,7 @@ async def listar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia): #
     return estado
 
 
-@asis.post("/estados_ticket", response_model =estados_ticket)
+@asis.post("/", response_model =estados_ticket)
 async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Sesion_dependencia): # type: ignore
     nuevo_estado = estados_ticket.model_validate(datos_estado)
     
@@ -37,7 +37,7 @@ async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Ses
     return nuevo_estado
 
 
-@asis.put("/estados_ticket/{id_estado}", response_model=estados_ticket)
+@asis.put("/{id_estado}", response_model=estados_ticket)
 async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEditar,  mi_sesion: Sesion_dependencia):
 
     estado = mi_sesion.get(estados_ticket, id_estado)
@@ -59,7 +59,7 @@ async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEdita
     return estado
         
 
-@asis.delete("/estados_ticket/{id_estado}", response_model=estados_ticket)
+@asis.delete("/{id_estado}", response_model=estados_ticket)
 async def eliminar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia):
 
     estado = mi_sesion.get(estados_ticket, id_estado)

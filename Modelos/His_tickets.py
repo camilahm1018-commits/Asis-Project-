@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional

@@ -31,6 +31,18 @@ async def listar_usuario(id_usuario: int,mi_sesion: Sesion_dependencia):
 
 @asis.post("/usuarios",response_model=UsuarioLeer)
 async def crear_usuario(datos_usuario: UsuarioCrear,mi_sesion: Sesion_dependencia):
+    usuario_existente = mi_sesion.exec(
+        select(Usuario).where(
+            Usuario.correo_u == datos_usuario.correo_u
+        )
+    ).first()
+
+    if usuario_existente:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo ya está registrado"
+        )
+
     datos = datos_usuario.model_dump()
     
     # --------------------------------------
@@ -71,8 +83,7 @@ async def editar_usuario(id_usuario: int,datos_usuario: UsuarioEditar,mi_sesion:
     # --------------------------------------
 
     if "contrasena_u" in usuario_dict:
-        usuario_dict["contrasena_u"] = (
-            encriptar_contrasena(
+        usuario_dict["contrasena_u"] = (encriptar_contrasena(
                 usuario_dict["contrasena_u"]
             )
         )

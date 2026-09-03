@@ -29,7 +29,7 @@ async def obtener_ambiente(
 
     if not ambiente:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Ambiente no encontrado"
         )
 
@@ -62,7 +62,7 @@ async def editar_ambiente(
 
     if not ambiente:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Ambiente no encontrado"
         )
 
@@ -86,7 +86,7 @@ async def eliminar_ambiente(
 
     if not ambiente:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Ambiente no encontrado"
         )
 

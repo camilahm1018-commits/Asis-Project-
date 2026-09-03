@@ -18,7 +18,7 @@ async def listar_roles(session: Sesion_dependencia):
 async def listar_rol_id(id: int, session: Sesion_dependencia):
     rol_bd = session.get(Rol, id)
     if not rol_bd:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
+        raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
     return rol_bd
 
 @asis.post("/", response_model=Rol)
@@ -37,7 +37,7 @@ async def editar_rol(id: int, datos_rol: RolEditar, session: Sesion_dependencia)
     
     rol_bd = session.get(Rol, id)
     if not rol_bd:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
+        raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
     rol_dict = datos_rol.model_dump(exclude_unset=True)
     rol_bd.sqlmodel_update(rol_dict)
     
@@ -51,7 +51,7 @@ async def eliminar_rol(id: int, session: Sesion_dependencia):
     rol_bd = session.get(Rol, id)
     
     if not rol_bd:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
+        raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
     
     session.delete(rol_bd)
     session.commit()

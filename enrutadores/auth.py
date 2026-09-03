@@ -6,6 +6,7 @@ from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
 from seguridad import (verificar_contrasena,crear_token,verificar_token)
 
+
 asis = APIRouter(prefix="/auth",tags=["Autenticación"])
 # ==========================================
 # LOGIN
