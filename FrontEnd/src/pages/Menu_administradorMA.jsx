@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Header from '../components/Header.jsx'
 
-// 🔄 Si renombraste el CSS, actualiza el import
-import '../styles/Menu_administrador_MA.css'  // ← Ajusta según el nombre que le diste
+// ⚠️ IMPORTANTE: Asegúrate de que este nombre sea EXACTAMENTE igual 
+// al nombre real de tu archivo en la carpeta src/styles/
+import '../styles/Menu_administrador_MA.css' 
 
-function AdminMesaAyuda() {  // ← Cambia el nombre de la función
+// ✅ 1. La función se llama EXACTAMENTE así:
+function MenuAdministradorMA() {  
   const navigate = useNavigate()
   const [usuario, setUsuario] = useState(null)
 
@@ -79,5 +81,5 @@ function AdminMesaAyuda() {  // ← Cambia el nombre de la función
   )
 }
 
-
+// ✅ 2. Y el export usa EXACTAMENTE el mismo nombre:
 export default MenuAdministradorMA

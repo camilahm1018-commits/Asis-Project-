@@ -1,0 +1,125 @@
+/* ==========================================================
+   MENÚ ADMINISTRADOR MESA DE AYUDA
+   ========================================================== */
+
+/* Contenedor principal */
+.adminContainer {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  min-height: 80vh; /* Empuja el contenido para que no quede pegado abajo */
+}
+
+/* Encabezado del menú */
+.adminHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.adminHeader h1 {
+  color: #2665ad; /* Tu color azul principal */
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.adminHeader p {
+  color: #64748b; /* Gris suave para texto secundario */
+  font-size: 1.1rem;
+}
+
+/* Cuadrícula de tarjetas (Responsive automático) */
+.adminGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+/* Tarjetas individuales */
+.adminCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  text-decoration: none; /* Quita el subrayado del enlace */
+  color: #1e293b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Efecto al pasar el mouse por la tarjeta */
+.adminCard:hover {
+  transform: translateY(-5px); /* Se levanta un poco */
+  border-color: #2665ad;
+  box-shadow: 0 10px 20px -5px rgba(38, 101, 173, 0.15); /* Sombra azulada */
+}
+
+/* Icono (Emoji) de la tarjeta */
+.adminCardIcon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Título de la tarjeta */
+.adminCard h3 {
+  color: #2665ad;
+  font-size: 1.25rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+/* Descripción de la tarjeta */
+.adminCard p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Botón de cerrar sesión */
+.btnLogout {
+  display: block;
+  margin: 0 auto;
+  padding: 12px 32px;
+  background-color: #ef4444; /* Rojo para indicar acción de salir */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btnLogout:hover {
+  background-color: #dc2626; /* Rojo más oscuro al pasar el mouse */
+}
+
+.btnLogout:active {
+  transform: scale(0.98); /* Efecto de clic */
+}
+
+/* ==========================================================
+   RESPONSIVE (Celulares)
+   ========================================================== */
+@media (max-width: 600px) {
+  .adminHeader h1 {
+    font-size: 1.8rem;
+  }
+  
+  .adminContainer {
+    margin: 20px auto;
+    padding: 15px;
+  }
+  
+  .adminGrid {
+    grid-template-columns: 1fr; /* Una sola columna en celulares */
+    gap: 16px;
+  }
+}
