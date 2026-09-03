@@ -15,10 +15,10 @@ async def listar_Tipo_identificacion(session: Sesion_dependencia):
 
 
 @asis.get("/{id_tipo_id}", response_model=Tipo_identificacion)
-async def listar_Tipo_identificacion_id(id: int, session: Sesion_dependencia):
+async def listar_Tipo_identificacion_id(id_tipo_id: int, session: Sesion_dependencia):
     Tipo_identificacion_bd = session.get(Tipo_identificacion, id)
     if not Tipo_identificacion_bd:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Tippo de identificación con ID {id}, no existe.")
+        raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail= f"El Tippo de identificación con ID {id_tipo_id}, no existe.")
     return Tipo_identificacion_bd
 
 
@@ -57,24 +57,3 @@ async def eliminar_Tipo_identificacion(id_tipo_id: int, session: Sesion_dependen
     session.delete(Tipo_identificacion_bd)
     session.commit()
     return Tipo_identificacion_bd
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

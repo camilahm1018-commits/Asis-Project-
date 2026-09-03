@@ -29,7 +29,7 @@ async def obtener_equipo(
 
     if not equipo:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Equipo no encontrado"
         )
 
@@ -62,7 +62,7 @@ async def editar_equipo(
 
     if not equipo:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Equipo no encontrado"
         )
 
@@ -86,7 +86,7 @@ async def eliminar_equipo(
 
     if not equipo:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_BAD_REQUEST,
             detail="Equipo no encontrado"
         )
 

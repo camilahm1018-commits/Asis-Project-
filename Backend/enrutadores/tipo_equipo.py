@@ -17,9 +17,9 @@ async def listar_tipos_equipo(sesion: Sesion_dependencia):
     return sesion.exec(select(TipoEquipo)).all()
 
 
-@asis.get("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def obtener_tipo_equipo(id: int,sesion: Sesion_dependencia):
-    tipo_bd = sesion.get(TipoEquipo,id)
+@asis.get("/tipos-equipo/{id_tipo}",response_model=TipoEquipo)
+async def obtener_tipo_equipo(id_tipo: int,sesion: Sesion_dependencia):
+    tipo_bd = sesion.get(TipoEquipo, id_tipo)
 
     if not tipo_bd:
         raise HTTPException(
@@ -42,10 +42,10 @@ async def crear_tipo_equipo(datos: TipoEquipoCrear,sesion: Sesion_dependencia):
     return nuevo
 
 
-@asis.put("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_dependencia):
+@asis.put("/tipos-equipo/{id_tipo}",response_model=TipoEquipo)
+async def editar_tipo_equipo(id_tipo: int,datos: TipoEquipoEditar,sesion: Sesion_dependencia):
 
-    tipo_bd = sesion.get(TipoEquipo,id)
+    tipo_bd = sesion.get(TipoEquipo,id_tipo)
 
     if not tipo_bd:
         raise HTTPException(
@@ -62,10 +62,10 @@ async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_depe
     return tipo_bd
 
 
-@asis.delete("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def eliminar_tipo_equipo(id: int,sesion: Sesion_dependencia):
+@asis.delete("/tipos-equipo/{id_tipo}",response_model=TipoEquipo)
+async def eliminar_tipo_equipo(id_tipo: int,sesion: Sesion_dependencia):
 
-    tipo_bd = sesion.get(TipoEquipo,id)
+    tipo_bd = sesion.get(TipoEquipo,id_tipo)
 
     if not tipo_bd:
         raise HTTPException(
