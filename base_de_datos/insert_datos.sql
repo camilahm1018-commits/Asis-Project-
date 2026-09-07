@@ -116,7 +116,11 @@ CREATE TABLE motivo_novedad(
 -- ==========================================
 -- TABLA: tickets
 -- ==========================================
-CREATE TABLE tickets(
+
+-- ==========================================
+-- TABLA: tickets (CON CAMPOS RF-006 INCLUIDOS)
+-- ==========================================
+CREATE TABLE  tickets (
     id_ticket SERIAL PRIMARY KEY,
     motivo TEXT NOT NULL,
     fecha_salida TIMESTAMP NOT NULL,
@@ -128,6 +132,12 @@ CREATE TABLE tickets(
     asignado_a INT,
     id_estado INT NOT NULL,
     id_motivo_novedad INT,
+
+    -- 👇 CAMPOS RF-006 (Registrar Salida de Equipo)
+    tipo_salida VARCHAR(20) DEFAULT 'daño',
+    id_ambiente_destino INT,
+    persona_prestamo VARCHAR(100),
+    fecha_devolucion DATE,
  
     CONSTRAINT fk_ticket_equipo
     FOREIGN KEY(id_equipo)
@@ -460,8 +470,19 @@ VALUES
 ('PT-005','Portátil Inspiron','Dell','SNDL000020','Portátil de apoyo','Activo',120,2);
 
 -- TICKETS
-INSERT INTO tickets(motivo, fecha_salida, fecha_retorno, atendido, id_equipo, creado_por, asignado_a, id_estado, id_motivo_novedad)
-VALUES
+INSERT INTO tickets (
+    motivo, fecha_salida, fecha_retorno, atendido, id_equipo,
+    creado_por, asignado_a, id_estado, id_motivo_novedad,
+    tipo_salida, id_ambiente_destino, persona_prestamo, fecha_devolucion
+) VALUES
+-- 1. DAÑO (estado Pendiente, atendido FALSE)
+('El computador no enciende tras apagón.', '2026-09-01 08:00:00', NULL, FALSE, 1, 2, NULL, 1, NULL, 'daño', NULL, NULL, NULL),
+
+-- 2. TRASLADO (con ambiente destino)
+('Traslado temporal al ambiente de Redes para demostración.', '2026-09-02 09:00:00', NULL, FALSE, 2, 15, NULL, 1, NULL, 'traslado', 105, NULL, NULL),
+
+-- 3. PRÉSTAMO TEMPORAL (con persona y fecha)
+('Préstamo de televisor para evento de inauguración.', '2026-09-03 10:00:00', NULL, FALSE, 3, 1, NULL, 1, NULL, 'prestamo', NULL, 'Carlos Ramirez', '2026-09-10');
 ('El computador no enciende.','2026-08-01 08:00:00','2026-08-03 15:00:00',TRUE,1,2,7,3,NULL),
 ('La pantalla del portátil presenta líneas verticales.','2026-08-02 09:30:00',NULL,TRUE,2,3,8,2,NULL),
 ('El televisor no muestra imagen.','2026-08-02 10:00:00',NULL,TRUE,3,4,9,1,NULL),

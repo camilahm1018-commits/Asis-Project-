@@ -30,7 +30,7 @@ function Login() {
       alert(`CÓDIGO NUEVO LEÍDO. El rol es: ${rolNombre}`)
 
       if (rolNombre === 'administrador_mesa_ayuda') {
-        navigate('/administrador-mesa-ayuda')
+        navigate('/mesa-ayuda/panel')
       } else if (rolNombre === 'administrador') {
         navigate('/administrador')
       } else if (rolNombre === 'cuentadante') {

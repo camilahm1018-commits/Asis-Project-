@@ -1,171 +1,276 @@
-/* ==========================================================
-   LOGIN.CSS
-   Estilos propios de la página de login.
-   Header, nav y variables de color están en global.css
-   ========================================================== */
+/* FONDO AZUL - FORZADO */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%) !important;
+}
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #ffffff;
+}
 
+/* HEADER COMPLETO */
+.mainHeader {
+  width: 100%;
+  background: rgba(1, 30, 69, 0.98);
+  border-bottom: 2px solid rgba(69, 179, 191, 0.4);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mainHeaderContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 24px;
   display: flex;
-  justify-content: center;
   align-items: center;
-
-  min-height: 100vh;
-  position: relative;
+  justify-content: space-between;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-
-  background-size: cover;
-  background-position: center;
-
-  filter: blur(5px);
-
-  z-index: -1;
+.mainHeaderLogo .logoAsis {
+  height: 50px;
+  border-radius: 8px;
+  filter: drop-shadow(0 2px 8px rgba(69, 179, 191, 0.3));
 }
 
-/* CONTENEDOR PRINCIPAL */
+.mainNav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
+.mainNavList {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mainNavItem {
+  margin: 0;
+}
+
+.mainNavLink {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.mainNavLink:hover {
+  color: #45b3bf;
+  background: rgba(69, 179, 191, 0.1);
+}
+
+.login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mainNavLinkSecondary {
+  color: #45b3bf;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid rgba(69, 179, 191, 0.5);
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.mainNavLinkSecondary:hover {
+  background: rgba(69, 179, 191, 0.2);
+  transform: translateY(-1px);
+}
+
+.logImg {
+  width: 20px;
+  height: 20px;
+}
+
+/* CONTENEDOR LOGIN */
 .container {
-  width: 500px;
+  width: 480px;
   max-width: 90%;
-  height: 500px;
-  margin-top: 80px;
-  background-color: #ffffff;
-
-  border-radius: 25px;
-  border: 1px solid rgb(17, 73, 226);
-
-  padding: 25px;
-
+  margin: 80px auto 40px;
+  background: linear-gradient(180deg, #02305f 0%, #022859 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(69, 179, 191, 0.4);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 
+              0 0 50px rgba(69, 179, 191, 0.15);
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
 }
 
-/* TEXTO SUPERIOR */
-
-.infoContainer {
-  margin-top: 15px;
-  text-align: center;
+.infoContainer h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #45b3bf;
+  margin: 0;
 }
-
-/* LOGIN */
 
 .loginContainer {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .loginForm {
   width: 100%;
-  display: flex;
-  flex-direction: column;
 }
-
-/* TITULO */
 
 .loginForm h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  font-size: 26px;
+  font-family: 'DM Sans', sans-serif;
+  color: #ffffff;
+  font-weight: 700;
 }
-
-/* LABELS */
 
 .loginForm label {
-  margin-bottom: 5px;
-  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #45b3bf;
 }
 
-/* INPUTS Y SELECT */
-
-.loginForm input,
-.loginForm select {
+.loginForm input {
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f0f6ff;
+  border: 2px solid rgba(69, 179, 191, 0.3);
+  border-radius: 10px;
+  background-color: rgba(2, 40, 89, 0.8);
+  color: #ffffff;
+  padding: 14px 16px;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
 
-/* BOTON */
-
-.btnPrincipal {
-  width: 100%;
-  padding: 12px;
-
-  background-color: #2665ad;
-  color: white;
-
-  border: none;
-  border-radius: 8px;
-
-  font-weight: bold;
-  cursor: pointer;
-
-  transition: 0.3s;
+.loginForm input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
 }
 
-.btnPrincipal:hover {
-  background-color: #41B3BF;
-  color: black;
+.loginForm input:focus {
+  outline: none;
+  border-color: #45b3bf;
+  background-color: rgba(2, 40, 89, 1);
+  box-shadow: 0 0 0 4px rgba(69, 179, 191, 0.2);
 }
-
-/* MENSAJE REGISTRO */
-
-.textoSecundario {
-  margin-top: 15px;
-  text-align: center;
-}
-
-.textoSecundario a {
-  color: #016ead;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.textoSecundario a:hover {
-  text-decoration: underline;
-}
-
-/* CAMPOS CON ICONO */
 
 .inputContenedor {
   position: relative;
   width: 100%;
-  margin-bottom: 35px; /* Espacio entre campos */
+  margin-bottom: 24px;
 }
 
 .inputIcono {
   position: absolute;
-  left: 8px;
-  top: 20px;
+  left: 14px;
+  top: 50%;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: #9ca3af; /* Color gris suave */
-  pointer-events: none; /* Permite hacer clic a través del icono */
+  color: rgba(69, 179, 191, 0.6);
+  pointer-events: none;
 }
 
 .inputContenedor input {
-  width: 100%;
-  padding: 10px 10px 10px 40px; /* Importante: 40px a la izquierda para no tapar el texto */
-  box-sizing: border-box;
+  padding-left: 48px;
 }
 
-/* ==========================================================
-   RESPONSIVE DESIGN (MÓVILES)
-   ========================================================== */
-@media (max-width: 600px) {
+.btnPrincipal {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #45b3bf 0%, #1b70a6 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 6px 20px rgba(69, 179, 191, 0.3);
+}
+
+.btnPrincipal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(69, 179, 191, 0.4);
+}
+
+.btnPrincipal:disabled {
+  background: rgba(27, 112, 166, 0.3);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.textoSecundario {
+  margin-top: 15px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.textoSecundario a {
+  color: #45b3bf;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.textoSecundario a:hover {
+  text-decoration: underline;
+  color: #7EC8E3;
+}
+
+.login-error {
+  width: 100%;
+  background: rgba(248, 113, 113, 0.2);
+  border: 2px solid rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mainHeaderContainer {
+    padding: 12px 16px;
+  }
+  
+  .mainNavList {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
   .container {
-    height: auto;
-    margin-top: 100px;
-    padding: 20px;
+    margin: 60px 15px 30px;
+    padding: 30px 20px;
   }
 }

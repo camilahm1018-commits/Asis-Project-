@@ -1,207 +1,154 @@
-/* ==========================================================
-   GLOBAL.CSS
-   Estilos compartidos entre login.html, Registrarse.html y
-   Recuperar_c.html: variables de color, reset y header/nav.
-   Consultar_t.html tiene su propio sistema de diseño y no
-   depende de este archivo (no reutiliza este header).
-   ========================================================== */
 
-/* ----------------------------------------------------------
-   VARIABLES GLOBALES DE COLOR
-   ---------------------------------------------------------- */
-:root {
-  --asis-bg-contenedor: #ffffff;
-  --asis-bg-input: #ffffff;
-  --asis-principal: #2665ad;
-  --asis-enlace: #016ead;
-  --asis-hover: #41B3BF;
-  --asis-borde: #ccc;
-  --asis-blanco: #ffffff;
-  --asis-texto: #1a1a1a;
-  --asis-texto-suave: #4a5568;
-}
 
-/* ----------------------------------------------------------
-   RESET BÁSICO
-   ---------------------------------------------------------- */
-* {
-  margin: 0;
-  padding: 0;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
-body{
-    background:#eceeee85;
-    color:var(--text);
-    font-family:'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing:antialiased;
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* ----------------------------------------------------------
-   ENCABEZADO (HEADER)
-   ---------------------------------------------------------- */
+body {
+  min-height: 2vh;
+}
+
+body:has(.panel-admin) {
+  display: block;
+  justify-content: initial;
+  align-items: initial;
+  background: none;
+}
+
+body:has(.panel-admin)::before {
+  content: none;
+}
+
+/* ---------------- HEADER / NAV COMPARTIDO (Header.jsx) ---------------- */
+/* Mismos colores oscuros / turquesa del diseño de Figma */
+
 .mainHeader {
-  background-color: var(--asis-bg-contenedor);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  z-index: 1000;
+  background: rgba(1, 30, 69, 0.95);
+  border-bottom: 1px solid rgba(27, 112, 166, 0.3);
+  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 20;
 }
 
 .mainHeaderContainer {
-  width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  height: 80px;
+  padding: 12px 24px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
 }
 
-.mainHeaderLogo {
-  display: flex;
-  align-items: center;
+.mainHeaderLogo .logoAsis {
+  height: 40px;
+  border-radius: 8px;
 }
 
-.logoAsis {
-  max-height: 50px;
-  width: auto;
-}
-
-/* Botón hamburguesa (móviles) */
 .mainHeaderToggle {
   display: none;
   flex-direction: column;
-  justify-content: space-between;
-  width: 25px;
-  height: 18px;
+  gap: 4px;
   background: transparent;
   border: none;
-  padding: 0;
   cursor: pointer;
-  z-index: 1001;
+  padding: 6px;
 }
 
 .mainHeaderBar {
-  width: 100%;
-  height: 3px;
-  background-color: var(--asis-texto-suave);
+  width: 22px;
+  height: 2px;
+  background: #ffffff;
   border-radius: 2px;
 }
 
-/* ----------------------------------------------------------
-   MENÚ DE NAVEGACIÓN
-   ---------------------------------------------------------- */
 .mainNav {
   display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-content: flex-end;
   align-items: center;
-  gap: 60px;
-}
-
-.menuOptions {
-  display: flex;
+  gap: 24px;
 }
 
 .mainNavList {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  gap: 20px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.mainNavItem {
-  display: flex;
-  align-items: center;
-}
-
 .mainNavLink {
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  color: var(--asis-texto);
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 500;
-  transition: color 0.3s ease;
 }
 
 .mainNavLink:hover {
-  color: var(--asis-enlace);
+  color: #45b3bf;
 }
 
-.mainNavLinkSecondary {
-  text-decoration: none;
-  color: var(--asis-texto);
-}
-
-.login {
+.mainNav .login {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 10px;
 }
 
-.logImg {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
+.mainNavLinkSecondary {
+  color: #45b3bf;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid rgba(69, 179, 191, 0.4);
+  padding: 6px 14px;
+  border-radius: 10px;
 }
 
-/* ----------------------------------------------------------
-   RESPONSIVE: MENÚ MÓVIL
-   Completa el comportamiento del botón hamburguesa (ya
-   existía en el HTML/JS, pero le faltaba el CSS para
-   mostrar/ocultar el menú en pantallas pequeñas).
-   ---------------------------------------------------------- */
-@media (max-width: 768px) {
-  .mainHeaderContainer {
-    width: 92%;
-  }
+.mainNavLinkSecondary:hover {
+  background: rgba(69, 179, 191, 0.15);
+}
 
+.logImg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
   .mainHeaderToggle {
     display: flex;
   }
 
   .mainNav {
-    display: none;
     position: absolute;
     top: 100%;
     left: 0;
-    width: 100%;
+    right: 0;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0;
-    padding: 0;
-    background-color: var(--asis-bg-contenedor);
-    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
+    background: rgba(1, 30, 69, 0.98);
+    padding: 16px 24px;
+    display: none;
+    gap: 16px;
   }
 
   .mainNav.mainNavOpen {
     display: flex;
   }
 
-  .menuOptions {
-    width: 100%;
-    flex-direction: column;
-  }
-
   .mainNavList {
-    width: 100%;
     flex-direction: column;
-    gap: 0;
-  }
-
-  .mainNavItem {
-    width: 100%;
-    padding: 12px 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  .login {
-    width: 100%;
-    padding: 12px 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    align-items: flex-start;
+    gap: 12px;
   }
 }

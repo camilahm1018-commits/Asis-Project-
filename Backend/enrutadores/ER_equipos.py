@@ -3,6 +3,8 @@ from sqlmodel import select
 
 from conexion_db import Sesion_dependencia
 from Modelos.equipos import Equipo,EquipoCrear,EquipoEditar,EquipoLeer
+from fastapi import APIRouter, Query
+from sqlmodel import select
 
 
 asis = APIRouter(
@@ -96,3 +98,20 @@ async def eliminar_equipo(
     sesion.commit()
 
     return equipo_eliminado
+
+
+
+# ... (tus otros endpoints de equipos) ...
+
+@asis.get("/", response_model=list[EquipoLeer])
+async def listar_equipos(
+    sesion: Sesion_dependencia,  
+    id_ambiente: int | None = Query(None, description="Filtrar por ambiente")  
+):
+    """Lista los equipos, filtrando por ambiente si se proporciona el parámetro"""
+    if id_ambiente:
+        query = select(Equipo).where(Equipo.id_ambiente == id_ambiente)
+    else:
+        query = select(Equipo)
+    
+    return sesion.exec(query).all()

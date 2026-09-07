@@ -1,18 +1,19 @@
 /* ==========================================================
    RECUPERAR_C.CSS
-   Estilos propios de la página de recuperación de contraseña.
-   Header, nav y variables de color están en global.css
+   Repintado con la paleta oscura del Figma (mismos nombres de
+   clase; RecuperarContrasena.jsx no se modificó). Header y nav
+   siguen en global.css (Header.jsx no se toca).
    ========================================================== */
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   position: relative;
-  color: var(--asis-texto);
-  background-color: #e4e5e673;
+  color: #ffffff;
+  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%);
 }
 
 body::before {
@@ -29,22 +30,21 @@ body::before {
 .container {
   width: 500px;
   max-width: 90%;
-  height: 500px;
-  margin-top: 80px;
-  background-color: var(--asis-bg-contenedor);
-  border-radius: 25px;
-  border: 1px solid rgb(17, 73, 226);
-  padding: 35px 30px;
+  margin-top: 100px;
+  background: linear-gradient(180deg, #02305f 0%, #022859 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(27, 112, 166, 0.35);
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 60px rgba(1, 20, 50, 0.5);
 }
 
 /* PASOS DE LA INTERFAZ */
 .step {
-  color: #000000;
+  color: #ffffff;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -53,21 +53,22 @@ body::before {
 
 /* EL TÍTULO CENTRAL DESTACADO */
 .step h2 {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
   text-align: center;
-  color: #000000;
+  color: #ffffff;
   margin-bottom: 12px;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
 /* SUBTÍTULOS / DESCRIPCIONES */
 .step p {
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
-  color: var(--asis-texto-suave);
-  margin-bottom: 25px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 24px;
 }
 
 /* FORMULARIOS */
@@ -80,40 +81,46 @@ body::before {
 /* CONTENEDORES DE ENTRADA (Cajas de texto) */
 .inputContenedor {
   width: 100%;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
   display: flex;
   flex-direction: column;
 }
 
 .step label {
   margin-bottom: 8px;
-  font-weight: bold;
-  font-size: 14px;
-  color: var(--asis-texto);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #45b3bf;
 }
 
 /* INPUTS TRADICIONALES */
 .step input {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid var(--asis-borde);
-  border-radius: 8px;
-  background-color: var(--asis-bg-input);
+  padding: 12px 14px;
+  border: 1px solid rgba(27, 112, 166, 0.3);
+  border-radius: 10px;
+  background-color: rgba(2, 40, 89, 0.7);
   font-size: 14px;
-  color: var(--asis-texto);
+  color: #ffffff;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.step input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .step input:focus {
-  border-color: var(--asis-principal);
-  box-shadow: 0 0 0 3px rgba(38, 101, 173, 0.15);
+  border-color: #45b3bf;
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.15);
 }
 
 /* INDICACIONES / REGLAS DEBAJO DE LOS INPUTS */
 .step span {
   font-size: 11px;
-  color: var(--asis-texto-suave);
+  color: rgba(255, 255, 255, 0.4);
   margin-top: 6px;
   line-height: 1.4;
 }
@@ -122,28 +129,27 @@ body::before {
 .btnPrincipal {
   width: 100%;
   padding: 14px;
-  background-color: var(--asis-principal);
-  color: var(--asis-blanco);
+  background: linear-gradient(135deg, #1b70a6, #45b3bf);
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: opacity 0.2s;
   margin-top: 5px;
 }
 
 .btnPrincipal:hover {
-  background-color: var(--asis-hover);
-  color: #000000;
+  opacity: 0.9;
 }
 
 /* ENLACES Y NAVEGACIÓN SECUNDARIA */
 .step a {
   margin-top: 20px;
-  color: var(--asis-enlace);
+  color: #45b3bf;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
   transition: text-decoration 0.2s;
 }
@@ -156,7 +162,7 @@ body::before {
 .successIcon {
   font-size: 56px;
   font-weight: bold;
-  color: var(--asis-principal);
+  color: #45b3bf;
   margin-bottom: 15px;
 }
 
