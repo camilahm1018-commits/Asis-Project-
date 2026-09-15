@@ -1,0 +1,188 @@
+/* =========================================
+   ESTILOS GENERALES (MODO OSCURO ASIS)
+   ========================================= */
+.asis-nosotros-seccion {
+  padding: 4rem 2rem;
+  background-color: #0B1120; /* Fondo azul muy oscuro (casi negro) */
+  background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0B1120 40%); /* Sutil brillo azul arriba */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  color: #e2e8f0;
+}
+
+.asis-contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   SECCIÓN: ¿QUÉ ES ASIS?
+   ========================================= */
+.asis-info-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  padding: 2.5rem;
+  background-color: #151E32; /* Tarjeta oscura */
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid #2D3B55;
+  border-top: 4px solid #3B82F6; /* Acento azul brillante */
+}
+
+.asis-badge {
+  display: inline-block;
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.asis-titulo-principal {
+  font-size: 2.2rem;
+  color: #f8fafc; /* Blanco suave */
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+}
+
+.asis-descripcion-proyecto {
+  font-size: 1.1rem;
+  color: #94a3b8; /* Gris claro para lectura cómoda en oscuro */
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.asis-descripcion-proyecto strong {
+  color: #60A5FA; /* Resaltado en azul claro */
+}
+
+/* =========================================
+   SECCIÓN: EL EQUIPO
+   ========================================= */
+.equipo-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.equipo-titulo {
+  font-size: 2rem;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.equipo-subtitulo {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Rejilla responsiva */
+.equipo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* Tarjeta de cada integrante */
+.tarjeta-integrante {
+  background-color: #151E32;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #2D3B55;
+}
+
+.tarjeta-integrante:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2); /* Resplandor azul al pasar el mouse */
+  border-color: #3B82F6;
+}
+
+/* Contenedor de la imagen */
+.tarjeta-imagen-contenedor {
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background-color: #0f172a;
+  position: relative;
+}
+
+.tarjeta-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.4s ease;
+  filter: brightness(0.9); /* Un poco más oscuro para integrar con el tema */
+}
+
+.tarjeta-integrante:hover .tarjeta-imagen {
+  transform: scale(1.05);
+  filter: brightness(1); /* Se ilumina al pasar el mouse */
+}
+
+/* Información del integrante */
+.tarjeta-info {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.integrante-nombre {
+  font-size: 1.2rem;
+  color: #f8fafc;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.integrante-rol {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background-color: #2563EB; /* Azul vibrante */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.integrante-descripcion {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* =========================================
+   RESPONSIVE (Móviles)
+   ========================================= */
+@media (max-width: 768px) {
+  .asis-nosotros-seccion {
+    padding: 2rem 1rem;
+  }
+
+  .asis-info-header {
+    padding: 1.5rem;
+  }
+
+  .asis-titulo-principal {
+    font-size: 1.8rem;
+  }
+
+  .equipo-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}

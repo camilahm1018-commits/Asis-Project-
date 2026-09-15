@@ -1,39 +1,26 @@
 /* ==========================================================
-   REGISTRARSE.CSS
-   Repintado con la paleta oscura del Figma (mismos nombres de
-   clase; Registrarse.jsx no se modificó). Header y nav siguen
-   en global.css (Header.jsx no se toca).
+   REGISTRARSE.CSS - Tema Oscuro ASIS
    ========================================================== */
-
-body {
-  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%);
-  color: #ffffff;
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
 
 .contentWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding-top: 100px;
+  padding: 120px 20px 40px 20px; /* Padding top mayor para no chocar con el Header */
   box-sizing: border-box;
+  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%);
 }
 
-/* ----------------------------------------------------------
-   CONTENEDOR DEL FORMULARIO
-   ---------------------------------------------------------- */
 .formContainer {
   background: linear-gradient(180deg, #02305f 0%, #022859 100%);
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(1, 20, 50, 0.5);
-  width: 90%;
-  max-width: 640px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 700px;
   box-sizing: border-box;
-  border: 1px solid rgba(27, 112, 166, 0.35);
-  margin-bottom: 40px;
+  border: 1px solid rgba(69, 179, 191, 0.2);
 }
 
 .registroForm {
@@ -44,9 +31,18 @@ body {
 
 .registroForm h2 {
   text-align: center;
-  margin: 0 0 10px 0;
+  margin: 0;
   font-family: 'DM Sans', sans-serif;
   color: #ffffff;
+  font-size: 1.8rem;
+}
+
+.formSubtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
 
 .formGroupFlex {
@@ -65,14 +61,14 @@ body {
 .registroForm input,
 .registroForm select {
   width: 100%;
-  padding: 11px;
-  border: 1px solid rgba(27, 112, 166, 0.3);
-  background-color: rgba(2, 40, 89, 0.7);
+  padding: 12px;
+  border: 1px solid rgba(69, 179, 191, 0.3);
+  background-color: rgba(1, 30, 69, 0.6);
   color: #ffffff;
-  border-radius: 10px;
+  border-radius: 8px;
   box-sizing: border-box;
   font-size: 0.95rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .registroForm input::placeholder {
@@ -83,6 +79,8 @@ body {
 .registroForm select:focus {
   outline: none;
   border-color: #45b3bf;
+  background-color: rgba(1, 30, 69, 0.9);
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.1);
 }
 
 /* Etiquetas (Labels) */
@@ -90,42 +88,94 @@ body {
   color: #45b3bf;
   margin-bottom: 6px;
   font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* Asterisco para campos obligatorios */
-.formField:has(input[required]) label::after,
-.formField:has(select[required]) label::after {
-  content: " *";
-  color: #f87171;
+/* Mensajes de Estado */
+.mensajeExito {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.9rem;
 }
 
-/* Botón de Envíos */
+.mensajeError {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  font-size: 0.9rem;
+}
+
+/* Botón de Envío */
 .btn {
   background: linear-gradient(135deg, #1b70a6, #45b3bf);
   color: #ffffff;
-  padding: 12px 20px;
+  padding: 14px 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(69, 179, 191, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer del formulario */
+.formFooter {
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 10px;
 }
 
-.btn:hover {
-  opacity: 0.9;
+.formFooter a {
+  color: #45b3bf;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.formFooter a:hover {
+  text-decoration: underline;
 }
 
 /* ==========================================================
    RESPONSIVE DESIGN (MÓVILES)
    ========================================================== */
 @media (max-width: 600px) {
+  .contentWrapper {
+    padding-top: 80px;
+  }
+  
+  .formContainer {
+    padding: 25px;
+  }
+
   .formGroupFlex {
     flex-direction: column;
     gap: 15px;
+  }
+  
+  .registroForm h2 {
+    font-size: 1.5rem;
   }
 }

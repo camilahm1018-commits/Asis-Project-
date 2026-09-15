@@ -57,24 +57,3 @@ async def eliminar_Tipo_identificacion(id_tipo_id: int, session: Sesion_dependen
     session.delete(Tipo_identificacion_bd)
     session.commit()
     return Tipo_identificacion_bd
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

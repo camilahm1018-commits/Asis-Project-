@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import useAutoLogout from '../hooks/useAutoLogout.js';
 import '../styles/panelAdmin.css';
 
 function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {

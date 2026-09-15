@@ -426,3 +426,116 @@ export const listarEquiposPorAmbiente = async (idAmbiente) => {
     lanzarError(error, 'No se pudo obtener los equipos de este ambiente');
   }
 };
+
+// ==========================================
+// RECUPERACIÓN DE CONTRASEÑA (RF-018)
+// ==========================================
+
+export async function solicitarRecuperacion(correo) {
+  try {
+    const res = await fetch('http://127.0.0.1:8000/auth/solicitar-recuperacion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ correo })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Error al solicitar la recuperación');
+    }
+    
+    return await res.json();
+  } catch (error) {
+    lanzarError(error, 'No se pudo solicitar la recuperación de contraseña');
+  }
+}
+
+export async function restablecerContrasena(token, nueva_contrasena) {
+  try {
+    const res = await fetch('http://127.0.0.1:8000/auth/restablecer-contrasena', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token, nueva_contrasena })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Error al restablecer la contraseña');
+    }
+    
+    return await res.json();
+  } catch (error) {
+    lanzarError(error, 'No se pudo restablecer la contraseña');
+  }
+}
+
+// ==========================================
+// PRE-REGISTRO DE USUARIOS (RF-016)
+// ==========================================
+
+export const preRegistrarUsuario = async (datosUsuario) => {
+  try {
+    const { data } = await api.post('/usuarios/pre-registrar', datosUsuario, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo pre-registrar el usuario');
+  }
+};
+
+// ==========================================
+// HISTORIAL DE UN TICKET ESPECÍFICO
+// ==========================================
+export const obtenerHistorialDeTicket = async (idTicket) => {
+  try {
+    // Nota: Ajusta la URL si tu backend usa otra ruta (ej: /tickets/${idTicket}/historial)
+    const { data } = await api.get(`/His_tickets/his_tickets/${idTicket}`, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener el historial de este ticket');
+  }
+};
+
+// ==========================================
+// REGISTRAR ENTRADA DE EQUIPO (RF-007 / RF-010)
+// ==========================================
+export const registrarEntradaEquipo = async (idTicket, datos) => {
+  try {
+    // Nota: Ajusta la URL si tu backend usa una ruta ligeramente diferente 
+    // (por ejemplo: /tickets/${idTicket}/entrada o similar)
+    const { data } = await api.put(`/tickets/${idTicket}/registrar-entrada`, datos, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo registrar la entrada del equipo');
+  }
+};
+
+// ==========================================
+// REASIGNAR TÉCNICO A TICKET
+// ==========================================
+export const reasignarTecnico = async (idTicket, idTecnico, idAsignadoPor) => {
+  try {
+    const { data } = await api.put(`/tickets/${idTicket}/reasignar`, {
+      id_tecnico: idTecnico,
+      asignado_por: idAsignadoPor,
+    }, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo reasignar el técnico');
+  }
+};
+
+// ==========================================
+// NOTIFICACIONES (RF-010)
+// ==========================================
+export const crearNotificacion = async (datosNotificacion) => {
+  try {
+    const { data } = await api.post('/notificaciones/', datosNotificacion, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo crear la notificación');
+  }
+};

@@ -2,6 +2,7 @@
 // Ruta: /administrador/tickets
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout.jsx';
+import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
 import { listarTicketsAdministrador } from '../../services/adminService.js';
 
 function TicketsAdministrador() {
@@ -9,6 +10,7 @@ function TicketsAdministrador() {
   const [error, setError] = useState('');
   const [tickets, setTickets] = useState([]);
   const [filtro, setFiltro] = useState('Todos');
+  const [seleccionado, setSeleccionado] = useState(null);
 
   useEffect(() => {
     async function cargar() {
@@ -32,6 +34,8 @@ function TicketsAdministrador() {
 
   return (
     <AdminLayout title="Tickets">
+      {seleccionado && <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />}
+
       <div className="pa-section-header">
         <div>
           <h1 className="pa-section-header__title">Tickets</h1>
@@ -70,7 +74,7 @@ function TicketsAdministrador() {
             </thead>
             <tbody>
               {filtered.map((t) => (
-                <tr key={t.id}>
+                <tr key={t.id} onClick={() => setSeleccionado(t)} style={{ cursor: 'pointer' }}>
                   <td className="pa-table-mono" style={{ color: '#45B3BF' }}>#{t.id}</td>
                   <td>{t.titulo}</td>
                   <td style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>{t.ambiente}</td>

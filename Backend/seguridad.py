@@ -122,6 +122,53 @@ def verificar_token(
 
 
 # ==========================================
+# TOKENS DE ACTIVACIÓN / RECUPERACIÓN
+# ==========================================
+# Los uso para los links que mando por correo en RF-016 y RF-018.
+# Son tokens de un solo propósito, con vencimiento corto, para que
+# no sirvan como token de sesión normal.
+
+def crear_token_proposito(id_usuario: int, proposito: str, minutos: int = 60) -> str:
+
+    expiracion = datetime.utcnow() + timedelta(minutes=minutos)
+
+    return jwt.encode(
+        {
+            "id_usuario": id_usuario,
+            "proposito": proposito,
+            "exp": expiracion
+        },
+        CLAVE_SECRETA,
+        algorithm=ALGORITMO
+    )
+
+
+def verificar_token_proposito(token: str, proposito_esperado: str) -> int:
+    """Devuelve el id_usuario si el token es válido y es del propósito
+    esperado. Si no, lanza un HTTPException 400."""
+
+    error = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="El link no es válido o ya expiró. Solicítalo de nuevo."
+    )
+
+    try:
+        payload = jwt.decode(token, CLAVE_SECRETA, algorithms=[ALGORITMO])
+    except JWTError:
+        raise error
+
+    if payload.get("proposito") != proposito_esperado:
+        raise error
+
+    id_usuario = payload.get("id_usuario")
+
+    if id_usuario is None:
+        raise error
+
+    return id_usuario
+
+
+# ==========================================
 # PERMISOS DE ADMINISTRADOR
 # ==========================================
 

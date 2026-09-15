@@ -1,0 +1,200 @@
+/* Fondo de toda la página */
+.contacto-page {
+  min-height: 100vh;
+  background-color: #0a1929; /* Azul oscuro igual al login */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Botón de volver arriba a la derecha */
+.btn-volver-arriba {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.btn-volver-arriba:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+/* Tarjeta principal */
+.contacto-card {
+  background-color: #0d2137; /* Azul un poco más claro que el fondo */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.contacto-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.subtitulo {
+  color: #5dade2; /* Celeste claro */
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.titulo {
+  color: white;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Formulario */
+.formulario-contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  color: #5dade2; /* Celeste claro */
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Wrapper para el ícono + input */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 1rem;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.textarea-icon {
+  top: 12px;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 2.8rem; /* Espacio para el ícono */
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-wrapper input::placeholder,
+.input-wrapper textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input-wrapper input:focus,
+.input-wrapper textarea:focus {
+  outline: none;
+  border-color: #5dade2;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.1);
+}
+
+.input-wrapper textarea {
+  resize: vertical;
+  min-height: 100px;
+  padding-top: 2.5rem; /* Más espacio por el ícono arriba */
+}
+
+/* Botón enviar */
+.btn-enviar {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #2980b9 0%, #5dade2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.5rem;
+}
+
+.btn-enviar:hover {
+  background: linear-gradient(135deg, #3498db 0%, #85c1e9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(93, 173, 226, 0.4);
+}
+
+.btn-enviar:active {
+  transform: translateY(0);
+}
+
+/* Mensaje de éxito */
+.mensaje-exito {
+  background: rgba(46, 204, 113, 0.15);
+  border: 1px solid #2ecc71;
+  color: #2ecc71;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .contacto-page {
+    padding: 1rem;
+  }
+  
+  .contacto-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .titulo {
+    font-size: 1.5rem;
+  }
+}

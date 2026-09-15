@@ -1,3 +1,4 @@
+// src/pages/RegistrarTicketSimple.jsx
 import { useEffect, useState } from 'react';
 import PanelLayout from '../components/PanelLayout.jsx';
 import { navItemsInstructor } from './instructor/navItems.js';
@@ -54,7 +55,7 @@ function RegistrarTicketSimple() {
   async function handleEnviar(e) {
     e.preventDefault();
     if (!idEquipo || !descripcion) {
-      setErrorEnvio('Completa el equipo y la descripción.');
+      setErrorEnvio('Por favor, selecciona un equipo y describe el problema.');
       return;
     }
 
@@ -62,6 +63,7 @@ function RegistrarTicketSimple() {
     setErrorEnvio('');
 
     try {
+      // Buscar el estado "Pendiente" o usar el primero por defecto
       const estadoPendiente = estados.find(e => e.nombre_e.toLowerCase() === 'pendiente') || estados[0];
 
       const payload = {
@@ -75,19 +77,21 @@ function RegistrarTicketSimple() {
       };
 
       const respuesta = await crearTicket(payload);
-      setTicketCreado(respuesta?.id_ticket || 'Generado');
+      setTicketCreado(respuesta?.id_ticket || respuesta?.id || 'Generado');
       setEnviado(true);
 
+      // Limpiar formulario
       setIdEquipo('');
       setDescripcion('');
       setIdMotivoNovedad('');
 
+      // Volver al formulario después de 5 segundos
       setTimeout(() => {
         setEnviado(false);
         setTicketCreado(null);
       }, 5000);
     } catch (err) {
-      setErrorEnvio(err.message);
+      setErrorEnvio(err.message || 'Ocurrió un error al registrar el ticket.');
     } finally {
       setEnviando(false);
     }
@@ -97,10 +101,15 @@ function RegistrarTicketSimple() {
     return (
       <PanelLayout title="Registrar Ticket" rol={rol} sidebarLabel={tituloRol} navItems={navItems}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '96px 16px', gap: 16 }}>
-          <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, background: 'rgba(74, 222, 128, 0.15)', border: '2px solid #4ade80', color: '#4ade80' }}>✓</div>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, background: 'rgba(74, 222, 128, 0.15)', border: '2px solid #4ade80', color: '#4ade80' }}>
+            ✓
+          </div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: 0 }}>¡Ticket registrado!</h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: 0, textAlign: 'center' }}>
-            Ticket <strong style={{ color: '#45B3BF' }}>#{ticketCreado}</strong> creado en estado Pendiente.
+            Ticket <strong style={{ color: '#45B3BF' }}>#{ticketCreado}</strong> creado exitosamente en estado Pendiente.
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 8 }}>
+            Serás redirigido al formulario en unos segundos...
           </p>
         </div>
       </PanelLayout>
@@ -112,11 +121,11 @@ function RegistrarTicketSimple() {
       <div className="pa-section-header">
         <div>
           <h1 className="pa-section-header__title">Reportar Daño de Equipo</h1>
-          <p className="pa-section-header__subtitle">Completa el formulario para registrar un nuevo ticket</p>
+          <p className="pa-section-header__subtitle">Completa el formulario para registrar un nuevo ticket de soporte</p>
         </div>
       </div>
 
-      {cargando && <p className="pa-loading">Cargando...</p>}
+      {cargando && <p className="pa-loading">Cargando datos del inventario...</p>}
       {error && <p className="pa-error">{error}</p>}
 
       {!cargando && !error && (
@@ -124,10 +133,10 @@ function RegistrarTicketSimple() {
           <form onSubmit={handleEnviar} className="pa-card">
             <div className="pa-card__header">Nuevo Ticket</div>
             <div className="pa-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {errorEnvio && <p className="pa-error">{errorEnvio}</p>}
+              {errorEnvio && <p className="pa-error" style={{ padding: 0, textAlign: 'left' }}>{errorEnvio}</p>}
 
               <div className="pa-form-field">
-                <label>Equipo</label>
+                <label>Equipo afectado</label>
                 <select
                   className="pa-select"
                   value={idEquipo}
@@ -144,13 +153,13 @@ function RegistrarTicketSimple() {
               </div>
 
               <div className="pa-form-field">
-                <label>Descripción del daño</label>
+                <label>Descripción del problema</label>
                 <textarea
                   className="pa-textarea"
                   rows={4}
                   value={descripcion}
                   onChange={(e) => setDescripcion(e.target.value)}
-                  placeholder="Describe el problema..."
+                  placeholder="Describe con detalle la falla, cuándo comenzó y qué pasos has intentado..."
                   required
                 />
               </div>

@@ -1,11 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-/**
- * Header compartido entre las páginas de Login y Registro.
- * Recibe `authLink` (texto y ruta) y `authLabel` para alternar
- * entre "Iniciar sesión" y "Registrarse" según la página.
- */
 function Header({ authTo, authLabel }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -30,14 +25,12 @@ function Header({ authTo, authLabel }) {
         <nav className={`mainNav${menuOpen ? ' mainNavOpen' : ''}`} id="main-nav">
           <div className="menuOptions">
             <ul className="mainNavList">
+              {/* ✅ ENLACES CORREGIDOS PARA QUE COINCIDAN CON APP.JSX */}
               <li className="mainNavItem">
-                <Link to="/tickets/consultar" className="mainNavLink">Procesos</Link>
+                <Link to="/nosotros" className="mainNavLink">Nosotros</Link>
               </li>
               <li className="mainNavItem">
-                <Link to="/tickets/registrar" className="mainNavLink">Bienes</Link>
-              </li>
-              <li className="mainNavItem">
-                <Link to="/ambientes" className="mainNavLink">Ambientes</Link>
+                <Link to="/contactanos" className="mainNavLink">Contáctanos</Link>
               </li>
             </ul>
           </div>

@@ -20,14 +20,12 @@ function Login() {
     try {
       const data = await login(correo, contrasena)
 
-      // Guardar token y datos del usuario
+      // Guardar token y datos del usuario para el resto de la aplicación
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('usuario', JSON.stringify(data))
 
-      // 🔴 IMPORTANTE: El orden de estas condiciones es CRÍTICO
-      // Las más específicas van PRIMERO
+      // Redireccionamiento según el rol del usuario
       const rolNombre = data.rol.toLowerCase().trim()
-      alert(`CÓDIGO NUEVO LEÍDO. El rol es: ${rolNombre}`)
 
       if (rolNombre === 'administrador_mesa_ayuda') {
         navigate('/mesa-ayuda/panel')
@@ -45,7 +43,7 @@ function Login() {
       }
 
     } catch (error) {
-      setMensajeError(error.message)
+      setMensajeError(error.message || 'Error al iniciar sesión. Verifica tus credenciales.')
     } finally {
       setCargando(false)
     }
@@ -65,7 +63,7 @@ function Login() {
             <h1>INICIAR SESIÓN</h1>
 
             {mensajeError && (
-              <p style={{ color: 'red', textAlign: 'center', marginBottom: '15px' }}>
+              <p className="mensaje-error" style={{ color: '#f87171', textAlign: 'center', marginBottom: '15px', fontSize: '14px' }}>
                 {mensajeError}
               </p>
             )}
@@ -79,7 +77,7 @@ function Login() {
                 type="email"
                 id="correo_usuario"
                 name="correo_usuario"
-                placeholder="correo@ejemplo.com"
+                placeholder="usuario@sena.edu.co"
                 required
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}

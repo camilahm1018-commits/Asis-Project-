@@ -24,8 +24,14 @@ function PanelCuentadante() {
     async function cargar() {
       try {
         const [e, a, t, te] = await Promise.all([listarEquipos(), listarAmbientes(), listarTicketsAdministrador(), listarTiposEquipo()]);
-        setEquipos(e || []);
-        setAmbientes(a || []);
+        const usuarioActual = obtenerUsuarioActual();
+        
+        // ✅ Filtrar solo los ambientes y equipos asignados a este cuentadante
+        const misAmbientes = (a || []).filter((amb) => amb.id_cuentadante === usuarioActual?.id_usuario);
+        const idsMisAmbientes = misAmbientes.map((amb) => amb.id_ambiente);
+        
+        setEquipos((e || []).filter((eq) => idsMisAmbientes.includes(eq.id_ambiente)));
+        setAmbientes(misAmbientes);
         setTickets(t || []);
         setTiposEquipo(te || []);
       } catch (err) {
@@ -46,11 +52,10 @@ function PanelCuentadante() {
     );
   }
 
-  const activos = equipos.filter((e) => e.estado === 'activo' || e.estado === 'Activo').length;
-  const dañados = equipos.filter((e) => e.estado === 'dañado' || e.estado === 'Dañado');
-  const mantenimiento = equipos.filter((e) => e.estado === 'mantenimiento' || e.estado === 'Mantenimiento').length;
+  const activos = equipos.filter((e) => e.estado?.toLowerCase() === 'activo').length;
+  const dañados = equipos.filter((e) => e.estado?.toLowerCase() === 'dañado');
+  const mantenimiento = equipos.filter((e) => e.estado?.toLowerCase() === 'mantenimiento').length;
 
-  // ✅ CORREGIDO: Typo en Object.fromEntries
   const mapaTipos = Object.fromEntries(tiposEquipo.map((t) => [t.id_tipo, t.nombre_t]));
   const porTipoMap = {};
   equipos.forEach((e) => { 
@@ -61,9 +66,9 @@ function PanelCuentadante() {
 
   const porAmbienteData = ambientes.map((a) => ({
     name: a.nombre_a,
-    activos: equipos.filter((e) => e.id_ambiente === a.id_ambiente && (e.estado === 'activo' || e.estado === 'Activo')).length,
-    dañados: equipos.filter((e) => e.id_ambiente === a.id_ambiente && (e.estado === 'dañado' || e.estado === 'Dañado')).length,
-    mantenimiento: equipos.filter((e) => e.id_ambiente === a.id_ambiente && (e.estado === 'mantenimiento' || e.estado === 'Mantenimiento')).length,
+    activos: equipos.filter((e) => e.id_ambiente === a.id_ambiente && e.estado?.toLowerCase() === 'activo').length,
+    dañados: equipos.filter((e) => e.id_ambiente === a.id_ambiente && e.estado?.toLowerCase() === 'dañado').length,
+    mantenimiento: equipos.filter((e) => e.id_ambiente === a.id_ambiente && e.estado?.toLowerCase() === 'mantenimiento').length,
   }));
 
   const mapaAmbientes = Object.fromEntries(ambientes.map((a) => [a.id_ambiente, a.nombre_a]));
@@ -71,10 +76,10 @@ function PanelCuentadante() {
   return (
     <PanelLayout title="Dashboard" rol="cuentadante" sidebarLabel="Cuentadante" navItems={navItemsCuentadante}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-        <span className="pa-avatar pa-avatar--lg">{`${usuario?.nombre_u?.[0] ?? ''}${usuario?.apellidos_u?.[0] ?? ''}`.toUpperCase()}</span>
+        <span className="pa-avatar pa-avatar--lg">{`${usuario?.nombre?.[0] ?? ''}${usuario?.apellidos?.[0] ?? ''}`.toUpperCase()}</span>
         <div>
-          <h1 className="pa-section-header__title">Inventario General</h1>
-          <p className="pa-section-header__subtitle">Cuentadante: {usuario?.nombre_u} {usuario?.apellidos_u}</p>
+          <h1 className="pa-section-header__title">Mi Inventario</h1>
+          <p className="pa-section-header__subtitle">Cuentadante: {usuario?.nombre} {usuario?.apellidos}</p>
         </div>
       </div>
 
@@ -82,7 +87,7 @@ function PanelCuentadante() {
         <div className="pa-stat-card">
           <span className="pa-stat-card__label">Total Equipos</span>
           <span className="pa-stat-card__value">{equipos.length}</span>
-          <span className="pa-stat-card__sub">En inventario general</span>
+          <span className="pa-stat-card__sub">Bajo tu responsabilidad</span>
         </div>
         <div className="pa-stat-card">
           <span className="pa-stat-card__label">Operativos</span>
@@ -143,7 +148,8 @@ function PanelCuentadante() {
           <thead><tr><th>Código</th><th>Equipo</th><th>Ambiente</th><th>Tickets Activos</th></tr></thead>
           <tbody>
             {dañados.map((e) => {
-              const tkActivos = tickets.filter((t) => t.equipo === e.nombre && !t.atendido);
+              // ✅ CORREGIDO: Filtrar por id_equipo en lugar de por nombre
+              const tkActivos = tickets.filter((t) => t.id_equipo === e.id_equipo && !t.atendido);
               return (
                 <tr key={e.id_equipo}>
                   <td className="pa-table-mono" style={{ color: '#f87171' }}>{e.codigo}</td>
@@ -173,5 +179,4 @@ function PanelCuentadante() {
   );
 }
 
-// ✅ CORREGIDO: Exportar el componente, no el array de navegación
 export default PanelCuentadante;

@@ -1,34 +1,30 @@
+// src/pages/RecuperarContrasena.jsx
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '../components/Header.jsx'
+import { solicitarRecuperacion } from '../services/adminService.js'
 import '../styles/Recuperar_c.css'
 
 function RecuperarContrasena() {
-  const [email, setEmail] = useState('')
+  const [correo, setCorreo] = useState('')
+  const [enviando, setEnviando] = useState(false)
   const [mensaje, setMensaje] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMensaje('')
+    setError('')
+    setEnviando(true)
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/recuperar-contrasena', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setMensaje('Te enviamos un enlace de recuperación a tu correo.')
-      } else {
-        setMensaje(data.detail || 'No se pudo enviar el enlace de recuperación.')
-      }
-    } catch (error) {
-      setMensaje('No se pudo conectar con el servidor.')
+      const data = await solicitarRecuperacion(correo)
+      setMensaje(data.mensaje)
+      setCorreo('') // Limpiar el campo tras el envío exitoso
+    } catch (err) {
+      setError(err.message || 'Ocurrió un error al procesar la solicitud.')
+    } finally {
+      setEnviando(false)
     }
   }
 
@@ -39,28 +35,33 @@ function RecuperarContrasena() {
       <div className="container">
         <div id="step-1" className="step">
           <h2>Recuperar Contraseña</h2>
-          <p>Ingresa el correo electrónico asociado a tu cuenta de instructor/técnico.</p>
+          <p>Ingresa el correo institucional asociado a tu cuenta para recibir las instrucciones.</p>
 
           <form onSubmit={handleSubmit}>
             <div className="inputContenedor">
-              <label htmlFor="email">Correo Electrónico</label>
+              <label htmlFor="correo">Correo Electrónico</label>
               <input
                 type="email"
-                id="email"
-                placeholder="ejemplo@correo.com"
+                id="correo"
+                placeholder="ejemplo@soy.sena.edu.co"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                disabled={enviando}
               />
             </div>
 
-            {mensaje && <p>{mensaje}</p>}
+            {mensaje && <p style={{ color: '#45b3bf', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{mensaje}</p>}
+            {error && <p style={{ color: '#f87171', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>}
 
-            <button type="submit" className="btnPrincipal">
-              Enviar enlace de recuperación
+            <button type="submit" className="btnPrincipal" disabled={enviando} style={{ marginTop: '20px' }}>
+              {enviando ? 'Enviando...' : 'Enviar enlace de recuperación'}
             </button>
           </form>
-          <Link to="/login">Cancelar</Link>
+          
+          <Link to="/login" style={{ display: 'block', textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
+            Cancelar y volver al inicio de sesión
+          </Link>
         </div>
       </div>
     </>

@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import useAutoLogout from '../hooks/useAutoLogout.js';
 import '../styles/panelAdmin.css';
 
 const navItems = [
@@ -25,7 +26,8 @@ const navItems = [
 function AdminLayout({ title, children }) {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
-
+  useAutoLogout();
+  
   useEffect(() => {
     const userStr = localStorage.getItem('usuario');
     if (!userStr) {

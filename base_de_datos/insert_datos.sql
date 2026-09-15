@@ -1,7 +1,7 @@
 -- ==========================================
 -- BASE DE DATOS ASIS
 -- Sistema de Gestión de Tickets - CGMLTI
--- Versión actualizada con todos los cambios
+-- Versión actualizada y completa (Recomendada)
 -- ==========================================
  
 -- ==========================================
@@ -114,13 +114,9 @@ CREATE TABLE motivo_novedad(
 );
  
 -- ==========================================
--- TABLA: tickets
--- ==========================================
-
--- ==========================================
 -- TABLA: tickets (CON CAMPOS RF-006 INCLUIDOS)
 -- ==========================================
-CREATE TABLE  tickets (
+CREATE TABLE tickets (
     id_ticket SERIAL PRIMARY KEY,
     motivo TEXT NOT NULL,
     fecha_salida TIMESTAMP NOT NULL,
@@ -318,7 +314,7 @@ JOIN usuarios u ON h.id_usuario = u.id_usuario
 ORDER BY h.fecha DESC;
 
 -- ==========================================
--- DATOS
+-- DATOS INICIALES
 -- ==========================================
 
 -- Tipos de identificación
@@ -469,7 +465,9 @@ VALUES
 ('EQ-007','Computador Lenovo ThinkCentre','Lenovo','SNLN000019','Equipo ADSO','Activo',119,1),
 ('PT-005','Portátil Inspiron','Dell','SNDL000020','Portátil de apoyo','Activo',120,2);
 
--- TICKETS
+-- ==========================================
+-- TICKETS (Con datos RF-006)
+-- ==========================================
 INSERT INTO tickets (
     motivo, fecha_salida, fecha_retorno, atendido, id_equipo,
     creado_por, asignado_a, id_estado, id_motivo_novedad,
@@ -482,27 +480,29 @@ INSERT INTO tickets (
 ('Traslado temporal al ambiente de Redes para demostración.', '2026-09-02 09:00:00', NULL, FALSE, 2, 15, NULL, 1, NULL, 'traslado', 105, NULL, NULL),
 
 -- 3. PRÉSTAMO TEMPORAL (con persona y fecha)
-('Préstamo de televisor para evento de inauguración.', '2026-09-03 10:00:00', NULL, FALSE, 3, 1, NULL, 1, NULL, 'prestamo', NULL, 'Carlos Ramirez', '2026-09-10');
-('El computador no enciende.','2026-08-01 08:00:00','2026-08-03 15:00:00',TRUE,1,2,7,3,NULL),
-('La pantalla del portátil presenta líneas verticales.','2026-08-02 09:30:00',NULL,TRUE,2,3,8,2,NULL),
-('El televisor no muestra imagen.','2026-08-02 10:00:00',NULL,TRUE,3,4,9,1,NULL),
-('El cargador dejó de funcionar.','2026-08-03 08:20:00','2026-08-04 11:30:00',TRUE,4,5,10,4,NULL),
-('El All In One está muy lento.','2026-08-03 09:00:00',NULL,TRUE,5,6,11,2,NULL),
-('No reconoce dispositivos USB.','2026-08-03 10:15:00',NULL,TRUE,6,2,7,2,NULL),
-('La Mac presenta error de arranque.','2026-08-04 08:00:00',NULL,TRUE,7,3,8,1,NULL),
-('La batería de la laptop no carga.','2026-08-04 09:10:00',NULL,TRUE,8,4,9,2,NULL),
-('El TV no reproduce sonido.','2026-08-04 10:00:00','2026-08-05 12:30:00',TRUE,9,5,10,4,NULL),
-('El computador se reinicia constantemente.','2026-08-05 07:50:00',NULL,TRUE,10,6,11,1,NULL),
-('El teclado del portátil no responde.','2026-08-05 08:40:00',NULL,TRUE,11,2,7,2,NULL),
-('El televisor tiene la pantalla quebrada.','2026-08-05 09:00:00',NULL,TRUE,12,3,8,5,2),
-('El cargador presenta falso contacto.','2026-08-05 10:20:00',NULL,TRUE,13,4,9,2,NULL),
-('El All In One no inicia Windows.','2026-08-06 08:00:00',NULL,FALSE,14,5,10,1,NULL),
-('El computador de mesa presenta sobrecalentamiento.','2026-08-06 09:30:00',NULL,FALSE,15,6,11,2,NULL),
-('La Mac tiene el disco dañado.','2026-08-06 10:00:00',NULL,FALSE,16,2,7,5,3),
-('La laptop presenta daños por líquido.','2026-08-06 11:15:00',NULL,FALSE,17,3,8,5,2),
-('El TV no enciende después de un apagón.','2026-08-07 08:00:00',NULL,FALSE,18,4,9,1,NULL),
-('El computador Lenovo no detecta la red.','2026-08-07 09:20:00',NULL,FALSE,19,5,10,2,NULL),
-('El portátil Dell tiene el ventilador averiado.','2026-08-07 10:10:00',NULL,FALSE,20,6,11,1,NULL);
+('Préstamo de televisor para evento de inauguración.', '2026-09-03 10:00:00', NULL, FALSE, 3, 1, NULL, 1, NULL, 'prestamo', NULL, 'Carlos Ramirez', '2026-09-10'),
+
+-- 4. Resto de tickets de ejemplo
+('El computador no enciende.', '2026-08-01 08:00:00', '2026-08-03 15:00:00', TRUE, 1, 2, 7, 3, NULL, 'daño', NULL, NULL, NULL),
+('La pantalla del portátil presenta líneas verticales.', '2026-08-02 09:30:00', NULL, TRUE, 2, 3, 8, 2, NULL, 'daño', NULL, NULL, NULL),
+('El televisor no muestra imagen.', '2026-08-02 10:00:00', NULL, TRUE, 3, 4, 9, 1, NULL, 'daño', NULL, NULL, NULL),
+('El cargador dejó de funcionar.', '2026-08-03 08:20:00', '2026-08-04 11:30:00', TRUE, 4, 5, 10, 4, NULL, 'daño', NULL, NULL, NULL),
+('El All In One está muy lento.', '2026-08-03 09:00:00', NULL, TRUE, 5, 6, 11, 2, NULL, 'daño', NULL, NULL, NULL),
+('No reconoce dispositivos USB.', '2026-08-03 10:15:00', NULL, TRUE, 6, 2, 7, 2, NULL, 'daño', NULL, NULL, NULL),
+('La Mac presenta error de arranque.', '2026-08-04 08:00:00', NULL, TRUE, 7, 3, 8, 1, NULL, 'daño', NULL, NULL, NULL),
+('La batería de la laptop no carga.', '2026-08-04 09:10:00', NULL, TRUE, 8, 4, 9, 2, NULL, 'daño', NULL, NULL, NULL),
+('El TV no reproduce sonido.', '2026-08-04 10:00:00', '2026-08-05 12:30:00', TRUE, 9, 5, 10, 4, NULL, 'daño', NULL, NULL, NULL),
+('El computador se reinicia constantemente.', '2026-08-05 07:50:00', NULL, TRUE, 10, 6, 11, 1, NULL, 'daño', NULL, NULL, NULL),
+('El teclado del portátil no responde.', '2026-08-05 08:40:00', NULL, TRUE, 11, 2, 7, 2, NULL, 'daño', NULL, NULL, NULL),
+('El televisor tiene la pantalla quebrada.', '2026-08-05 09:00:00', NULL, TRUE, 12, 3, 8, 5, 2, 'daño', NULL, NULL, NULL),
+('El cargador presenta falso contacto.', '2026-08-05 10:20:00', NULL, TRUE, 13, 4, 9, 2, NULL, 'daño', NULL, NULL, NULL),
+('El All In One no inicia Windows.', '2026-08-06 08:00:00', NULL, FALSE, 14, 5, 10, 1, NULL, 'daño', NULL, NULL, NULL),
+('El computador de mesa presenta sobrecalentamiento.', '2026-08-06 09:30:00', NULL, FALSE, 15, 6, 11, 2, NULL, 'daño', NULL, NULL, NULL),
+('La Mac tiene el disco dañado.', '2026-08-06 10:00:00', NULL, FALSE, 16, 2, 7, 5, 3, 'daño', NULL, NULL, NULL),
+('La laptop presenta daños por líquido.', '2026-08-06 11:15:00', NULL, FALSE, 17, 3, 8, 5, 2, 'daño', NULL, NULL, NULL),
+('El TV no enciende después de un apagón.', '2026-08-07 08:00:00', NULL, FALSE, 18, 4, 9, 1, NULL, 'daño', NULL, NULL, NULL),
+('El computador Lenovo no detecta la red.', '2026-08-07 09:20:00', NULL, FALSE, 19, 5, 10, 2, NULL, 'daño', NULL, NULL, NULL),
+('El portátil Dell tiene el ventilador averiado.', '2026-08-07 10:10:00', NULL, FALSE, 20, 6, 11, 1, NULL, 'daño', NULL, NULL, NULL);
 
 -- ASIGNACION TECNICO
 INSERT INTO asignacion_tecnico(fecha_asignacion, id_ticket, id_tecnico, asignado_por)

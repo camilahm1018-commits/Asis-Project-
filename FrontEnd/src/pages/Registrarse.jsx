@@ -1,50 +1,81 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Header from '../components/Header.jsx'
 import '../styles/Registrarse.css'
 
+// Estado inicial con los nombres EXACTOS de tu modelo UsuarioCrear
 const initialForm = {
-  tipo_documento_usuario: '',
-  numero_de_documento: '',
-  nombre_usuario: '',
-  apellido_usuario: '',
-  telefono_usuario: '',
-  correo_usuario: '',
-  'contraseña_usuario': '',
+  id_tipo_identificacion: '',
+  numero_documento: '',
+  nombre_u: '',
+  apellidos_u: '',
+  telefono_u: '',
+  correo_u: '',
+  contrasena_u: '',
+  confirmar_contrasena: '', // Solo para validación visual, no se envía
   id_rol: ''
 }
 
 function Registrarse() {
   const [form, setForm] = useState(initialForm)
   const [mensaje, setMensaje] = useState('')
+  const [error, setError] = useState('')
+  const [cargando, setCargando] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    if (error) setError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMensaje('')
+    setError('')
+
+    // 1. Validar que las contraseñas coincidan
+    if (form.contrasena_u !== form.confirmar_contrasena) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+
+    // 2. Validar correo SENA (según tu constraint de la BD)
+    if (!form.correo_u.endsWith('@sena.edu.co')) {
+      setError('El correo debe ser institucional (@sena.edu.co).')
+      return
+    }
+
+    setCargando(true)
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/registro_2', {
+      // Quitamos 'confirmar_contrasena' para que coincida exactamente con UsuarioCrear
+      const { confirmar_contrasena, ...datosParaEnviar } = form
+
+      // ✅ URL CORREGIDA: Apunta a tu endpoint POST /usuarios
+      const response = await fetch('http://127.0.0.1:8000/usuarios', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(datosParaEnviar)
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setMensaje('Usuario registrado correctamente.')
+        setMensaje('¡Registro exitoso! Tu cuenta ha sido creada. Redirigiendo al login...')
         setForm(initialForm)
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 3000)
       } else {
-        setMensaje(data.detail || 'No se pudo completar el registro.')
+        // Maneja errores como "correo ya existe" o "documento ya existe" que tu backend lanza
+        setError(data.detail || 'No se pudo completar el registro. Verifica los datos.')
       }
     } catch (error) {
-      setMensaje('No se pudo conectar con el servidor.')
+      setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
+    } finally {
+      setCargando(false)
     }
   }
 
@@ -55,137 +86,167 @@ function Registrarse() {
       <main className="contentWrapper">
         <div className="formContainer">
           <form className="registroForm" onSubmit={handleSubmit}>
-            <h2>Registro de Usuario</h2>
+            <h2>Registro de Usuario ASIS</h2>
+            <p className="formSubtitle">Completa tus datos para activar tu cuenta en el sistema.</p>
 
-            {mensaje && (
-              <p style={{ textAlign: 'center' }}>{mensaje}</p>
-            )}
+            {mensaje && <p className="mensajeExito">{mensaje}</p>}
+            {error && <p className="mensajeError">{error}</p>}
 
+            {/* Grupo 1: Identificación */}
             <div className="formGroupFlex">
               <div className="formField">
-                <label htmlFor="tipo_identificacion">Tipo de Documento</label>
+                <label htmlFor="id_tipo_identificacion">Tipo de Documento</label>
                 <select
-                  id="tipo_identificacion"
-                  name="tipo_documento_usuario"
+                  id="id_tipo_identificacion"
+                  name="id_tipo_identificacion"
                   required
-                  value={form.tipo_documento_usuario}
+                  value={form.id_tipo_identificacion}
                   onChange={handleChange}
                 >
                   <option value="">Seleccione...</option>
-                  <option value="CC">Cédula de Ciudadanía</option>
-                  <option value="TI">Tarjeta de Identidad</option>
-                  <option value="CE">Cédula de Extranjería</option>
+                  <option value="1">Cédula de Ciudadanía (CC)</option>
+                  <option value="2">Cédula de Extranjería (CE)</option>
+                  <option value="3">Tarjeta de Identidad (TI)</option>
+                  <option value="4">Registro Civil(RC)</option>
+                  <option value="5">Pasaporte (PAS)</option>
+                  <option value="6">Número de Identificación Tributaria (NTI)</option>
+                  <option value="7">Permiso Especial de Permanencia (PEP)</option>
+                  <option value="8">Permiso por Protección Temporal (PPT)</option>
                 </select>
               </div>
 
               <div className="formField">
-                <label htmlFor="numero_de_documento">Documento</label>
+                <label htmlFor="numero_documento">Número de Documento</label>
                 <input
                   type="text"
-                  id="numero_de_documento"
-                  placeholder="Número de documento"
-                  name="numero_de_documento"
+                  id="numero_documento"
+                  name="numero_documento"
+                  placeholder="Ej: 1000000000"
                   required
-                  value={form.numero_de_documento}
+                  value={form.numero_documento}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* Grupo 2: Nombres */}
             <div className="formGroupFlex">
               <div className="formField">
-                <label htmlFor="nombre">Nombre</label>
+                <label htmlFor="nombre_u">Nombres</label>
                 <input
                   type="text"
-                  id="nombre"
-                  name="nombre_usuario"
-                  placeholder="Nombre usuario"
+                  id="nombre_u"
+                  name="nombre_u"
+                  placeholder="Tus nombres"
                   maxLength={50}
                   required
-                  value={form.nombre_usuario}
+                  value={form.nombre_u}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="formField">
-                <label htmlFor="apellido">Apellido</label>
+                <label htmlFor="apellidos_u">Apellidos</label>
                 <input
                   type="text"
-                  id="apellido"
-                  placeholder="Apellido usuario"
-                  name="apellido_usuario"
-                  maxLength={50}
+                  id="apellidos_u"
+                  name="apellidos_u"
+                  placeholder="Tus apellidos"
+                  maxLength={100}
                   required
-                  value={form.apellido_usuario}
+                  value={form.apellidos_u}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* Grupo 3: Contacto */}
             <div className="formGroupFlex">
               <div className="formField">
-                <label htmlFor="telefono">Teléfono</label>
+                <label htmlFor="telefono_u">Teléfono</label>
                 <input
-                  type="text"
-                  id="telefono"
-                  placeholder="Número de teléfono"
-                  name="telefono_usuario"
+                  type="tel"
+                  id="telefono_u"
+                  name="telefono_u"
+                  placeholder="Ej: 3001234567"
                   required
-                  value={form.telefono_usuario}
+                  value={form.telefono_u}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="formField">
-                <label htmlFor="correo">Correo institucional</label>
+                <label htmlFor="correo_u">Correo Institucional</label>
                 <input
                   type="email"
-                  id="correo"
-                  placeholder="ejemplo@soy.sena.edu.co"
-                  name="correo_usuario"
-                  maxLength={50}
+                  id="correo_u"
+                  name="correo_u"
+                  placeholder="nombre.apellido@sena.edu.co"
+                  maxLength={100}
                   required
-                  value={form.correo_usuario}
+                  value={form.correo_u}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* Grupo 4: Seguridad */}
             <div className="formGroupFlex">
               <div className="formField">
-                <label htmlFor="contrasena">Contraseña</label>
+                <label htmlFor="contrasena_u">Contraseña</label>
                 <input
                   type="password"
-                  id="contrasena"
-                  placeholder="Contraseña"
-                  name="contraseña_usuario"
-                  maxLength={10}
+                  id="contrasena_u"
+                  name="contrasena_u"
+                  placeholder="Mínimo 6 caracteres"
+                  minLength={6}
                   required
-                  value={form['contraseña_usuario']}
+                  value={form.contrasena_u}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="formField">
-                <label htmlFor="rol">Rol</label>
-                <select
-                  id="rol"
-                  name="id_rol"
+                <label htmlFor="confirmar_contrasena">Confirmar Contraseña</label>
+                <input
+                  type="password"
+                  id="confirmar_contrasena"
+                  name="confirmar_contrasena"
+                  placeholder="Repite tu contraseña"
+                  minLength={6}
                   required
-                  value={form.id_rol}
+                  value={form.confirmar_contrasena}
                   onChange={handleChange}
-                >
-                  <option value="">Seleccione un rol...</option>
-                  <option value="1">Administrador</option>
-                  <option value="2">Cuentadante</option>
-                  <option value="3">Instructor</option>
-                  <option value="4">Técnico</option>
-                  <option value="5">Jefe Técnico</option>
-                </select>
+                />
               </div>
             </div>
 
-            <button type="submit" className="btn">Guardar</button>
+            {/* Grupo 5: Rol */}
+            <div className="formField">
+              <label htmlFor="id_rol">Rol en el Sistema</label>
+              <select
+                id="id_rol"
+                name="id_rol"
+                required
+                value={form.id_rol}
+                onChange={handleChange}
+              >
+                <option value="">Seleccione su rol...</option>
+                <option value="1">Instructor</option>
+                <option value="2">Cuentadante</option>
+                <option value="3">Técnico</option>
+                <option value="4">Administrador</option>
+                <option value="5">Administrador Mesa de Ayuda</option>
+              </select>
+            </div>
+
+            <button type="submit" className="btn" disabled={cargando}>
+              {cargando ? 'Registrando...' : 'Activar mi Cuenta'}
+            </button>
+
+            <p className="formFooter">
+              ¿Ya tienes tu cuenta activada? <Link to="/login">Inicia sesión aquí</Link>
+            </p>
           </form>
         </div>
       </main>

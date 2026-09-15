@@ -6,10 +6,8 @@ import Registrarse from './pages/Registrarse.jsx'
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx'
 
 // General
-import ConsultarTickets from './pages/ConsultarTickets.jsx'
-import RegistrarTicket from './pages/RegistrarTicket.jsx'
-import CambioEstadoTicket from './pages/CambioEstadoTicket.jsx'
-import ConsultarAmbientes from './pages/ConsultarAmbientes.jsx'
+import Nosotros from './pages/Nosotros.jsx'
+import Contactanos from './pages/Contactanos.jsx'
 
 // Administrador
 import PanelAdministrador from './pages/Administrador/PanelAdministrador.jsx'
@@ -21,12 +19,12 @@ import ReportesAdministrador from './pages/Administrador/ReportesAdministrador.j
 import ConfiguracionAdministrador from './pages/Administrador/ConfiguracionAdministrador.jsx'
 
 // Mesa de Ayuda
-import PanelMesaAyuda from './pages/Administrador mesa_de_ayuda/PanelMesaAyuda.jsx'
-import TicketsMesaAyuda from './pages/Administrador mesa_de_ayuda/TicketsMesaAyuda.jsx'
-import HistorialMesaAyuda from './pages/Administrador mesa_de_ayuda/HistorialMesaAyuda.jsx'
-import AsignarTecnico from './pages/Administrador mesa_de_ayuda/AsignarTecnico.jsx'
-import TecnicosMesaAyuda from './pages/Administrador mesa_de_ayuda/TecnicosMesaAyuda.jsx'
-import ReportesMesaAyuda from './pages/Administrador mesa_de_ayuda/ReportesMesaAyuda.jsx'
+import PanelMesaAyuda from './pages/Administrador_mesa_de_ayuda/PanelMesaAyuda.jsx'
+import TicketsMesaAyuda from './pages/Administrador_mesa_de_ayuda/TicketsMesaAyuda.jsx'
+import HistorialMesaAyuda from './pages/Administrador_mesa_de_ayuda/HistorialMesaAyuda.jsx'
+import AsignarTecnico from './pages/Administrador_mesa_de_ayuda/AsignarTecnico.jsx'
+import TecnicosMesaAyuda from './pages/Administrador_mesa_de_ayuda/TecnicosMesaAyuda.jsx'
+import ReportesMesaAyuda from './pages/Administrador_mesa_de_ayuda/ReportesMesaAyuda.jsx'
 
 // Técnico
 import PanelTecnico from './pages/tecnico/PanelTecnico.jsx'
@@ -58,13 +56,8 @@ function App() {
         <Route path="/registrarse" element={<Registrarse />} />
         <Route path="/recuperar" element={<RecuperarContrasena />} />
 
-        {/* ✅ Ruta principal de Mesa de Ayuda */}
-        <Route path="/administrador-mesa-ayuda" element={<PanelMesaAyuda />} />
-
-        <Route path="/tickets/consultar" element={<ConsultarTickets />} />
-        <Route path="/tickets/registrar" element={<RegistrarTicket />} />
-        <Route path="/tickets/cambiar-estado" element={<CambioEstadoTicket />} />
-        <Route path="/ambientes" element={<ConsultarAmbientes />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/contactanos" element={<Contactanos />} />
 
         {/* Rutas de Administrador */}
         <Route path="/administrador" element={<PanelAdministrador />} />

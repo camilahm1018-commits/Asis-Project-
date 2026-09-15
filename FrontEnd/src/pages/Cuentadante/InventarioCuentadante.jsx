@@ -5,6 +5,7 @@ import PanelLayout from '../../components/PanelLayout.jsx';
 import { navItemsCuentadante } from './navItems.js';
 import {
   listarEquipos, crearEquipo, listarAmbientes, listarTiposEquipo, listarTicketsAdministrador,
+  obtenerUsuarioActual,
 } from '../../services/adminService.js';
 
 const badgeColorPorEstado = {
@@ -40,10 +41,14 @@ function InventarioCuentadante() {
     try {
       setCargando(true);
       const [e, a, te, t] = await Promise.all([listarEquipos(), listarAmbientes(), listarTiposEquipo(), listarTicketsAdministrador()]);
-      setEquipos(e || []);
-      setAmbientes(a || []);
+      const usuarioActual = obtenerUsuarioActual();
+      const misAmbientes = (a || []).filter((amb) => amb.id_cuentadante === usuarioActual?.id_usuario);
+      const idsMisAmbientes = misAmbientes.map((amb) => amb.id_ambiente);
+      
+      setEquipos((e || []).filter((eq) => idsMisAmbientes.includes(eq.id_ambiente)));
+      setAmbientes(misAmbientes);
       setTiposEquipo(te || []);
-      setTickets(t);
+      setTickets(t || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -172,9 +177,9 @@ function InventarioCuentadante() {
               ))}
               <div>
                 <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#45B3BF', marginBottom: 8 }}>Tickets del equipo</p>
-                {tickets.filter((t) => t.equipo === seleccionado.nombre).length === 0 ? (
+                {tickets.filter((t) => t.id_equipo === seleccionado.id_equipo).length === 0 ? (
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Sin tickets registrados</p>
-                ) : tickets.filter((t) => t.equipo === seleccionado.nombre).map((t) => (
+                ) : tickets.filter((t) => t.id_equipo === seleccionado.id_equipo).map((t) => (
                   <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <span className="pa-table-mono" style={{ fontSize: 11, color: '#45B3BF' }}>#{t.id}</span>
                     <span style={{ fontSize: 12, flex: 1, margin: '0 8px', color: 'rgba(255,255,255,0.6)' }}>{t.titulo}</span>
@@ -209,10 +214,20 @@ function InventarioCuentadante() {
       {!cargando && !error && (
         <div className="pa-table-wrap">
           <table className="pa-table">
-            <thead><tr><th>Código</th><th>Equipo / Serial</th><th>Marca</th><th>Tipo</th><th>Ambiente</th><th>Estado</th><th>Tickets</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Equipo / Serial</th>
+                <th>Marca</th>
+                <th>Tipo</th>
+                <th>Ambiente</th>
+                <th>Estado</th>
+                <th>Tickets</th>
+              </tr>
+            </thead>
             <tbody>
               {filtered.map((e) => {
-                const tkActivos = tickets.filter((t) => t.equipo === e.nombre && !t.atendido).length;
+                const tkActivos = tickets.filter((t) => t.id_equipo === e.id_equipo && !t.atendido).length;
                 return (
                   <tr key={e.id_equipo} onClick={() => setSeleccionado(e)} style={{ cursor: 'pointer' }}>
                     <td className="pa-table-mono" style={{ color: '#45B3BF' }}>{e.codigo}</td>

@@ -59,7 +59,7 @@ function PanelInstructor() {
 
       <div className="pa-stat-grid">
         <div className="pa-stat-card">
-          <span className="pa-stat-card__label">Mis Reportes</span>
+          <span className="pa-stat-card__label">Mis Tickets</span>
           <span className="pa-stat-card__value">{misTickets.length}</span>
           <span className="pa-stat-card__sub">Total enviados</span>
         </div>

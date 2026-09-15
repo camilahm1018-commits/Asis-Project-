@@ -2,10 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
-
 if TYPE_CHECKING:from Modelos.ambientes import Ambiente
-
-
 
 class UsuarioBase(SQLModel):
 
@@ -15,18 +12,24 @@ class UsuarioBase(SQLModel):
     contrasena_u: str
     numero_documento: str
     telefono_u: Optional[str] = None
-
     creado_en: datetime = Field(default_factory=datetime.now)
-
+    activo: bool = Field(default=True)
     id_rol: int | None = Field(default=None,foreign_key="rol.id_rol")
-
     id_tipo_identificacion: int = Field(foreign_key="tipo_identificacion.id_tipo_id")
-
-
 
 class UsuarioCrear(UsuarioBase):
     pass
 
+# lo uso cuando el administrador pre-registra a alguien sin contraseña todavía (RF-016 versión B)
+class UsuarioPreRegistro(SQLModel):
+
+    nombre_u: str
+    apellidos_u: str
+    correo_u: str
+    numero_documento: str
+    telefono_u: Optional[str] = None
+    id_rol: int
+    id_tipo_identificacion: int
 
 
 class UsuarioEditar(SQLModel):

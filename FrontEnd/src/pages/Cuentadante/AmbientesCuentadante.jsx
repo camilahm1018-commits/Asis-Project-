@@ -49,9 +49,9 @@ function AmbientesCuentadante() {
           {ambientes.map((a) => {
             // Filtrar equipos de este ambiente
             const eqAmbiente = equipos.filter((e) => e.id_ambiente === a.id_ambiente);
-            const dañados = eqAmbiente.filter((e) => e.estado === 'dañado' || e.estado === 'Dañado').length;
-            const mantenimiento = eqAmbiente.filter((e) => e.estado === 'mantenimiento' || e.estado === 'Mantenimiento').length;
-            const activos = eqAmbiente.filter((e) => e.estado === 'activo' || e.estado === 'Activo').length;
+            const dañados = eqAmbiente.filter((e) => e.estado?.toLowerCase() === 'dañado').length;
+            const mantenimiento = eqAmbiente.filter((e) => e.estado?.toLowerCase() === 'mantenimiento').length;
+            const activos = eqAmbiente.filter((e) => e.estado?.toLowerCase() === 'activo').length;
             const pctSalud = eqAmbiente.length > 0 ? Math.round((activos / eqAmbiente.length) * 100) : 100;
             const colorSalud = pctSalud >= 80 ? '#4ade80' : pctSalud >= 50 ? '#facc15' : '#f87171';
 
