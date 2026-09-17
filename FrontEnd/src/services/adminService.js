@@ -94,6 +94,24 @@ export const listarAmbientes = async () => {
   }
 };
 
+export const listarAmbientesDeCuentadante = async (idUsuario) => {
+  try {
+    if (!idUsuario) {
+      throw new Error('ID de usuario no proporcionado');
+    }
+    
+    const { data } = await api.get(`/ambientes/cuentadante/${idUsuario}`, getAuthHeaders());
+    return data;
+  } catch (error) {
+    // Si el endpoint no existe en el backend, usamos el filtro local
+    if (error.response?.status === 404) {
+      const todos = await listarAmbientes();
+      return (todos || []).filter((a) => String(a.id_cuentadante) === String(idUsuario));
+    }
+    lanzarError(error, 'No se pudo obtener tus ambientes asignados');
+  }
+};
+
 export const crearAmbiente = async (datosAmbiente) => {
   try {
     const { data } = await api.post('/ambientes/', datosAmbiente, getAuthHeaders());
@@ -341,13 +359,19 @@ export const crearHistorialTicket = async (datosHistorial) => {
 // historial en un solo paso — lo usan Técnico y Mesa de Ayuda al
 // cambiar el estado de un ticket.
 export const actualizarEstadoTicketConHistorial = async (idTicket, { idEstado, atendido, accion, observacion, estadoResultante, idUsuario }) => {
-  await editarTicket(idTicket, { id_estado: idEstado, atendido });
+  // 1. Actualizar el ticket (el backend espera 'id_estado' en snake_case)
+  await editarTicket(idTicket, { 
+    id_estado: Number(idEstado), 
+    atendido: Boolean(atendido) 
+  });
+  
+  // 2. Crear registro en historial (usamos las variables que recibimos como parámetros)
   return crearHistorialTicket({
-    accion,
-    observacion,
-    estado_resultante: estadoResultante,
-    id_ticket: idTicket,
-    id_usuario: idUsuario,
+    id_ticket: Number(idTicket),
+    id_usuario: Number(idUsuario),
+    accion: String(accion || ''),
+    observacion: String(observacion || ''),
+    estado_resultante: String(estadoResultante || ''),
   });
 };
 
@@ -360,6 +384,18 @@ export const obtenerUsuarioActual = () => {
   return userStr ? JSON.parse(userStr) : null;
 };
 
+const MAPA_COLORES_ESTADO = {
+  rojo: '#f87171',
+  naranja: '#fb923c',
+  amarillo: '#facc15',
+  verde: '#4ade80',
+  negro: '#6b7280',
+  morado: '#a855f7',
+  azul: '#45B3BF',
+};
+
+export const resolverColorEstado = (nombreColor) =>
+  MAPA_COLORES_ESTADO[(nombreColor || '').toLowerCase().trim()] || '#94a3b8';
 // ==========================================
 // FUNCIÓN COMPUESTA: TICKETS ENRIQUECIDOS
 // ==========================================
@@ -395,12 +431,20 @@ export const listarTicketsAdministrador = async () => {
       id: t.id_ticket,
       titulo: t.motivo,
       equipo: equipo ? equipo.nombre : `Equipo #${t.id_equipo}`,
+      idEquipo: t.id_equipo,
       ambiente: ambiente ? ambiente.nombre_a : 'Sin ambiente',
+      idTipoEquipo: equipo ? equipo.id_tipo : null,
       creadoPor: creadoPor ? `${creadoPor.nombre_u} ${creadoPor.apellidos_u}` : 'Desconocido',
+      idCreadoPor: t.creado_por, // ⚠️ ESTA ES LA LÍNEA CLAVE QUE FALTABA
       tecnico: asignadoA ? `${asignadoA.nombre_u} ${asignadoA.apellidos_u}` : 'Sin asignar',
+      idTecnico: t.asignado_a,
       estado: estado ? estado.nombre_e : 'Sin estado',
-      estadoColor: estado ? estado.color : '#94a3b8',
+      idEstado: t.id_estado,
+      estadoColor: resolverColorEstado(estado?.color),
+      tipoSalida: t.tipo_salida,
       fecha: t.creado_en,
+      fechaSalida: t.fecha_salida,
+      fechaRetorno: t.fecha_retorno,
       atendido: t.atendido,
     };
   });

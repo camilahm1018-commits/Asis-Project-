@@ -1,5 +1,6 @@
-// src/pages/Login.jsx
+
 import { useState } from 'react'
+import {useEffect} from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../services/api'
 import Header from '../components/Header.jsx'
@@ -11,6 +12,17 @@ function Login() {
   const [contrasena, setContrasena] = useState('')
   const [mensajeError, setMensajeError] = useState('')
   const [cargando, setCargando] = useState(false)
+
+   useEffect(() => {
+    // Agrega la clase al entrar a la
+    //  página de Login
+    document.body.classList.add('page-login')
+    
+    // Limpia la clase al salir de la página de Login
+    return () => {
+      document.body.classList.remove('page-login')
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

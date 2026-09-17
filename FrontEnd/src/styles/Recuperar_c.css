@@ -1,8 +1,6 @@
 /* ==========================================================
-   RECUPERAR_C.CSS
-   Repintado con la paleta oscura del Figma (mismos nombres de
-   clase; RecuperarContrasena.jsx no se modificó). Header y nav
-   siguen en global.css (Header.jsx no se toca).
+   RECUPERAR_C.CSS - CON SOPORTE MODO OSCURO/CLARO
+   Repintado con variables CSS para ambos temas
    ========================================================== */
 
 body {
@@ -12,8 +10,9 @@ body {
   align-items: center;
   min-height: 100vh;
   position: relative;
-  color: #ffffff;
-  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%);
+  color: var(--text-primary);
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 body::before {
@@ -26,49 +25,66 @@ body::before {
   z-index: -1;
 }
 
+/* Modo claro para el body */
+body.light-mode {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%);
+}
+
 /* CONTENEDOR PRINCIPAL ASIS */
 .container {
-  width: 500px;
+  width: 600px; /* ✅ Aumentado de 500px a 600px */
   max-width: 90%;
-  margin-top: 100px;
-  background: linear-gradient(180deg, #02305f 0%, #022859 100%);
+  margin: 80px auto 40px;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
   border-radius: 20px;
-  border: 1px solid rgba(27, 112, 166, 0.35);
-  padding: 36px 32px;
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 
+              0 0 50px rgba(69, 179, 191, 0.15);
+  padding: 50px 40px; /* ✅ Aumentado de 40px 32px */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 20px 60px rgba(1, 20, 50, 0.5);
+  gap: 24px;
+  transition: all 0.3s ease;
+}
+
+/* Contenedor en modo claro */
+body.light-mode .container {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
 }
 
 /* PASOS DE LA INTERFAZ */
 .step {
-  color: #ffffff;
+  color: var(--text-primary);
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 /* EL TÍTULO CENTRAL DESTACADO */
 .step h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   font-family: 'DM Sans', sans-serif;
   text-align: center;
-  color: #ffffff;
-  margin-bottom: 12px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
   letter-spacing: -0.3px;
+  transition: color 0.3s ease;
 }
 
 /* SUBTÍTULOS / DESCRIPCIONES */
 .step p {
   text-align: center;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 24px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  transition: color 0.3s ease;
 }
 
 /* FORMULARIOS */
@@ -92,66 +108,83 @@ body::before {
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #45b3bf;
+  color: var(--accent-color);
+  transition: color 0.3s ease;
 }
 
 /* INPUTS TRADICIONALES */
 .step input {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid rgba(27, 112, 166, 0.3);
+  padding: 16px 18px;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  background-color: rgba(2, 40, 89, 0.7);
-  font-size: 14px;
-  color: #ffffff;
+  background-color: var(--bg-tertiary);
+  font-size: 16px;
+  color: var(--text-primary);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+}
+
+/* Inputs en modo claro */
+body.light-mode .step input {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .step input:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
 }
 
 .step input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
 }
 
 .step input:focus {
-  border-color: #45b3bf;
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.15);
 }
 
 /* INDICACIONES / REGLAS DEBAJO DE LOS INPUTS */
 .step span {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   margin-top: 6px;
   line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
 /* BOTÓN PRINCIPAL */
 .btnPrincipal {
   width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #1b70a6, #45b3bf);
-  color: #ffffff;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-top: 5px;
+  transition: all 0.3s ease;
+  margin-top: 8px;
 }
 
 .btnPrincipal:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(69, 179, 191, 0.3);
 }
 
 /* ENLACES Y NAVEGACIÓN SECUNDARIA */
 .step a {
-  margin-top: 20px;
-  color: #45b3bf;
+  margin-top: 24px;
+  color: var(--accent-color);
   text-decoration: none;
   font-weight: 700;
-  font-size: 14px;
-  transition: text-decoration 0.2s;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
 
 .step a:hover {
@@ -162,8 +195,23 @@ body::before {
 .successIcon {
   font-size: 56px;
   font-weight: bold;
-  color: #45b3bf;
+  color: var(--success-color);
   margin-bottom: 15px;
+}
+html, body, #root {
+  background: transparent !important;
+}
+
+body {
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%) !important;
+}
+
+body.light-mode {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%) !important;
+}
+
+body.light-mode #root {
+  background: transparent !important;
 }
 
 /* ==========================================================

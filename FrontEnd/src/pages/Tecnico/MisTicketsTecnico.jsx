@@ -1,5 +1,4 @@
 // src/pages/tecnico/MisTicketsTecnico.jsx
-// Ruta: /tecnico/tickets
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
@@ -34,26 +33,23 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
       const usuarioActual = obtenerUsuarioActual();
       const estadoElegido = estados.find((es) => es.id_estado === Number(idEstado));
 
-      // 1. Actualizar estado e historial
       await actualizarEstadoTicketConHistorial(ticket.id, {
-        id_estado: Number(idEstado), // ✅ Alineado con el nombre de columna de la BD
+        id_estado: Number(idEstado),
         atendido: marcarAtendido,
         accion,
         observacion,
         estado_resultante: estadoElegido?.nombre_e || '',
-        id_usuario: usuarioActual?.id_usuario, // ✅ Alineado con la BD
+        id_usuario: usuarioActual?.id_usuario,
       });
 
-      // 2. Si se marca como atendido, registrar fecha de retorno y notificar (RF-007 / RF-010)
       if (marcarAtendido) {
         await editarTicket(ticket.id, { fecha_retorno: new Date().toISOString() });
-        
         await crearNotificacion({
           canal: 'app',
           mensaje: `Tu ticket #${ticket.id} fue atendido y quedó en estado "${estadoElegido?.nombre_e}".`,
           enviada: false,
           id_ticket: ticket.id,
-          notificado_para: ticket.creado_por, // ✅ Usamos el ID del creador, no el nombre
+          notificado_para: ticket.idCreadoPor, // Usamos el ID que ahora sí llega bien
           notificado_por: usuarioActual?.id_usuario,
         });
       }
@@ -76,7 +72,7 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
         <form onSubmit={handleGuardar}>
           <div className="pa-modal__body">
             <div className="pa-detail-block" style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, margin: 0, color: '#fff' }}>{ticket.motivo || ticket.titulo}</p>
+              <p style={{ fontSize: 13, fontWeight: 500, margin: 0, color: '#fff' }}>{typeof ticket.titulo === 'string' ? ticket.titulo : (typeof ticket.motivo === 'string' ? ticket.motivo : 'Sin descripción')}</p>
               <p style={{ fontSize: 12, margin: '4px 0 0', color: 'rgba(255,255,255,0.5)' }}>{ticket.equipo} · {ticket.ambiente}</p>
             </div>
             {error && <p className="pa-error" style={{ padding: 0, textAlign: 'left', marginBottom: 16 }}>{error}</p>}
@@ -101,12 +97,12 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
             
             <div className="pa-form-field">
               <label>Observaciones</label>
-              <textarea className="pa-textarea" rows={4} value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Describe el trabajo realizado, hallazgos y solución aplicada..." />
+              <textarea className="pa-textarea" rows={4} value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Describe el trabajo realizado..." />
             </div>
             
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8 }}>
               <input type="checkbox" checked={marcarAtendido} onChange={(e) => setMarcarAtendido(e.target.checked)} />
-              Marcar este ticket como atendido (registra la entrada del equipo)
+              Marcar este ticket como atendido
             </label>
             
             <div className="pa-modal__actions" style={{ marginTop: 24 }}>
@@ -152,10 +148,20 @@ function MisTicketsTecnico() {
     cargar();
   }, []);
 
+  // 🔍 DIAGNÓSTICO: Ver qué está llegando
+  console.log("👤 Técnico logueado ID:", usuario?.id_usuario);
+  if (tickets.length > 0) {
+    console.log("🎫 Primer ticket recibido:", { id: tickets[0].id, idTecnico: tickets[0].idTecnico, tecnicoNombre: tickets[0].tecnico });
+  }
+
   const mapaTipos = Object.fromEntries(tiposEquipo.map((t) => [t.id_tipo, t.nombre_t]));
   
-  // ✅ FILTRADO SEGURO POR ID (Usamos 'asignado_a' que es el ID del técnico en la BD)
-  const misTickets = tickets.filter((t) => t.asignado_a === usuario?.id_usuario);
+  // ✅ FILTRADO SEGURO POR ID
+  const misTickets = tickets.filter((t) => {
+    const coincide = String(t.idTecnico) === String(usuario?.id_usuario);
+    console.log(`Ticket #${t.id}: idTecnico=${t.idTecnico}, mi ID=${usuario?.id_usuario} → ${coincide ? '✅ SÍ' : '❌ NO'}`);
+    return coincide;
+  });
 
   const estadosDisponibles = ['Todos', ...new Set(misTickets.map((t) => t.estado))];
   const tiposDisponibles = ['Todos', ...new Set(misTickets.map((t) => mapaTipos[t.id_tipo]).filter(Boolean))];
@@ -245,7 +251,7 @@ function MisTicketsTecnico() {
                   className="pa-btn-primary"
                   style={{ padding: '8px 16px', fontSize: 13, borderRadius: '8px' }}
                   onClick={(e) => { 
-                    e.stopPropagation(); // ✅ Evita que se abra el panel de detalle al hacer clic en el botón
+                    e.stopPropagation();
                     setActualizando(t); 
                   }}
                 >
@@ -258,7 +264,7 @@ function MisTicketsTecnico() {
           {filtered.length === 0 && (
             <div className="pa-card" style={{ padding: 64, textAlign: 'center' }}>
               <span style={{ fontSize: 32, display: 'block', marginBottom: 12 }}>🎉</span>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>No hay tickets que coincidan con este filtro</p>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>No hay tickets asignados a tu usuario con este filtro.</p>
             </div>
           )}
         </div>

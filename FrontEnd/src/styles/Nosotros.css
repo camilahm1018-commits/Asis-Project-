@@ -1,18 +1,61 @@
 /* =========================================
-   ESTILOS GENERALES (MODO OSCURO ASIS)
+   NOSOTROS.CSS - CON SOPORTE MODO OSCURO/CLARO
    ========================================= */
+
 .asis-nosotros-seccion {
   padding: 4rem 2rem;
-  background-color: #0B1120; /* Fondo azul muy oscuro (casi negro) */
-  background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0B1120 40%); /* Sutil brillo azul arriba */
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 50% 0%, var(--bg-secondary) 0%, var(--bg-primary) 40%);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  color: #e2e8f0;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+/* Modo claro */
+body.light-mode .asis-nosotros-seccion {
+  background-color: #f0f4f8;
+  background-image: radial-gradient(circle at 50% 0%, #e2e8f0 0%, #f0f4f8 40%);
+  color: #1a202c;
 }
 
 .asis-contenedor {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Botón de volver */
+.btn-volver-nosotros {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+  text-decoration: none;
+}
+
+.btn-volver-nosotros:hover {
+  background: var(--accent-color);
+  color: var(--btn-primary-text);
+  transform: translateX(-4px);
+}
+
+body.light-mode .btn-volver-nosotros {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+body.light-mode .btn-volver-nosotros:hover {
+  background: var(--accent-color);
+  color: #ffffff;
 }
 
 /* =========================================
@@ -22,17 +65,25 @@
   text-align: center;
   margin-bottom: 4rem;
   padding: 2.5rem;
-  background-color: #151E32; /* Tarjeta oscura */
+  background-color: var(--bg-secondary);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid #2D3B55;
-  border-top: 4px solid #3B82F6; /* Acento azul brillante */
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+body.light-mode .asis-info-header {
+  background-color: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
 }
 
 .asis-badge {
   display: inline-block;
   background-color: rgba(59, 130, 246, 0.15);
-  color: #60A5FA;
+  color: var(--accent-color);
   padding: 0.4rem 1rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -40,26 +91,28 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 1rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid var(--accent-color);
 }
 
 .asis-titulo-principal {
   font-size: 2.2rem;
-  color: #f8fafc; /* Blanco suave */
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-weight: 800;
+  transition: color 0.3s ease;
 }
 
 .asis-descripcion-proyecto {
   font-size: 1.1rem;
-  color: #94a3b8; /* Gris claro para lectura cómoda en oscuro */
+  color: var(--text-secondary);
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.8;
+  transition: color 0.3s ease;
 }
 
 .asis-descripcion-proyecto strong {
-  color: #60A5FA; /* Resaltado en azul claro */
+  color: var(--accent-color);
 }
 
 /* =========================================
@@ -72,16 +125,18 @@
 
 .equipo-titulo {
   font-size: 2rem;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   font-weight: 700;
+  transition: color 0.3s ease;
 }
 
 .equipo-subtitulo {
   font-size: 1.05rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
+  transition: color 0.3s ease;
 }
 
 /* Rejilla responsiva */
@@ -93,18 +148,24 @@
 
 /* Tarjeta de cada integrante */
 .tarjeta-integrante {
-  background-color: #151E32;
+  background-color: var(--bg-secondary);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid #2D3B55;
+  border: 1px solid var(--border-color);
+}
+
+body.light-mode .tarjeta-integrante {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
 }
 
 .tarjeta-integrante:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2); /* Resplandor azul al pasar el mouse */
-  border-color: #3B82F6;
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent-color);
 }
 
 /* Contenedor de la imagen */
@@ -112,8 +173,12 @@
   width: 100%;
   height: 280px;
   overflow: hidden;
-  background-color: #0f172a;
+  background-color: var(--bg-tertiary);
   position: relative;
+}
+
+body.light-mode .tarjeta-imagen-contenedor {
+  background-color: #f1f5f9;
 }
 
 .tarjeta-imagen {
@@ -122,12 +187,12 @@
   object-fit: cover;
   object-position: top center;
   transition: transform 0.4s ease;
-  filter: brightness(0.9); /* Un poco más oscuro para integrar con el tema */
+  filter: brightness(0.9);
 }
 
 .tarjeta-integrante:hover .tarjeta-imagen {
   transform: scale(1.05);
-  filter: brightness(1); /* Se ilumina al pasar el mouse */
+  filter: brightness(1);
 }
 
 /* Información del integrante */
@@ -138,30 +203,32 @@
 
 .integrante-nombre {
   font-size: 1.2rem;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   font-weight: 700;
+  transition: color 0.3s ease;
 }
 
 .integrante-rol {
   display: inline-block;
   font-size: 0.8rem;
   color: #ffffff;
-  background-color: #2563EB; /* Azul vibrante */
+  background-color: var(--accent-color);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.3rem 0.8rem;
   border-radius: 12px;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
 .integrante-descripcion {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 /* =========================================

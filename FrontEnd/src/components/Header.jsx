@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../hooks/useTheme.js'
 
 function Header({ authTo, authLabel }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="mainHeader">
@@ -25,7 +27,6 @@ function Header({ authTo, authLabel }) {
         <nav className={`mainNav${menuOpen ? ' mainNavOpen' : ''}`} id="main-nav">
           <div className="menuOptions">
             <ul className="mainNavList">
-              {/* ✅ ENLACES CORREGIDOS PARA QUE COINCIDAN CON APP.JSX */}
               <li className="mainNavItem">
                 <Link to="/nosotros" className="mainNavLink">Nosotros</Link>
               </li>
@@ -35,8 +36,16 @@ function Header({ authTo, authLabel }) {
             </ul>
           </div>
           <div className="login">
+            {/* Botón circular de cambio de tema */}
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-circle"
+              title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+
             <Link to={authTo} className="mainNavLinkSecondary">{authLabel}</Link>
-            <img src="/IMG/log.png" alt="" className="logImg" />
           </div>
         </nav>
       </div>

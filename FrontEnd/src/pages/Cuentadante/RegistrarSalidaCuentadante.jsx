@@ -29,7 +29,7 @@ function RegistrarSalidaCuentadante() {
       {idsAmbientes === null ? (
         <p className="pa-loading">Cargando...</p>
       ) : (
-        <SalidaEquipoForm ambientesPermitidos={idsAmbientes} />
+        <SalidaEquipoForm ambientesPermitidos={null} />
       )}
     </PanelLayout>
   )

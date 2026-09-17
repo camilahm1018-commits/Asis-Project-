@@ -43,6 +43,8 @@ import InventarioCuentadante from './pages/Cuentadante/InventarioCuentadante.jsx
 import AmbientesCuentadante from './pages/Cuentadante/AmbientesCuentadante.jsx'
 import HistorialEquiposCuentadante from './pages/Cuentadante/HistorialEquiposCuentadante.jsx'
 import ReportesCuentadante from './pages/Cuentadante/ReportesCuentadante.jsx'
+import RegistrarSalidaCuentadante from './pages/Cuentadante/RegistrarSalidaCuentadante.jsx'
+import MisTicketsCuentadante from './pages/Cuentadante/MisTicketsCuentadante.jsx'
 
 // ✅ IMPORTACIÓN ÚNICA (Compartida por Instructor y Cuentadante)
 import RegistrarTicketSimple from './pages/RegistrarTicketSimple.jsx';
@@ -93,7 +95,8 @@ function App() {
         <Route path="/cuentadante" element={<PanelCuentadante />} />
         <Route path="/cuentadante/inventario" element={<InventarioCuentadante />} />
         <Route path="/cuentadante/ambientes" element={<AmbientesCuentadante />} />
-        <Route path="/cuentadante/reportar" element={<RegistrarTicketSimple />} />
+        <Route path="/cuentadante/salida" element={<RegistrarSalidaCuentadante />} />
+        <Route path="/cuentadante/mis-reportes" element={<MisTicketsCuentadante />} />
         <Route path="/cuentadante/historial" element={<HistorialEquiposCuentadante />} />
         <Route path="/cuentadante/reportes" element={<ReportesCuentadante />} />
         

@@ -233,9 +233,9 @@ function Registrarse() {
               >
                 <option value="">Seleccione su rol...</option>
                 <option value="1">Instructor</option>
-                <option value="2">Cuentadante</option>
-                <option value="3">Técnico</option>
-                <option value="4">Administrador</option>
+                <option value="2">Técnico</option>
+                <option value="3">Administrador</option>
+                <option value="4">Cuentadante</option>
                 <option value="5">Administrador Mesa de Ayuda</option>
               </select>
             </div>

@@ -91,7 +91,7 @@ function TicketDetailPanel({ ticket, onClose }) {
               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Todavía no tiene acciones registradas.</p>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {historial.map((h, i) => (
+              {Array.isArray(historial) && historial.map((h) => (
                 <div key={i} className="pa-detail-block" style={{ gap: 4 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#45B3BF' }}>{h.accion}</span>

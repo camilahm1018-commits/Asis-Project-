@@ -1,106 +1,22 @@
-/* FONDO AZUL - FORZADO */
+/* FONDO - USANDO VARIABLES DE TEMA */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body, #root {
-  min-height: 100vh;
-  background: linear-gradient(160deg, #011e45 0%, #022859 55%, #011e45 100%) !important;
+body.page-login #root {
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%);
+}
+
+body.light-mode {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%) !important;
 }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  color: #ffffff;
-}
-
-/* HEADER COMPLETO */
-.mainHeader {
-  width: 100%;
-  background: rgba(1, 30, 69, 0.98);
-  border-bottom: 2px solid rgba(69, 179, 191, 0.4);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.mainHeaderContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 15px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.mainHeaderLogo .logoAsis {
-  height: 50px;
-  border-radius: 8px;
-  filter: drop-shadow(0 2px 8px rgba(69, 179, 191, 0.3));
-}
-
-.mainNav {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.mainNavList {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.mainNavItem {
-  margin: 0;
-}
-
-.mainNavLink {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.mainNavLink:hover {
-  color: #45b3bf;
-  background: rgba(69, 179, 191, 0.1);
-}
-
-.login {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.mainNavLinkSecondary {
-  color: #45b3bf;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  border: 2px solid rgba(69, 179, 191, 0.5);
-  padding: 8px 16px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.mainNavLinkSecondary:hover {
-  background: rgba(69, 179, 191, 0.2);
-  transform: translateY(-1px);
-}
-
-.logImg {
-  width: 20px;
-  height: 20px;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 /* CONTENEDOR LOGIN */
@@ -108,9 +24,9 @@ body {
   width: 480px;
   max-width: 90%;
   margin: 80px auto 40px;
-  background: linear-gradient(180deg, #02305f 0%, #022859 100%);
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
   border-radius: 20px;
-  border: 2px solid rgba(69, 179, 191, 0.4);
+  border: 2px solid var(--accent-color);
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 
               0 0 50px rgba(69, 179, 191, 0.15);
   padding: 40px 32px;
@@ -118,6 +34,15 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 24px;
+  transition: all 0.3s ease;
+}
+
+/* Modo claro para el formulario */
+body.light-mode .container {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.08), 
+              0 0 50px rgba(0, 119, 182, 0.05);
 }
 
 .infoContainer h3 {
@@ -125,7 +50,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #45b3bf;
+  color: var(--accent-color);
   margin: 0;
 }
 
@@ -142,7 +67,7 @@ body {
   margin-bottom: 28px;
   font-size: 26px;
   font-family: 'DM Sans', sans-serif;
-  color: #ffffff;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
@@ -153,28 +78,40 @@ body {
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #45b3bf;
+  color: var(--accent-color);
 }
 
 .loginForm input {
   width: 100%;
-  border: 2px solid rgba(69, 179, 191, 0.3);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
-  background-color: rgba(2, 40, 89, 0.8);
-  color: #ffffff;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   padding: 14px 16px;
   font-size: 15px;
   transition: all 0.3s ease;
 }
 
+body.light-mode .loginForm input {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .loginForm input:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(0, 119, 182, 0.1);
+}
+
 .loginForm input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
 }
 
 .loginForm input:focus {
   outline: none;
-  border-color: #45b3bf;
-  background-color: rgba(2, 40, 89, 1);
+  border-color: var(--accent-color);
+  background-color: var(--bg-secondary);
   box-shadow: 0 0 0 4px rgba(69, 179, 191, 0.2);
 }
 
@@ -191,8 +128,9 @@ body {
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: rgba(69, 179, 191, 0.6);
+  color: var(--accent-color);
   pointer-events: none;
+  opacity: 0.6;
 }
 
 .inputContenedor input {
@@ -202,8 +140,8 @@ body {
 .btnPrincipal {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #45b3bf 0%, #1b70a6 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--btn-primary-bg) 0%, var(--accent-hover) 100%);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -221,35 +159,36 @@ body {
 }
 
 .btnPrincipal:disabled {
-  background: rgba(27, 112, 166, 0.3);
-  color: rgba(255, 255, 255, 0.4);
+  background: var(--neutral-color);
+  color: var(--text-muted);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  opacity: 0.5;
 }
 
 .textoSecundario {
   margin-top: 15px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
 .textoSecundario a {
-  color: #45b3bf;
+  color: var(--accent-color);
   text-decoration: none;
   font-weight: 600;
 }
 
 .textoSecundario a:hover {
   text-decoration: underline;
-  color: #7EC8E3;
+  color: var(--accent-hover);
 }
 
 .login-error {
   width: 100%;
   background: rgba(248, 113, 113, 0.2);
-  border: 2px solid rgba(248, 113, 113, 0.5);
+  border: 2px solid var(--danger-color);
   color: #fecaca;
   padding: 12px;
   border-radius: 10px;
@@ -260,15 +199,6 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .mainHeaderContainer {
-    padding: 12px 16px;
-  }
-  
-  .mainNavList {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
   .container {
     margin: 60px 15px 30px;
     padding: 30px 20px;

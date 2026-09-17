@@ -1,50 +1,60 @@
+/* =========================================
+   CONTACTANOS.CSS - CON SOPORTE MODO OSCURO/CLARO
+   ========================================= */
+
 /* Fondo de toda la página */
 .contacto-page {
   min-height: 100vh;
-  background-color: #0a1929; /* Azul oscuro igual al login */
+  background-color: var(--bg-primary);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
-/* Botón de volver arriba a la derecha */
+/* Botón de volver (arriba a la derecha) */
 .btn-volver-arriba {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 80px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 2px solid var(--accent-color);
   border-radius: 8px;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
   transition: all 0.3s ease;
   z-index: 10;
 }
 
 .btn-volver-arriba:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.1);
+  background-color: var(--accent-color);
+  color: var(--btn-primary-text);
+  transform: scale(1.05);
 }
 
 /* Tarjeta principal */
 .contacto-card {
-  background-color: #0d2137; /* Azul un poco más claro que el fondo */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 2.5rem 2rem;
   max-width: 500px;
   width: 100%;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+body.light-mode .contacto-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 /* Header */
@@ -54,7 +64,7 @@
 }
 
 .subtitulo {
-  color: #5dade2; /* Celeste claro */
+  color: var(--accent-color);
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 2px;
@@ -63,12 +73,13 @@
 }
 
 .titulo {
-  color: white;
+  color: var(--text-primary);
   font-size: 2rem;
   font-weight: 800;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
+  transition: color 0.3s ease;
 }
 
 /* Formulario */
@@ -85,11 +96,12 @@
 }
 
 .form-label {
-  color: #5dade2; /* Celeste claro */
+  color: var(--accent-color);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
+  transition: color 0.3s ease;
 }
 
 /* Wrapper para el ícono + input */
@@ -103,7 +115,8 @@
   position: absolute;
   left: 12px;
   font-size: 1rem;
-  opacity: 0.6;
+  color: var(--accent-color);
+  opacity: 0.7;
   pointer-events: none;
 }
 
@@ -114,42 +127,56 @@
 .input-wrapper input,
 .input-wrapper textarea {
   width: 100%;
-  padding: 0.9rem 1rem 0.9rem 2.8rem; /* Espacio para el ícono */
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.9rem 1rem 0.9rem 2.8rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
+body.light-mode .input-wrapper input,
+body.light-mode .input-wrapper textarea {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .input-wrapper input:focus,
+body.light-mode .input-wrapper textarea:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+}
+
 .input-wrapper input::placeholder,
 .input-wrapper textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
 }
 
 .input-wrapper input:focus,
 .input-wrapper textarea:focus {
   outline: none;
-  border-color: #5dade2;
-  background-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.1);
+  border-color: var(--accent-color);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.15);
 }
 
 .input-wrapper textarea {
   resize: vertical;
   min-height: 100px;
-  padding-top: 2.5rem; /* Más espacio por el ícono arriba */
+  padding-top: 2.5rem;
 }
 
 /* Botón enviar */
 .btn-enviar {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #2980b9 0%, #5dade2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -162,9 +189,8 @@
 }
 
 .btn-enviar:hover {
-  background: linear-gradient(135deg, #3498db 0%, #85c1e9 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(93, 173, 226, 0.4);
+  box-shadow: 0 4px 12px rgba(69, 179, 191, 0.4);
 }
 
 .btn-enviar:active {
@@ -173,9 +199,9 @@
 
 /* Mensaje de éxito */
 .mensaje-exito {
-  background: rgba(46, 204, 113, 0.15);
-  border: 1px solid #2ecc71;
-  color: #2ecc71;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--success-color);
+  color: var(--success-color);
   padding: 0.8rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -196,5 +222,12 @@
   
   .titulo {
     font-size: 1.5rem;
+  }
+
+  .btn-volver-arriba {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 }
