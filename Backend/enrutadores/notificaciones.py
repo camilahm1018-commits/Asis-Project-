@@ -29,16 +29,19 @@ async def obtener_notificacion(id: int,sesion: Sesion_dependencia):
     return notificacion_bd
 
 
-@asis.post("/notificaciones",response_model=Notificacion)
-async def crear_notificacion(datos: NotificacionCrear,sesion: Sesion_dependencia):
-
-    nueva_notificacion = Notificacion.model_validate(datos.model_dump())
-
-    sesion.add(nueva_notificacion)
-    sesion.commit()
-    sesion.refresh(nueva_notificacion)
-
-    return nueva_notificacion
+@asis.post("/notificaciones", response_model=Notificacion)
+async def crear_notificacion(datos: NotificacionCrear, sesion: Sesion_dependencia):
+    try:
+        print(f"📩 Recibiendo notificación: {datos.model_dump()}")
+        nueva_notificacion = Notificacion.model_validate(datos.model_dump())
+        sesion.add(nueva_notificacion)
+        sesion.commit()
+        sesion.refresh(nueva_notificacion)
+        print(f"✅ Notificación creada: {nueva_notificacion.id}")
+        return nueva_notificacion
+    except Exception as e:
+        print(f"❌ Error al crear notificación: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @asis.put("/notificaciones/{id}",response_model=Notificacion)

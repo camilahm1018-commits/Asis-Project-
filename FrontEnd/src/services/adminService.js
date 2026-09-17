@@ -577,9 +577,11 @@ export const reasignarTecnico = async (idTicket, idTecnico, idAsignadoPor) => {
 // ==========================================
 export const crearNotificacion = async (datosNotificacion) => {
   try {
-    const { data } = await api.post('/notificaciones/', datosNotificacion, getAuthHeaders());
+    // ✅ URL correcta: prefix "/notificaciones" + ruta "/notificaciones" = "/notificaciones/notificaciones"
+    const { data } = await api.post('/notificaciones/notificaciones', datosNotificacion, getAuthHeaders());
     return data;
   } catch (error) {
+    console.error("Error al crear notificación:", error.response?.data);
     lanzarError(error, 'No se pudo crear la notificación');
   }
 };

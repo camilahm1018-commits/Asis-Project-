@@ -21,41 +21,58 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleGuardar(e) {
+    async function handleGuardar(e) {
     e.preventDefault();
+    
+    // 1. Validación estricta: asegurar que se haya seleccionado un estado
     if (!idEstado || !accion) {
       setError('Selecciona el nuevo estado y la acción realizada.');
       return;
     }
+
     setGuardando(true);
     setError('');
     try {
       const usuarioActual = obtenerUsuarioActual();
-      const estadoElegido = estados.find((es) => es.id_estado === Number(idEstado));
+      
+      // Buscar el estado seleccionado para obtener su nombre
+      const estadoElegido = estados.find((es) => String(es.id_estado) === String(idEstado));
 
-      await actualizarEstadoTicketConHistorial(ticket.id, {
-        id_estado: Number(idEstado),
-        atendido: marcarAtendido,
-        accion,
-        observacion,
-        estado_resultante: estadoElegido?.nombre_e || '',
-        id_usuario: usuarioActual?.id_usuario,
-      });
-
-      if (marcarAtendido) {
-        await editarTicket(ticket.id, { fecha_retorno: new Date().toISOString() });
-        await crearNotificacion({
-          canal: 'app',
-          mensaje: `Tu ticket #${ticket.id} fue atendido y quedó en estado "${estadoElegido?.nombre_e}".`,
-          enviada: false,
-          id_ticket: ticket.id,
-          notificado_para: ticket.idCreadoPor, // Usamos el ID que ahora sí llega bien
-          notificado_por: usuarioActual?.id_usuario,
-        });
+      if (!estadoElegido) {
+        throw new Error("Estado no válido seleccionado.");
       }
 
+      // 2. Actualizar estado e historial (enviando números explícitos)
+      await actualizarEstadoTicketConHistorial(ticket.id, {
+        idEstado: Number(idEstado), 
+        atendido: marcarAtendido,
+        accion: accion,
+        observacion: observacion || '',
+        estadoResultante: estadoElegido.nombre_e,
+        idUsuario: usuarioActual?.id_usuario,
+      });
+
+      // 3. Si se marca como atendido, registrar fecha de retorno y notificar
+      if (marcarAtendido) {
+        await editarTicket(ticket.id, { fecha_retorno: new Date().toISOString() });
+      try {  
+          await crearNotificacion({
+          canal: 'app',
+          mensaje: `Tu ticket #${ticket.id} fue atendido y quedó en estado "${estadoElegido.nombre_e}".`,
+          enviada: false,
+          id_ticket: ticket.id,
+          notificado_para: ticket.idCreadoPor,
+          notificado_por: usuarioActual?.id_usuario,
+        });
+        } catch (notifError) {
+        console.warn("⚠️ Notificación no enviada:", notifError);
+        }
+      }
+
+    
       onGuardado();
     } catch (err) {
+      console.error("Error al actualizar:", err);
       setError(err.message);
     } finally {
       setGuardando(false);
