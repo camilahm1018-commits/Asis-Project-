@@ -22,6 +22,9 @@ function AmbientesAdministrador() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [form, setForm] = useState(formularioVacio);
   const [guardando, setGuardando] = useState(false);
+  const [desasignando, setDesasignando] = useState(false);
+  const [showReasignar, setShowReasignar] = useState(false);
+  const [mensaje, setMensaje] = useState('');
   const [errorModal, setErrorModal] = useState('');
 
   async function cargar() {
@@ -87,10 +90,13 @@ function AmbientesAdministrador() {
     try {
       if (modoEdicion) {
         await editarAmbiente(form.id_ambiente, datos);
+        setMensaje(`Ambiente "${form.nombre_a}" actualizado correctamente`);
       } else {
         await crearAmbiente({ id_ambiente: Number(form.id_ambiente), ...datos });
+        setMensaje(`Ambiente "${form.nombre_a}" registrado correctamente`);
       }
       setShowModal(false);
+      setTimeout(() => setMensaje(''), 3000);
       cargar();
     } catch (err) {
       setErrorModal(err.message);
@@ -98,6 +104,36 @@ function AmbientesAdministrador() {
       setGuardando(false);
     }
   }
+
+  async function handleDesasignar(ambiente) {
+  const nombreAmbiente = ambiente?.nombre_a || `ID ${ambiente?.id_ambiente}`;
+  
+  if (!window.confirm(`¿Estás seguro de desasignar al cuentadante del ambiente "${nombreAmbiente}"?\n\nEl ambiente quedará sin responsable asignado.`)) {
+    return;
+  }
+
+  setDesasignando(true);
+  try {
+    // ✅ Enviar TODOS los datos del ambiente, no solo id_cuentadante
+    await editarAmbiente(ambiente.id_ambiente, {
+      nombre_a: ambiente.nombre_a,
+      ubicacion: ambiente.ubicacion,
+      capacidad_equipos: ambiente.capacidad_equipos,
+      descripcion: ambiente.descripcion,
+      estado: ambiente.estado || 'activo',
+      id_cuentadante: null, // Solo quitamos el cuentadante
+    });
+    
+    setMensaje(`Cuentadante desasignado del ambiente "${nombreAmbiente}"`);
+    setTimeout(() => setMensaje(''), 3000);
+    cargar();
+  } catch (err) {
+    console.error("Error al desasignar:", err);
+    alert(`Error: ${err.message || 'No se pudo desasignar el cuentadante'}`);
+  } finally {
+    setDesasignando(false);
+  }
+}
 
   async function handleEliminar(a) {
     if (!window.confirm(`¿Eliminar el ambiente "${a.nombre_a}"? Esta acción no se puede deshacer.`)) return;
@@ -111,7 +147,7 @@ function AmbientesAdministrador() {
 
   return (
     <AdminLayout title="Ambientes">
-      {showModal && (
+            {showModal && (
         <div className="pa-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="pa-modal" onClick={(e) => e.stopPropagation()}>
             <div className="pa-modal__header">
@@ -121,6 +157,7 @@ function AmbientesAdministrador() {
             <form onSubmit={handleGuardar}>
               <div className="pa-modal__body">
                 {errorModal && <p className="pa-error" style={{ padding: 0, textAlign: 'left' }}>{errorModal}</p>}
+                
                 <div className="pa-form-field">
                   <label>ID del Ambiente</label>
                   <input
@@ -133,36 +170,122 @@ function AmbientesAdministrador() {
                     disabled={modoEdicion}
                   />
                 </div>
+                
                 <div className="pa-form-field">
                   <label>Nombre del Ambiente</label>
                   <input className="pa-input" value={form.nombre_a} onChange={(e) => handleChange('nombre_a', e.target.value)} placeholder="Laboratorio 3" required />
                 </div>
+                
                 <div className="pa-form-field">
                   <label>Ubicación</label>
                   <input className="pa-input" value={form.ubicacion} onChange={(e) => handleChange('ubicacion', e.target.value)} placeholder="Bloque A - Piso 1" required />
                 </div>
+                
                 <div className="pa-form-field">
                   <label>Capacidad de Equipos</label>
                   <input className="pa-input" type="number" value={form.capacidad_equipos} onChange={(e) => handleChange('capacidad_equipos', e.target.value)} placeholder="30" />
                 </div>
+
+                {/* ✅ SECCIÓN DE CUENTADANTE - CON BOTÓN REASIGNAR */}
                 <div className="pa-form-field">
                   <label>Cuentadante a cargo</label>
-                  <select className="pa-select" value={form.id_cuentadante} onChange={(e) => handleChange('id_cuentadante', e.target.value)}>
-                    <option value="">Sin asignar</option>
-                    {cuentadantes.length === 0 && (
-                      <option value="" disabled>No hay cuentadantes registrados</option>
-                    )}
-                    {cuentadantes.map((c) => (
-                      <option key={c.id_usuario} value={c.id_usuario}>{c.nombre_u} {c.apellidos_u}</option>
-                    ))}
-                  </select>
+                  
+                  {modoEdicion ? (
+                    // MODO EDICIÓN: Muestra el actual y botón para reasignar
+                    <div>
+                      <div style={{ 
+                        padding: '12px 16px', 
+                        background: 'rgba(69, 179, 191, 0.1)', 
+                        borderRadius: '8px',
+                        border: '1px solid rgba(69, 179, 191, 0.3)',
+                        marginBottom: 12
+                      }}>
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 4px 0' }}>Actualmente asignado:</p>
+                        <p style={{ fontSize: 15, fontWeight: 600, color: '#45B3BF', margin: 0 }}>
+                          {mapaCuentadantes[form.id_cuentadante] || 'Sin asignar'}
+                        </p>
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="pa-btn-secondary"
+                          style={{ flex: 1, fontSize: 13, padding: '8px 12px' }}
+                          onClick={() => setShowReasignar(!showReasignar)}
+                        >
+                          {showReasignar ? '✕ Cancelar' : '🔄 Reasignar'}
+                        </button>
+                        
+                        {form.id_cuentadante && (
+                          <button
+                            type="button"
+                            className="pa-btn-secondary"
+                            style={{ 
+                              flex: 1, 
+                              fontSize: 13, 
+                              padding: '8px 12px', 
+                              color: '#f87171',
+                              borderColor: '#f87171'
+                            }}
+                            onClick={() => {
+                              setForm(prev => ({ ...prev, id_cuentadante: '' }));
+                              setShowReasignar(false);
+                            }}
+                          >
+                            🚫 Desasignar
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Dropdown que solo aparece al hacer clic en Reasignar */}
+                      {showReasignar && (
+                        <div style={{ marginTop: 12 }}>
+                          <select 
+                            className="pa-select" 
+                            value={form.id_cuentadante || ''} 
+                            onChange={(e) => {
+                              handleChange('id_cuentadante', e.target.value);
+                              setShowReasignar(false);
+                            }}
+                            autoFocus
+                          >
+                            <option value="">Seleccionar cuentadante...</option>
+                            {cuentadantes.length === 0 && (
+                              <option value="" disabled>No hay cuentadantes registrados</option>
+                            )}
+                            {cuentadantes.map((c) => (
+                              <option key={c.id_usuario} value={c.id_usuario}>
+                                {c.nombre_u} {c.apellidos_u}
+                              </option>
+                            ))}
+                          </select>
+                          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>
+                            Selecciona un cuentadante para asignarlo a este ambiente
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // MODO CREACIÓN: Dropdown normal
+                    <select className="pa-select" value={form.id_cuentadante} onChange={(e) => handleChange('id_cuentadante', e.target.value)}>
+                      <option value="">Sin asignar</option>
+                      {cuentadantes.length === 0 && (
+                        <option value="" disabled>No hay cuentadantes registrados</option>
+                      )}
+                      {cuentadantes.map((c) => (
+                        <option key={c.id_usuario} value={c.id_usuario}>{c.nombre_u} {c.apellidos_u}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
+                
                 <div className="pa-form-field">
                   <label>Descripción</label>
                   <textarea className="pa-textarea" rows={3} value={form.descripcion} onChange={(e) => handleChange('descripcion', e.target.value)} placeholder="Descripción del ambiente..." />
                 </div>
+                
                 <div className="pa-modal__actions">
-                  <button type="button" className="pa-btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+                  <button type="button" className="pa-btn-secondary" onClick={() => { setShowModal(false); setShowReasignar(false); }}>Cancelar</button>
                   <button type="submit" className="pa-btn-primary" disabled={guardando}>
                     {guardando ? 'Guardando...' : modoEdicion ? 'Guardar Cambios' : 'Registrar'}
                   </button>
@@ -181,6 +304,13 @@ function AmbientesAdministrador() {
         <button className="pa-btn-primary" onClick={abrirCrear} type="button">+ Nuevo Ambiente</button>
       </div>
 
+      {/* ✅ Mensaje de éxito flotante */}
+      {mensaje && (
+        <div className="pa-banner-success" style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(74, 222, 128, 0.15)', border: '1px solid #4ade80', color: '#4ade80', marginBottom: 16,display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>✓</span>
+          <span>{mensaje}</span>
+        </div>
+      )}
       {cargando && <p className="pa-loading">Cargando ambientes...</p>}
       {error && <p className="pa-error">{error}</p>}
 
@@ -190,6 +320,10 @@ function AmbientesAdministrador() {
             const eqAmbiente = equipos.filter((e) => e.id_ambiente === a.id_ambiente);
             const dañados = eqAmbiente.filter((e) => e.estado === 'dañado').length;
             const mantenimiento = eqAmbiente.filter((e) => e.estado === 'mantenimiento').length;
+            
+            // ✅ 2. Definimos la variable que controla si se muestra el botón
+            const tieneCuentadante = a.id_cuentadante && mapaCuentadantes[a.id_cuentadante];
+
             return (
               <div key={a.id_ambiente} className="pa-ambiente-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -218,11 +352,16 @@ function AmbientesAdministrador() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
                   <span>Capacidad: {a.capacidad_equipos ?? '—'}</span>
-                  <span>Cuentadante: {mapaCuentadantes[a.id_cuentadante] || '—'}</span>
+                  <span>Cuentadante: {mapaCuentadantes[a.id_cuentadante] || 'Sin asignar'}</span>
                 </div>
+                
                 <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                  <button className="pa-btn-secondary" style={{ flex: 1, fontSize: 12, padding: '6px 10px' }} onClick={() => abrirEditar(a)} type="button">Editar</button>
-                  <button className="pa-btn-secondary" style={{ flex: 1, fontSize: 12, padding: '6px 10px', color: '#f87171' }} onClick={() => handleEliminar(a)} type="button">Eliminar</button>
+                  <button className="pa-btn-secondary" style={{ flex: 1, fontSize: 12, padding: '6px 10px' }} onClick={() => abrirEditar(a)} type="button">
+                    Editar
+                  </button>
+                  <button className="pa-btn-secondary" style={{ flex: 1, fontSize: 12, padding: '6px 10px', color: '#f87171' }} onClick={() => handleEliminar(a)} type="button">
+                    Eliminar
+                  </button>
                 </div>
               </div>
             );

@@ -571,6 +571,22 @@ export const reasignarTecnico = async (idTicket, idTecnico, idAsignadoPor) => {
     lanzarError(error, 'No se pudo reasignar el técnico');
   }
 };
+// ==========================================
+// DESASIGNAR TÉCNICO (Devolver a la cola)
+// ==========================================
+export const desasignarTecnico = async (idTicket) => {
+  try {
+    // Enviamos 'null' explícitamente para borrar la asignación
+    const { data } = await api.put(
+      `/tickets/${idTicket}`, 
+      { asignado_a: null }, 
+      getAuthHeaders()
+    );
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo desasignar el técnico del ticket');
+  }
+};
 
 // ==========================================
 // NOTIFICACIONES (RF-010)
