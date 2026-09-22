@@ -35,6 +35,7 @@ CREATE TABLE usuarios(
     creado_en TIMESTAMP DEFAULT NOW(),
     id_rol INT NOT NULL,
     id_tipo_identificacion INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
  
     CONSTRAINT restriccion_correo
     CHECK(correo_u ~* '^[A-Za-z0-9._%+-]+@sena\.edu\.co$'),

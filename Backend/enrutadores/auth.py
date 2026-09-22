@@ -227,10 +227,24 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
 
         if usuario and usuario.activo:
             token = crear_token_proposito(usuario.id_usuario, "recuperacion", minutos=30)
-            correo_recuperacion(usuario.correo_u, usuario.nombre_u, token)
+            
+            # 🔍 AGREGADO: Imprimir el token en los logs para desarrollo
+            print(f"\n{'='*60}")
+            print(f" TOKEN DE RECUPERACIÓN GENERADO:")
+            print(f"📧 Correo: {usuario.correo_u}")
+            print(f"👤 Usuario: {usuario.nombre_u}")
+            print(f"🎟️ Token: {token}")
+            print(f"⏰ Válido por: 30 minutos")
+            print(f"{'='*60}\n")
+            
+            # Intentar enviar correo (puede fallar si no hay SMTP configurado)
+            try:
+                correo_recuperacion(usuario.correo_u, usuario.nombre_u, token)
+                print("✅ Correo enviado exitosamente")
+            except Exception as e:
+                print(f"⚠️ No se pudo enviar el correo: {e}")
+                print("💡 Usa el token de arriba para probar manualmente")
 
-        # igual que en confirmar-datos, contesto lo mismo exista o no
-        # el correo, para no revelar qué correos están registrados
         return {"mensaje": "Si el correo está registrado, te llegará un link para restablecer tu contraseña."}
 
 

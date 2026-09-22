@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import Registrarse from './pages/Registrarse.jsx'
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx'
+import RestablecerContrasena from './pages/RestablecerContrasena.jsx'
 
 // General
 import Nosotros from './pages/Nosotros.jsx'
@@ -57,6 +58,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registrarse" element={<Registrarse />} />
         <Route path="/recuperar" element={<RecuperarContrasena />} />
+        <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
 
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/contactanos" element={<Contactanos />} />
