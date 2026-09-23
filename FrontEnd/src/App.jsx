@@ -27,10 +27,10 @@ import TecnicosMesaAyuda from './pages/Administrador_mesa_de_ayuda/TecnicosMesaA
 import ReportesMesaAyuda from './pages/Administrador_mesa_de_ayuda/ReportesMesaAyuda.jsx'
 
 // Técnico
-import PanelTecnico from './pages/tecnico/PanelTecnico.jsx'
-import MisTicketsTecnico from './pages/tecnico/MisTicketsTecnico.jsx'
-import HistorialTecnico from './pages/tecnico/HistorialTecnico.jsx'
-import PerfilTecnico from './pages/tecnico/PerfilTecnico.jsx'
+import PanelTecnico from './pages/Tecnico/PanelTecnico.jsx'
+import MisTicketsTecnico from './pages/Tecnico/MisTicketsTecnico.jsx'
+import HistorialTecnico from './pages/Tecnico/HistorialTecnico.jsx'
+import PerfilTecnico from './pages/Tecnico/PerfilTecnico.jsx'
 
 // Instructor
 import PanelInstructor from './pages/instructor/PanelInstructor.jsx'
