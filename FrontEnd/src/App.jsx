@@ -28,6 +28,7 @@ import ReportesMesaAyuda from './pages/Administrador_mesa_de_ayuda/ReportesMesaA
 
 // Técnico
 import PanelTecnico from './pages/Tecnico/PanelTecnico.jsx'
+import TicketsDisponiblesTecnico from './pages/Tecnico/TicketsDisponiblesTecnico.jsx'
 import MisTicketsTecnico from './pages/Tecnico/MisTicketsTecnico.jsx'
 import HistorialTecnico from './pages/Tecnico/HistorialTecnico.jsx'
 import PerfilTecnico from './pages/Tecnico/PerfilTecnico.jsx'
@@ -80,6 +81,7 @@ function App() {
 
         {/* Rutas de Técnico */}
         <Route path="/tecnico" element={<PanelTecnico />} />
+        <Route path="/tecnico/disponibles" element={<TicketsDisponiblesTecnico />} />
         <Route path="/tecnico/tickets" element={<MisTicketsTecnico />} />
         <Route path="/tecnico/historial" element={<HistorialTecnico />} />
         <Route path="/tecnico/perfil" element={<PerfilTecnico />} />
