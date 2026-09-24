@@ -29,6 +29,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   const [tipoSalida, setTipoSalida] = useState('')
   const [idMotivoNovedad, setIdMotivoNovedad] = useState('')
   const [motivo, setMotivo] = useState('')
+  const [imagen, setImagen] = useState(null)
 
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
@@ -84,14 +85,14 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
         creado_por: usuarioActual?.id_usuario,
         atendido: false,
         fecha_salida: new Date().toISOString(),
-      })
+      },imagen)
 
       if (tipoSalida === 'dano') {
         await editarEquipo(Number(equipoId), { estado: 'dañado' })
       }
 
       setEnviado(true)
-      setAmbienteId(''); setEquipoId(''); setTipoSalida(''); setIdMotivoNovedad(''); setMotivo('')
+      setAmbienteId(''); setEquipoId(''); setTipoSalida(''); setIdMotivoNovedad(''); setMotivo(''); setImagen(null)
       setTimeout(() => setEnviado(false), 4000)
     } catch (err) {
       setErrorEnvio(err.message)
@@ -176,6 +177,34 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             <textarea className="pa-textarea" rows={4} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Describe qué pasó con el equipo..." required />
           </div>
 
+          <div className="pa-form-field">
+            <label>Imagen del equipo (opcional)</label>
+
+            <label className="boton-imagen">
+              📷 Seleccionar imagen
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImagen(e.target.files[0] || null)}
+                hidden
+              />
+            </label>
+
+            {imagen && (
+              <div className="imagen-seleccionada">
+                <span>📎 {imagen.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setImagen(null)}
+                  className="quitar-imagen"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+            
           {tipoSalida === 'dano' && (
             <div className="pa-form-field">
               <label>Motivo de novedad (opcional)</label>

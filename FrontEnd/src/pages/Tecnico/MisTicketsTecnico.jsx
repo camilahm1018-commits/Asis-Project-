@@ -261,6 +261,47 @@ function MisTicketsTecnico() {
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>📍 {t.ambiente || 'Ambiente no especificado'}</span>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>💻 {t.equipo || 'Equipo no especificado'}</span>
               </div>
+
+            {t.imagen && (
+              <div
+                style={{
+                  marginTop: 12,
+                  marginBottom: 12,
+                  paddingTop: 12,
+                  borderTop: '1px solid rgba(27,112,166,0.15)'
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,0.5)',
+                    marginBottom: 8
+                  }}
+                >
+                  📷 Imagen adjunta
+                </p>
+
+                <a
+                  href={`http://localhost:8000/${t.imagen}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={`http://localhost:8000/${t.imagen}`}
+                    alt="Imagen del equipo"
+                    style={{
+                      width: 180,
+                      height: 120,
+                      objectFit: 'cover',
+                      borderRadius: 8,
+                      border: '1px solid rgba(69,179,191,0.35)',
+                      display: 'block'
+                    }}
+                  />
+                </a>
+              </div>
+            )}
               
               <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(27,112,166,0.15)', paddingTop: 12 }}>
                 <button

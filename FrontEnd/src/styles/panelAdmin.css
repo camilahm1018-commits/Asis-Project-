@@ -716,3 +716,54 @@
   border-radius: 999px;
   background: linear-gradient(90deg, #1b70a6, #45b3bf);
 }
+
+
+.boton-imagen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  background: #1B6C8C;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  transition: 0.2s ease;
+  width: fit-content;
+}
+
+.boton-imagen:hover {
+  background: #1B70A6;
+  transform: translateY(-1px);
+}
+
+.imagen-seleccionada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(69, 179, 191, 0.12);
+  border: 1px solid rgba(69, 179, 191, 0.35);
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  max-width: 320px;
+}
+
+.quitar-imagen {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.quitar-imagen:hover {
+  color: #ff3333;
+}

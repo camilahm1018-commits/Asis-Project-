@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, BackgroundTasks
+from fastapi import (APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form)
 from Modelos.tickets import tickets, TicketsCrear, TicketsEditar
 from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
@@ -7,6 +7,10 @@ from Modelos.roles import Rol
 from conexion_db import Sesion_dependencia, motor_bd
 from sqlmodel import Session, select
 from servicios.correo import enviar_correo_notificacion
+import os
+import shutil
+from typing import Optional
+from datetime import datetime
 
 asis = APIRouter(
     prefix="/tickets",
@@ -28,25 +32,101 @@ async def listar_tickets_id(id: int, session: Sesion_dependencia):
         )
     return tik_bd
 
+
 @asis.post("/", response_model=tickets)
 async def crear_ticket(
-    datos_tik: TicketsCrear,
-    session: Sesion_dependencia,
-    background_tasks: BackgroundTasks  # ← La magia de FastAPI
+    motivo: str = Form(...),
+    id_equipo: int = Form(...),
+    tipo_salida: str = Form(...),
+    id_motivo_novedad: Optional[int] = Form(default=None),
+    id_estado: int = Form(...),
+    creado_por: int = Form(...),
+    atendido: bool = Form(False),
+    fecha_salida: Optional[datetime] = Form(default=None),
+    imagen: Optional[UploadFile] = File(default=None),
+    session: Sesion_dependencia = None,
+    background_tasks: BackgroundTasks = None
 ):
-    # 1. Guardar el ticket en la base de datos
-    tik_validado = tickets.model_validate(datos_tik.model_dump())
+
+    # ==========================================
+    # 1. Crear el ticket sin imagen inicialmente
+    # ==========================================
+
+    tik_validado = tickets(
+        motivo=motivo,
+        id_equipo=id_equipo,
+        tipo_salida=tipo_salida,
+        id_motivo_novedad=id_motivo_novedad,
+        id_estado=id_estado,
+        creado_por=creado_por,
+        atendido=atendido,
+        fecha_salida=fecha_salida
+    )
+
     session.add(tik_validado)
     session.commit()
     session.refresh(tik_validado)
-    
-    # 2. Programar el envío del correo en segundo plano
+
+    # ==========================================
+    # 2. Guardar imagen si el usuario adjuntó una
+    # ==========================================
+
+    if imagen and imagen.filename:
+
+        # Extensiones permitidas
+        extensiones_permitidas = {
+            ".jpg",
+            ".jpeg",
+            ".png"
+        }
+
+        extension = os.path.splitext(imagen.filename)[1].lower()
+
+        if extension not in extensiones_permitidas:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Solo se permiten imágenes JPG, JPEG o PNG."
+            )
+
+        # Crear carpeta si no existe
+        carpeta = "uploads/tickets"
+
+        os.makedirs(carpeta, exist_ok=True)
+
+        # Nombre único usando el ID del ticket
+        nombre_archivo = f"ticket_{tik_validado.id_ticket}{extension}"
+
+        ruta_archivo = os.path.join(
+            carpeta,
+            nombre_archivo
+        )
+
+        # Guardar archivo
+        with open(ruta_archivo, "wb") as archivo:
+            shutil.copyfileobj(
+                imagen.file,
+                archivo
+            )
+
+        # Guardar ruta en la BD
+        tik_validado.imagen = ruta_archivo
+
+        session.add(tik_validado)
+        session.commit()
+        session.refresh(tik_validado)
+
+    # ==========================================
+    # 3. Enviar notificación por correo
+    # ==========================================
+
     background_tasks.add_task(
         _enviar_notificacion_ticket,
         tik_validado.id_ticket
     )
-    
+
     return tik_validado
+
+
 
 @asis.put("/{id}", response_model=tickets)
 async def editar_ticket(id: int, datos_tik: TicketsEditar, session: Sesion_dependencia):

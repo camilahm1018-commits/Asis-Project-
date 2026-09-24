@@ -1,9 +1,23 @@
 from fastapi import FastAPI
 from conexion_db import lifespan
+from fastapi.staticfiles import StaticFiles
+import os
 from enrutadores import roles, asig_tec, ticket, estados_ticket, His_tickets, Usuarios,ER_ambientes,ER_equipos,motivo_novedad,notificaciones,tipo_equipo,tipo_documento,dashboard,auth,contactanos 
 from fastapi.middleware.cors import CORSMiddleware
 
 asis = FastAPI(lifespan=lifespan, title="ASIS API")
+
+# ==========================================
+# CARPETA PARA IMÁGENES DE LOS TICKETS
+# ==========================================
+
+os.makedirs("uploads/tickets", exist_ok=True)
+
+asis.mount(
+    "/uploads",
+    StaticFiles(directory="uploads"),
+    name="uploads"
+)
 
 @asis.get("/")
 def prueba():
