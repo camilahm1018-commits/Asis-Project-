@@ -36,9 +36,16 @@ CREATE TABLE usuarios(
     id_rol INT NOT NULL,
     id_tipo_identificacion INT NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
+
  
-    CONSTRAINT restriccion_correo
-    CHECK(correo_u ~* '^[A-Za-z0-9._%+-]+@sena\.edu\.co$'),
+     CONSTRAINT restriccion_correo
+    CHECK (
+        correo_u ~* '^[A-Za-z0-9._%+-]+@sena\.edu\.co$' 
+        OR 
+        correo_u ~* '^[A-Za-z0-9._%+-]+@gmail\.com$'
+        OR 
+        correo_u ~* '^[A-Za-z0-9._%+-]+@soy\.sena\.edu\.co$' 
+    ),
  
     CONSTRAINT fk_usuario_tipo_id
     FOREIGN KEY(id_tipo_identificacion)
