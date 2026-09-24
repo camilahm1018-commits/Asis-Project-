@@ -11,6 +11,7 @@ class TicketsBase(SQLModel):
     atendido: bool = False
     # por qué salió el equipo del ambiente: dano, traslado o prestamo (RF-006)
     tipo_salida: Optional[str] = Field(default=None)
+    imagen: Optional[str] = Field(default=None)
     id_equipo: int = Field(foreign_key="equipos.id_equipo")
     creado_por: int = Field(foreign_key="usuarios.id_usuario")
     asignado_a: Optional[int] = Field(default=None, foreign_key="usuarios.id_usuario")
@@ -37,6 +38,7 @@ class TicketsEditar(SQLModel):
     id_estado: Optional[int] = None
     id_motivo_novedad: Optional[int] = None
     tipo_salida: Optional[str] = None
+    imagen: Optional[str] = None
 
 class TicketsLeer(TicketsBase):
     id_ticket: int

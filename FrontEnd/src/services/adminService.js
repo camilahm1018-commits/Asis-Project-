@@ -269,9 +269,26 @@ export const obtenerHistorialEquipoPorSerial = async (serial) => {
   }
 };
 
-export const crearTicket = async (datosTicket) => {
+export const crearTicket = async (datosTicket, imagen = null) => {
   try {
-    const { data } = await api.post('/tickets/', datosTicket, getAuthHeaders());
+    const formData = new FormData();
+
+    Object.entries(datosTicket).forEach(([campo, valor]) => {
+      if (valor !== null && valor !== undefined) {
+        formData.append(campo, valor);
+      }
+    });
+
+    if (imagen) {
+      formData.append('imagen', imagen);
+    }
+
+    const { data } = await api.post('/tickets/', formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    });
+
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo registrar el ticket');
@@ -446,6 +463,7 @@ export const listarTicketsAdministrador = async () => {
       fechaSalida: t.fecha_salida,
       fechaRetorno: t.fecha_retorno,
       atendido: t.atendido,
+      imagen: t.imagen,
     };
   });
 };

@@ -136,6 +136,7 @@ CREATE TABLE tickets (
     asignado_a INT,
     id_estado INT NOT NULL,
     id_motivo_novedad INT,
+    imagen VARCHAR,
 
     -- 👇 CAMPOS RF-006 (Registrar Salida de Equipo)
     tipo_salida VARCHAR(20) DEFAULT 'daño',
