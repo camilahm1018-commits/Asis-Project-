@@ -88,7 +88,7 @@ function RestablecerContrasena() {
           <div style={{
             padding: '12px 16px',
             background: 'rgba(74, 222, 128, 0.15)',
-            border: '1px solid #4ade80',
+            border: '1px solid #4adecd',
             borderRadius: '8px',
             color: '#4ade80',
             marginBottom: '24px',
@@ -102,7 +102,7 @@ function RestablecerContrasena() {
           <div style={{
             padding: '12px 16px',
             background: 'rgba(248, 113, 113, 0.15)',
-            border: '1px solid #f87171',
+            border: '1px solid #f05151',
             borderRadius: '8px',
             color: '#f87171',
             marginBottom: '24px',
@@ -118,7 +118,7 @@ function RestablecerContrasena() {
               display: 'block',
               fontSize: '12px',
               fontWeight: '600',
-              color: '#45B3BF',
+              color: '#458cbf',
               marginBottom: '8px',
               textTransform: 'uppercase'
             }}>
@@ -219,7 +219,7 @@ function RestablecerContrasena() {
             style={{
               width: '100%',
               padding: '14px 24px',
-              background: exito ? '#4ade80' : '#45B3BF',
+              background: exito ? '#4adede' : '#45B3BF',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',

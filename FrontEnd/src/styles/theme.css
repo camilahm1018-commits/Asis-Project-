@@ -1,71 +1,71 @@
-/* ==========================================
-   TEMA OSCURO (Por defecto - Colores actuales de ASIS)
-   ========================================== */
-:root {
-  /* Fondos */
-  --bg-primary: #001f3f;
-  --bg-secondary: #003366;
-  --bg-tertiary: #002b5e;
-  
-  /* Textos */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.35);
-  
-  /* Acentos */
-  --accent-color: #45B3BF;
-  --accent-hover: #3a9aa5;
-  
-  /* Bordes */
-  --border-color: #1B70A6;
-  --border-light: rgba(27, 112, 166, 0.3);
-  
-  /* Estados */
-  --success-color: #4ade80;
-  --danger-color: #f87171;
-  --warning-color: #facc15;
-  --neutral-color: #94a3b8;
-  
-  /* Botones */
-  --btn-primary-bg: #45B3BF;
-  --btn-primary-text: #ffffff;
-  --btn-secondary-bg: transparent;
-  --btn-secondary-text: #45B3BF;
-  --btn-secondary-border: #45B3BF;
-}
+  /* ==========================================
+    TEMA OSCURO (Por defecto - Colores actuales de ASIS)
+    ========================================== */
+  :root {
+    /* Fondos */
+    --bg-primary: #001f3f;
+    --bg-secondary: #003366;
+    --bg-tertiary: #002b5e;
+    
+    /* Textos */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.35);
+    
+    /* Acentos */
+    --accent-color: #45B3BF;
+    --accent-hover: #3a9aa5;
+    
+    /* Bordes */
+    --border-color: #1B70A6;
+    --border-light: rgba(27, 112, 166, 0.3);
+    
+    /* Estados */
+    --success-color: #4ade80;
+    --danger-color: #f87171;
+    --warning-color: #facc15;
+    --neutral-color: #94a3b8;
+    
+    /* Botones */
+    --btn-primary-bg: #45B3BF;
+    --btn-primary-text: #ffffff;
+    --btn-secondary-bg: transparent;
+    --btn-secondary-text: #45B3BF;
+    --btn-secondary-border: #45B3BF;
+  }
 
-/* ==========================================
-   TEMA CLARO (Se activa con body.light-mode)
-   ========================================== */
-body.light-mode {
-  /* Fondos */
-  --bg-primary: #f0f4f8;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e2e8f0;
-  
-  /* Textos */
-  --text-primary: #1a202c;
-  --text-secondary: #4a5568;
-  --text-muted: #a0aec0;
-  
-  /* Acentos */
-  --accent-color: #0077b6;
-  --accent-hover: #005f8f;
-  
-  /* Bordes */
-  --border-color: #cbd5e0;
-  --border-light: rgba(0, 0, 0, 0.08);
-  
-  /* Estados */
-  --success-color: #16a34a;
-  --danger-color: #dc2626;
-  --warning-color: #ca8a04;
-  --neutral-color: #64748b;
-  
-  /* Botones */
-  --btn-primary-bg: #0077b6;
-  --btn-primary-text: #ffffff;
-  --btn-secondary-bg: transparent;
-  --btn-secondary-text: #0077b6;
-  --btn-secondary-border: #0077b6;
-}
+  /* ==========================================
+    TEMA CLARO (Se activa con body.light-mode)
+    ========================================== */
+  body.light-mode {
+    /* Fondos */
+    --bg-primary: #f0f4f8;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e2e8f0;
+    
+    /* Textos */
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #a0aec0;
+    
+    /* Acentos */
+    --accent-color: #0077b6;
+    --accent-hover: #005f8f;
+    
+    /* Bordes */
+    --border-color: #cbd5e0;
+    --border-light: rgba(0, 0, 0, 0.08);
+    
+    /* Estados */
+    --success-color: #16a34a;
+    --danger-color: #dc2626;
+    --warning-color: #ca8a04;
+    --neutral-color: #64748b;
+    
+    /* Botones */
+    --btn-primary-bg: #0077b6;
+    --btn-primary-text: #ffffff;
+    --btn-secondary-bg: transparent;
+    --btn-secondary-text: #0077b6;
+    --btn-secondary-border: #0077b6;
+  }

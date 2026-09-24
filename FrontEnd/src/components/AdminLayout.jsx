@@ -1,15 +1,7 @@
 // src/components/AdminLayout.jsx
-// ==========================================
-// LAYOUT DEL PANEL DE ADMINISTRADOR
-// ==========================================
-// Componente NUEVO — no reemplaza ni modifica Header.jsx ni
-// BarraSuperior.jsx (esos siguen igual para las demás páginas).
-// Envuelve cada página de /administrador/* con el sidebar oscuro
-// y la barra superior del diseño de Figma, y valida que el usuario
-// en sesión tenga el rol "administrador".
-
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTheme } from '../hooks/useTheme.js'; // ✅ Agregado
 import useAutoLogout from '../hooks/useAutoLogout.js';
 import '../styles/panelAdmin.css';
 
@@ -26,6 +18,7 @@ const navItems = [
 function AdminLayout({ title, children }) {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
+  const { theme, toggleTheme } = useTheme(); // ✅ Agregado
   useAutoLogout();
   
   useEffect(() => {
@@ -80,9 +73,20 @@ function AdminLayout({ title, children }) {
           <p className="panel-admin__topbar-title">{title}</p>
           <div className="panel-admin__topbar-user">
             <span className="pa-avatar pa-avatar--sm">{iniciales || 'AD'}</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
+            <span className="panel-admin__username">
               {usuario.nombre} {usuario.apellidos}
             </span>
+            
+            {/* ✅ Botón de cambio de tema */}
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-btn"
+              title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              type="button"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            
             <button className="panel-admin__logout" onClick={handleLogout} type="button">
               Salir
             </button>
