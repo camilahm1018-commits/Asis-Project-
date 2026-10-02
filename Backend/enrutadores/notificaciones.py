@@ -37,9 +37,9 @@ async def crear_notificacion(datos: NotificacionCrear, sesion: Sesion_dependenci
         sesion.add(nueva_notificacion)
         sesion.commit()
         sesion.refresh(nueva_notificacion)
-        print(f"✅ Notificación creada: {nueva_notificacion.id}")
+        print(f"✅ Notificación creada: {nueva_notificacion.id_notificacion}")
         return nueva_notificacion
-    except Exception as e:
+    except Exception as e: 
         print(f"❌ Error al crear notificación: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

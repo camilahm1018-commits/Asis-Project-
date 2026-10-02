@@ -582,7 +582,7 @@ export const reasignarTecnico = async (idTicket, idTecnico, idAsignadoPor) => {
   try {
     const { data } = await api.put(`/tickets/${idTicket}/reasignar`, {
       id_tecnico: idTecnico,
-      asignado_por: idAsignadoPor,
+      id_asignado_por: idAsignadoPor, // ✅ CORREGIDO: Ahora coincide con el backend
     }, getAuthHeaders());
     return data;
   } catch (error) {

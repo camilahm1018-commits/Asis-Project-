@@ -55,18 +55,25 @@ function AsignarTecnico() {
     setErrorAsignar('');
   }
 
-  async function handleAsignar() {
+    async function handleAsignar() {
     if (!ticketSel || !tecnicoSel) return;
+    
+    const usuarioActual = obtenerUsuarioActual();
+    
+    // 🔒 VALIDACIÓN ESTRICTA: Si no hay usuario logueado, no dejamos continuar
+    if (!usuarioActual || !usuarioActual.id_usuario) {
+      setErrorAsignar("Error de sesión: No se pudo identificar al usuario que realiza la acción. Por favor, inicia sesión nuevamente.");
+      return;
+    }
+
     setAsignando(true);
     setErrorAsignar('');
     try {
-      const usuarioActual = obtenerUsuarioActual();
-
       if (modo === 'nuevos') {
-        await asignarTecnicoATicket(ticketSel.id, tecnicoSel.id_usuario, usuarioActual?.id_usuario);
+        await asignarTecnicoATicket(ticketSel.id, tecnicoSel.id_usuario, usuarioActual.id_usuario);
         setMensaje(`${tecnicoSel.nombre_u} fue asignado al ticket #${ticketSel.id}`);
       } else if (modo === 'reasignar') {
-        await reasignarTecnico(ticketSel.id, tecnicoSel.id_usuario, usuarioActual?.id_usuario);
+        await reasignarTecnico(ticketSel.id, tecnicoSel.id_usuario, usuarioActual.id_usuario);
         setMensaje(`El ticket #${ticketSel.id} fue reasignado a ${tecnicoSel.nombre_u}`);
       }
 

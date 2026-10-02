@@ -1,9 +1,7 @@
 -- ==========================================
 -- BASE DE DATOS ASIS
 -- Sistema de Gestión de Tickets - CGMLTI
--- Versión actualizada y completa (Recomendada)
 -- ==========================================
- 
 -- ==========================================
 -- TABLA: tipo_identificacion
 -- ==========================================
@@ -12,7 +10,7 @@ CREATE TABLE tipo_identificacion(
     iniciales VARCHAR(5) NOT NULL,
     nombre_tipo VARCHAR(50) NOT NULL
 );
- 
+
 -- ==========================================
 -- TABLA: rol
 -- ==========================================
@@ -20,7 +18,7 @@ CREATE TABLE rol(
     id_rol SERIAL PRIMARY KEY,
     nombre_rol VARCHAR(50) NOT NULL
 );
- 
+
 -- ==========================================
 -- TABLA: usuarios
 -- ==========================================
@@ -37,8 +35,8 @@ CREATE TABLE usuarios(
     id_tipo_identificacion INT NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
 
- 
-     CONSTRAINT restriccion_correo
+
+    CONSTRAINT restriccion_correo
     CHECK (
         correo_u ~* '^[A-Za-z0-9._%+-]+@sena\.edu\.co$' 
         OR 
@@ -46,16 +44,16 @@ CREATE TABLE usuarios(
         OR 
         correo_u ~* '^[A-Za-z0-9._%+-]+@soy\.sena\.edu\.co$' 
     ),
- 
+
     CONSTRAINT fk_usuario_tipo_id
     FOREIGN KEY(id_tipo_identificacion)
     REFERENCES tipo_identificacion(id_tipo_id),
- 
+
     CONSTRAINT fk_usuario_rol
     FOREIGN KEY(id_rol)
     REFERENCES rol(id_rol)
 );
- 
+
 -- ==========================================
 -- TABLA: ambientes
 -- ==========================================

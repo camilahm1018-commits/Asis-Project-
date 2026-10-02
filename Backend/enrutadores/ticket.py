@@ -136,6 +136,83 @@ async def editar_ticket(
         )
     
     return tik_bd
+from pydantic import BaseModel
+
+# ==========================================
+# 📋 ESQUEMA PARA ASIGNACIÓN
+# ==========================================
+class AsignacionSchema(BaseModel):
+    id_tecnico: int
+    id_asignado_por: int
+
+# ==========================================
+# 🎯 ASIGNAR TÉCNICO (Tickets nuevos)
+# ==========================================
+@asis.put("/{id}/asignar", response_model=tickets)
+async def asignar_tecnico(
+    id: int,
+    datos: AsignacionSchema,
+    session: Sesion_dependencia
+):
+    tik_bd = session.get(tickets, id)
+    if not tik_bd:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    
+    tecnico = session.get(Usuario, datos.id_tecnico)
+    if not tecnico:
+        raise HTTPException(status_code=404, detail="Técnico no encontrado")
+
+    tik_bd.asignado_a = datos.id_tecnico
+    session.add(tik_bd)
+    session.commit()
+    session.refresh(tik_bd)
+    
+    return tik_bd
+
+# ==========================================
+# 🔄 REASIGNAR TÉCNICO (Cambiar de técnico)
+# ==========================================
+@asis.put("/{id}/reasignar", response_model=tickets)
+async def reasignar_tecnico(
+    id: int,
+    datos: AsignacionSchema,
+    session: Sesion_dependencia
+):
+    tik_bd = session.get(tickets, id)
+    if not tik_bd:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    
+    tecnico = session.get(Usuario, datos.id_tecnico)
+    if not tecnico:
+        raise HTTPException(status_code=404, detail="Técnico no encontrado")
+
+    # Actualizamos el técnico asignado
+    tik_bd.asignado_a = datos.id_tecnico
+    session.add(tik_bd)
+    session.commit()
+    session.refresh(tik_bd)
+    
+    return tik_bd
+
+# ==========================================
+# 🚫 DESASIGNAR TÉCNICO (Devolver a la cola)
+# ==========================================
+@asis.put("/{id}/desasignar", response_model=tickets)
+async def desasignar_tecnico(
+    id: int,
+    session: Sesion_dependencia
+):
+    tik_bd = session.get(tickets, id)
+    if not tik_bd:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    
+    # Quitamos el técnico asignado (lo dejamos en NULL/None)
+    tik_bd.asignado_a = None
+    session.add(tik_bd)
+    session.commit()
+    session.refresh(tik_bd)
+    
+    return tik_bd
 
 @asis.delete("/{id}", response_model=tickets)
 async def eliminar_ticket(id: int, session: Sesion_dependencia):
