@@ -1,3 +1,5 @@
+import os
+import httpx
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -10,6 +12,8 @@ from seguridad import (
     encriptar_contrasena, crear_token_proposito, verificar_token_proposito
 )
 from correo import correo_activacion, correo_recuperacion, correo_alerta_intento_no_valido
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 asis = APIRouter(prefix="/auth",tags=["Autenticación"])
 # ==========================================
@@ -271,3 +275,70 @@ async def restablecer_contrasena(datos: RestablecerContrasenaBody):
         sesion.commit()
 
         return {"mensaje": "Contraseña actualizada. Ya puedes iniciar sesión."}
+    
+# ==========================================
+# iniciar sesion con Goggle
+# ==========================================
+    
+@asis.post("/google-login")
+async def google_login(datos: dict):
+    try:
+        access_token = datos.get("credential")
+        if not access_token:
+            raise HTTPException(status_code=400, detail="No se proporcionó credencial")
+
+        # 1. CONSULTAR A GOOGLE
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Token de Google inválido o expirado")
+            
+            user_info = response.json()
+            correo_google = user_info.get('email')
+            
+            if not correo_google:
+                raise HTTPException(status_code=400, detail="No se pudo obtener el correo de Google")
+
+        # 2. BUSCAR EN LA BASE DE DATOS
+        with Session(motor_bd) as sesion:
+            usuario = sesion.exec(select(Usuario).where(Usuario.correo_u == correo_google)).first()
+
+            if not usuario:
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Tu correo no está registrado en el sistema ASIS. Contacta al administrador."
+                )
+
+            if not usuario.activo:
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Tu cuenta existe pero aún no está activada."
+                )
+
+            rol = sesion.get(Rol, usuario.id_rol)
+
+            token = crear_token({
+                "id_usuario": usuario.id_usuario,
+                "rol": rol.nombre_rol if rol else "sin_rol",
+                "nombre": usuario.nombre_u,
+                "correo": usuario.correo_u
+            })
+
+            return {
+                "access_token": token,
+                "token_type": "bearer",
+                "id_usuario": usuario.id_usuario,
+                "nombre": usuario.nombre_u,
+                "apellidos": usuario.apellidos_u,
+                "rol": rol.nombre_rol if rol else "sin_rol"
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"ERROR CRÍTICO EN LOGIN GOOGLE: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
