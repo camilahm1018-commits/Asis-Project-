@@ -264,13 +264,6 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 if admin.correo_u:
                     destinatarios.append(admin.correo_u)
             
-            tecnicos = sesion.exec(
-                select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
-                .where(Rol.nombre_rol == "tecnico")
-            ).all()
-            for tecnico in tecnicos:
-                if tecnico.correo_u:
-                    destinatarios.append(tecnico.correo_u)
             
             if ticket.asignado_a:
                 tec_asignado = sesion.get(Usuario, ticket.asignado_a)
