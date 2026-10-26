@@ -12,8 +12,7 @@ import {
 import { CATALOGO_REPORTES, generarReportes } from './reportes/calculos.js';
 import { exportarPDF } from './reportes/exportarPDF.js';
 import { exportarExcel } from './reportes/exportarExcel.js';
-import './centroReportes.css';
-
+import "../../styles/centroReportes.css";
 const FILTROS_VACIOS = { anio: '', desde: '', hasta: '', idAmbiente: '', idTipo: '' };
 
 function ReportesAdministrador() {
