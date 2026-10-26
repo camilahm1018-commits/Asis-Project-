@@ -1,58 +1,44 @@
-// src/pages/ReportesAdministrador.jsx
+// src/pages/Administrador/ReportesAdministrador.jsx
 // Ruta: /administrador/reportes
-import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+// Centro de Reportes (RF-014): filtros + selección de reportes + exportar
+// un solo PDF o un solo Excel con lo marcado. Solo el administrador exporta.
+import { useEffect, useMemo, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout.jsx';
 import {
-  listarUsuarios, listarEquipos, listarAmbientes, listarTicketsCrudos, listarTecnicos,
-  listarTicketsAdministrador,
+  listarUsuarios, listarEquipos, listarAmbientes, listarTicketsCrudos, listarRoles,
+  listarTiposEquipo, listarEstadosTicket, listarMotivosNovedad, listarHistorialTickets,
+  obtenerUsuarioActual,
 } from '../../services/adminService.js';
-
-const CHART_COLORS = ['#45B3BF', '#1B70A6', '#7EC8E3', '#facc15', '#a855f7', '#fb923c'];
-
-const tooltipStyle = {
-  background: '#02305F',
-  border: '1px solid rgba(27,112,166,0.4)',
-  borderRadius: 8,
-  color: '#fff',
-  fontSize: 12,
-  padding: '8px 12px',
-};
+import { CATALOGO_REPORTES, generarReportes } from './reportes/calculos.js';
+import { exportarPDF } from './reportes/exportarPDF.js';
+import { exportarExcel } from './reportes/exportarExcel.js';
+import "../../styles/centroReportes.css";
+const FILTROS_VACIOS = { anio: '', desde: '', hasta: '', idAmbiente: '', idTipo: '' };
 
 function ReportesAdministrador() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  const [usuarios, setUsuarios] = useState([]);
-  const [equipos, setEquipos] = useState([]);
-  const [ambientes, setAmbientes] = useState([]);
-  const [tickets, setTickets] = useState([]);
-  const [tecnicos, setTecnicos] = useState([]);
-  const [ticketsPorTecnico, setTicketsPorTecnico] = useState({});
+  const [datos, setDatos] = useState(null);
+  const [filtros, setFiltros] = useState(FILTROS_VACIOS);
+  const [seleccion, setSeleccion] = useState(() => new Set(['resumen', 'ambiente', 'mes']));
+  const [exportando, setExportando] = useState('');
+  const [mensaje, setMensaje] = useState({ texto: '', error: false });
 
   useEffect(() => {
     async function cargar() {
       try {
-        const [u, e, a, t, tec, ticketsEnriquecidos] = await Promise.all([
-          listarUsuarios(), listarEquipos(), listarAmbientes(), listarTicketsCrudos(),
-          listarTecnicos(), listarTicketsAdministrador(),
-        ]);
-        setUsuarios(u || []);
-        setEquipos(e || []);
-        setAmbientes(a || []);
-        setTickets(t || []);
-        setTecnicos(tec || []);
-
-        // Rendimiento por técnico: cuántos tickets tiene activos vs resueltos.
-        // TODO backend: cuando exista un endpoint dedicado de rendimiento,
-        // reemplaza este cálculo en el cliente por esa respuesta directa.
-        const conteo = {};
-        (ticketsEnriquecidos || []).forEach((tk) => {
-          if (tk.tecnico === 'Sin asignar') return;
-          if (!conteo[tk.tecnico]) conteo[tk.tecnico] = { activos: 0, resueltos: 0 };
-          if (tk.atendido) conteo[tk.tecnico].resueltos += 1;
-          else conteo[tk.tecnico].activos += 1;
+        // El historial puede fallar sin romper el resto: solo afecta el tiempo de resolución
+        const [usuarios, equipos, ambientes, tickets, roles, tiposEquipo, estados, motivos, historial] =
+          await Promise.all([
+            listarUsuarios(), listarEquipos(), listarAmbientes(), listarTicketsCrudos(), listarRoles(),
+            listarTiposEquipo(), listarEstadosTicket(), listarMotivosNovedad(),
+            listarHistorialTickets().catch(() => []),
+          ]);
+        setDatos({
+          usuarios: usuarios || [], equipos: equipos || [], ambientes: ambientes || [],
+          tickets: tickets || [], roles: roles || [], tiposEquipo: tiposEquipo || [],
+          estados: estados || [], motivos: motivos || [], historial: historial || [],
         });
-        setTicketsPorTecnico(conteo);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -62,10 +48,81 @@ function ReportesAdministrador() {
     cargar();
   }, []);
 
+  // Años que realmente tienen tickets, para el selector
+  const anios = useMemo(() => {
+    if (!datos) return [];
+    const set = new Set();
+    datos.tickets.forEach((t) => { if (t.creado_en) set.add(new Date(t.creado_en).getFullYear()); });
+    set.add(new Date().getFullYear());
+    return [...set].filter((a) => !Number.isNaN(a)).sort((a, b) => b - a);
+  }, [datos]);
+
+  // Filtros "limpios" para los cálculos (el año se traduce a desde/hasta)
+  const filtrosCalculo = useMemo(() => ({
+    desde: filtros.desde, hasta: filtros.hasta, idAmbiente: filtros.idAmbiente, idTipo: filtros.idTipo,
+  }), [filtros]);
+
+  // Filas de cada reporte con los filtros actuales (muestra "N filas" junto a cada casilla)
+  const previa = useMemo(() => {
+    if (!datos) return {};
+    const todos = generarReportes(CATALOGO_REPORTES.map((r) => r.id), datos, filtrosCalculo);
+    return Object.fromEntries(todos.map((r) => [r.id, r.filas.length]));
+  }, [datos, filtrosCalculo]);
+
+  function cambiarAnio(valor) {
+    if (valor === '') {
+      setFiltros((f) => ({ ...f, anio: '', desde: '', hasta: '' }));
+    } else {
+      setFiltros((f) => ({ ...f, anio: valor, desde: `${valor}-01-01`, hasta: `${valor}-12-31` }));
+    }
+  }
+
+  function cambiarFecha(campo, valor) {
+    // Editar el rango a mano deja de ser "un año completo"
+    setFiltros((f) => ({ ...f, anio: '', [campo]: valor }));
+  }
+
+  function alternar(id) {
+    setSeleccion((prev) => {
+      const nuevo = new Set(prev);
+      if (nuevo.has(id)) nuevo.delete(id); else nuevo.add(id);
+      return nuevo;
+    });
+  }
+
+  const rangoInvalido = filtros.desde && filtros.hasta && filtros.desde > filtros.hasta;
+  const puedeExportar = seleccion.size > 0 && !rangoInvalido && !exportando;
+
+  async function exportar(formato) {
+    if (!puedeExportar) return;
+    setExportando(formato);
+    setMensaje({ texto: '', error: false });
+    try {
+      // Se respeta el orden del catálogo, no el orden en que se marcaron
+      const ids = CATALOGO_REPORTES.map((r) => r.id).filter((id) => seleccion.has(id));
+      const reportes = generarReportes(ids, datos, filtrosCalculo);
+      const usuario = obtenerUsuarioActual();
+      const opciones = {
+        reportes,
+        filtros: filtrosCalculo,
+        ambientes: datos.ambientes,
+        tiposEquipo: datos.tiposEquipo,
+        generadoPor: usuario ? `${usuario.nombre ?? ''} ${usuario.apellidos ?? ''}`.trim() : '',
+      };
+      if (formato === 'pdf') await exportarPDF(opciones); else await exportarExcel(opciones);
+      setMensaje({ texto: `Archivo ${formato === 'pdf' ? 'PDF' : 'Excel'} generado con ${reportes.length} reporte(s).`, error: false });
+    } catch (err) {
+      console.error(err);
+      setMensaje({ texto: `No se pudo generar el archivo: ${err.message}`, error: true });
+    } finally {
+      setExportando('');
+    }
+  }
+
   if (cargando) {
     return (
       <AdminLayout title="Reportes">
-        <p className="pa-loading">Cargando reportes...</p>
+        <p className="pa-loading">Cargando datos para los reportes...</p>
       </AdminLayout>
     );
   }
@@ -78,90 +135,101 @@ function ReportesAdministrador() {
     );
   }
 
-  const equiposActivos = equipos.filter((e) => e.estado === 'activo').length;
-  const ambientesActivos = ambientes.filter((a) => a.estado === 'activo').length;
-  const ticketsAtendidos = tickets.filter((t) => t.atendido).length;
-
-  const conteoPorTipo = {};
-  equipos.forEach((e) => { conteoPorTipo[e.id_tipo] = (conteoPorTipo[e.id_tipo] || 0) + 1; });
-  const tipoData = Object.entries(conteoPorTipo).map(([id, value]) => ({ name: `Tipo ${id}`, value }));
-
   return (
     <AdminLayout title="Reportes">
       <div className="pa-section-header">
         <div>
-          <h1 className="pa-section-header__title">Reportes del Sistema</h1>
-          <p className="pa-section-header__subtitle">Estadísticas globales de ASIS</p>
+          <h1 className="pa-section-header__title">Centro de Reportes</h1>
+          <p className="pa-section-header__subtitle">
+            Elige los filtros y los reportes; se exportan juntos en un solo archivo
+          </p>
         </div>
       </div>
 
-      <div className="pa-stat-grid">
-        <div className="pa-stat-card">
-          <span className="pa-stat-card__label">Total Usuarios</span>
-          <span className="pa-stat-card__value">{usuarios.length}</span>
-          <span className="pa-stat-card__sub">registrados</span>
-        </div>
-        <div className="pa-stat-card">
-          <span className="pa-stat-card__label">Total Equipos</span>
-          <span className="pa-stat-card__value" style={{ color: '#45B3BF' }}>{equipos.length}</span>
-          <span className="pa-stat-card__sub">{equiposActivos} operativos</span>
-        </div>
-        <div className="pa-stat-card">
-          <span className="pa-stat-card__label">Total Ambientes</span>
-          <span className="pa-stat-card__value">{ambientes.length}</span>
-          <span className="pa-stat-card__sub">{ambientesActivos} activos</span>
-        </div>
-        <div className="pa-stat-card">
-          <span className="pa-stat-card__label">Total Tickets</span>
-          <span className="pa-stat-card__value" style={{ color: '#7EC8E3' }}>{tickets.length}</span>
-          <span className="pa-stat-card__sub">{ticketsAtendidos} atendidos</span>
-        </div>
-      </div>
-
-      <div className="pa-grid-2">
-        <div className="pa-chart-card">
-          <div className="pa-chart-card__header">Inventario por Tipo de Equipo</div>
-          <div className="pa-chart-card__body">
-            {/* TODO: reemplazar "Tipo N" por el nombre real cuando cruces
-                con /tipo_equipo/tipos-equipo (igual que en EquiposAdministrador) */}
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={tipoData} margin={{ top: 4, right: 8, left: -20, bottom: 20 }}>
-                <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} axisLine={false} tickLine={false} angle={-20} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(27,112,166,0.1)' }} />
-                <Bar dataKey="value" name="Equipos" radius={[4, 4, 0, 0]}>
-                  {tipoData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+      <div className="pa-card" style={{ marginBottom: 20 }}>
+        <div className="pa-card__header">Filtros</div>
+        <div className="pa-card__body">
+          <div className="cr-filtros">
+            <div className="pa-form-field">
+              <label htmlFor="cr-anio">Año</label>
+              <select id="cr-anio" className="pa-select" value={filtros.anio} onChange={(e) => cambiarAnio(e.target.value)}>
+                <option value="">Todos</option>
+                {anios.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
+            <div className="pa-form-field">
+              <label htmlFor="cr-desde">Desde</label>
+              <input id="cr-desde" type="date" className="pa-input" value={filtros.desde} onChange={(e) => cambiarFecha('desde', e.target.value)} />
+            </div>
+            <div className="pa-form-field">
+              <label htmlFor="cr-hasta">Hasta</label>
+              <input id="cr-hasta" type="date" className="pa-input" value={filtros.hasta} onChange={(e) => cambiarFecha('hasta', e.target.value)} />
+            </div>
+            <div className="pa-form-field">
+              <label htmlFor="cr-ambiente">Ambiente</label>
+              <select id="cr-ambiente" className="pa-select" value={filtros.idAmbiente} onChange={(e) => setFiltros((f) => ({ ...f, idAmbiente: e.target.value }))}>
+                <option value="">Todos</option>
+                {datos.ambientes.map((a) => <option key={a.id_ambiente} value={a.id_ambiente}>{a.nombre_a}</option>)}
+              </select>
+            </div>
+            <div className="pa-form-field">
+              <label htmlFor="cr-tipo">Tipo de activo</label>
+              <select id="cr-tipo" className="pa-select" value={filtros.idTipo} onChange={(e) => setFiltros((f) => ({ ...f, idTipo: e.target.value }))}>
+                <option value="">Todos</option>
+                {datos.tiposEquipo.map((t) => <option key={t.id_tipo} value={t.id_tipo}>{t.nombre_t}</option>)}
+              </select>
+            </div>
+            <button type="button" className="pa-btn-secondary" onClick={() => setFiltros(FILTROS_VACIOS)}>
+              Limpiar filtros
+            </button>
           </div>
+          {rangoInvalido && (
+            <p className="pa-error" style={{ padding: 0, textAlign: 'left', marginTop: 12 }}>
+              La fecha "Desde" no puede ser posterior a "Hasta".
+            </p>
+          )}
         </div>
+      </div>
 
-        <div className="pa-card">
-          <div className="pa-card__header">Técnicos — Rendimiento</div>
-          <div className="pa-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {tecnicos.map((t) => {
-              const nombreCompleto = `${t.nombre_u} ${t.apellidos_u}`;
-              const datos = ticketsPorTecnico[nombreCompleto] || { activos: 0, resueltos: 0 };
-              const total = datos.activos + datos.resueltos;
-              const pct = total > 0 ? Math.round((datos.resueltos / total) * 100) : 0;
-              return (
-                <div key={t.id_usuario} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span className="pa-avatar pa-avatar--sm">{`${t.nombre_u[0]}${t.apellidos_u[0]}`.toUpperCase()}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{nombreCompleto}</span>
-                      <span className="pa-table-mono" style={{ fontSize: 12, color: '#45B3BF' }}>{pct}%</span>
-                    </div>
-                    <div className="pa-progress-track">
-                      <div className="pa-progress-fill" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {tecnicos.length === 0 && (
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>No hay técnicos registrados.</p>
+      <div className="pa-card">
+        <div className="pa-card__header">Reportes a incluir ({seleccion.size} de {CATALOGO_REPORTES.length})</div>
+        <div className="pa-card__body">
+          <div className="cr-lista-acciones">
+            <button type="button" className="pa-btn-secondary" onClick={() => setSeleccion(new Set(CATALOGO_REPORTES.map((r) => r.id)))}>
+              Marcar todos
+            </button>
+            <button type="button" className="pa-btn-secondary" onClick={() => setSeleccion(new Set())}>
+              Quitar todos
+            </button>
+          </div>
+
+          <ul className="cr-lista">
+            {CATALOGO_REPORTES.map((r) => (
+              <li key={r.id}>
+                <label className={`cr-item ${seleccion.has(r.id) ? 'marcado' : ''}`}>
+                  <input type="checkbox" checked={seleccion.has(r.id)} onChange={() => alternar(r.id)} />
+                  <span>
+                    <span className="cr-item__titulo">{r.titulo}</span>
+                    <span className="cr-item__desc">{r.descripcion}</span>
+                  </span>
+                  <span className="cr-item__filas">{previa[r.id] ?? 0} filas</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+
+          <div className="cr-barra">
+            <button type="button" className="pa-btn-primary" disabled={!puedeExportar} onClick={() => exportar('pdf')}>
+              {exportando === 'pdf' ? 'Generando PDF...' : 'Exportar PDF'}
+            </button>
+            <button type="button" className="pa-btn-primary" disabled={!puedeExportar} onClick={() => exportar('excel')}>
+              {exportando === 'excel' ? 'Generando Excel...' : 'Exportar Excel'}
+            </button>
+            {seleccion.size === 0 && <span className="cr-barra__estado">Marca al menos un reporte.</span>}
+            {mensaje.texto && (
+              <span className={`cr-barra__estado ${mensaje.error ? 'cr-barra__estado--error' : ''}`} role="status">
+                {mensaje.texto}
+              </span>
             )}
           </div>
         </div>

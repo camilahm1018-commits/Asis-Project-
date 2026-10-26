@@ -1,0 +1,314 @@
+/* ==========================================================
+   Detalle de ticket (TicketDetailPanel)
+   Tarjeta centrada con forma de talón de servicio: muescas a los
+   lados y línea de perforación. Al cerrar, el talón se "rasga" por
+   la perforación. Usa las variables de theme.css (claro / oscuro).
+   ========================================================== */
+
+.td-overlay {
+  --td-radio-muesca: 12px;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(1, 20, 50, 0.72);
+  backdrop-filter: blur(6px);
+  perspective: 1100px;
+  animation: td-overlay-entra 0.22s ease-out both;
+}
+
+.td-overlay--sale {
+  animation: td-overlay-sale 0.38s ease-in both;
+}
+
+/* ---------- Tarjeta ---------- */
+.td-card {
+  --td-tinte: color-mix(in srgb, var(--accent-color) 11%, transparent);
+  position: relative;
+  width: min(640px, 100%);
+  max-height: min(86vh, 760px);
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  transform-origin: 50% 0;
+  /* El drop-shadow respeta las muescas; box-shadow no lo haría */
+  filter: drop-shadow(0 22px 38px rgba(0, 0, 0, 0.38));
+  animation: td-card-entra 0.46s cubic-bezier(0.2, 0.9, 0.25, 1.05) both;
+}
+
+/* Mitad superior (encabezado) y mitad inferior (contenido) del talón */
+.td-top,
+.td-bottom {
+  position: relative;
+  background-color: var(--bg-secondary);
+}
+
+.td-top {
+  padding: 20px 24px 22px;
+  background-image: linear-gradient(var(--td-tinte), var(--td-tinte));
+  border-radius: 18px 18px 0 0;
+  /* Muescas en las esquinas inferiores */
+  -webkit-mask:
+    radial-gradient(circle var(--td-radio-muesca) at 0 100%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--td-radio-muesca) at 100% 100%, #0000 97%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--td-radio-muesca) at 0 100%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--td-radio-muesca) at 100% 100%, #0000 97%, #000) right / 51% 100% no-repeat;
+}
+
+.td-bottom {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  border-radius: 0 0 18px 18px;
+  /* Muescas en las esquinas superiores */
+  -webkit-mask:
+    radial-gradient(circle var(--td-radio-muesca) at 0 0, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--td-radio-muesca) at 100% 0, #0000 97%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--td-radio-muesca) at 0 0, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--td-radio-muesca) at 100% 0, #0000 97%, #000) right / 51% 100% no-repeat;
+}
+
+/* Línea de perforación */
+.td-bottom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  border-top: 2px dashed var(--border-color);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.td-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 26px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  scrollbar-width: thin;
+}
+
+/* ---------- Encabezado ---------- */
+.td-top__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.td-numero {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.td-cerrar {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.2s ease;
+}
+
+.td-cerrar:hover {
+  background: var(--td-tinte);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.td-cerrar:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.td-titulo {
+  margin: 8px 0 14px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 650;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.td-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Contenido ---------- */
+.td-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+}
+
+.td-seccion__titulo {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--accent-color);
+}
+
+.td-motivo {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.td-campos {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.td-campos--fila {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 24px;
+}
+
+.td-campo dt {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.td-campo dd {
+  margin: 1px 0 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.td-campo dd.td-vacio { color: var(--text-muted); }
+.td-campo dd.td-asignado { color: var(--accent-color); font-weight: 600; }
+
+/* ---------- Historial (línea de tiempo) ---------- */
+.td-historial {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.td-evento {
+  position: relative;
+}
+
+.td-evento::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--bg-secondary);
+}
+
+.td-evento__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.td-evento__accion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.td-evento__fecha {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.td-evento__obs {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.td-evento__estado {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 1px 9px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+
+.td-aviso {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes td-overlay-entra { from { opacity: 0; } to { opacity: 1; } }
+@keyframes td-overlay-sale  { from { opacity: 1; } to { opacity: 0; } }
+
+/* Entra desplegándose desde arriba, como un talón que se saca de la libreta */
+@keyframes td-card-entra {
+  from { opacity: 0; transform: translateY(26px) rotateX(-16deg) scale(0.95); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Sale rasgándose por la perforación: la mitad de arriba sube, la de abajo cae */
+.td-card--sale { animation: none; }
+
+.td-card--sale .td-top {
+  animation: td-rasga-arriba 0.38s cubic-bezier(0.55, 0, 0.9, 0.45) both;
+}
+
+.td-card--sale .td-bottom {
+  animation: td-rasga-abajo 0.38s cubic-bezier(0.55, 0, 0.9, 0.45) both;
+}
+
+@keyframes td-rasga-arriba {
+  to { opacity: 0; transform: translate(-16px, -90px) rotate(-5deg); }
+}
+
+@keyframes td-rasga-abajo {
+  to { opacity: 0; transform: translate(12px, 110px) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .td-overlay, .td-card, .td-card--sale .td-top, .td-card--sale .td-bottom { animation: none; }
+  .td-cerrar:hover { transform: none; }
+}
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 560px) {
+  .td-grid, .td-campos--fila { grid-template-columns: 1fr; }
+  .td-top { padding: 16px 18px 20px; }
+  .td-scroll { padding: 22px 18px 20px; }
+  .td-titulo { font-size: 18px; }
+}
