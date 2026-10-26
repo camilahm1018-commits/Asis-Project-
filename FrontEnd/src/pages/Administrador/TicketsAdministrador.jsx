@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
 import { listarTicketsAdministrador } from '../../services/adminService.js';
+import ImagenTicket from '../../components/ImagenTicket.jsx';
 
 function TicketsAdministrador() {
   const [cargando, setCargando] = useState(true);
@@ -34,7 +35,17 @@ function TicketsAdministrador() {
 
   return (
     <AdminLayout title="Tickets">
-      {seleccionado && <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />}
+      
+{seleccionado && (
+  <>
+    <TicketDetailPanel
+      ticket={seleccionado}
+      onClose={() => setSeleccionado(null)}
+    />
+
+    <ImagenTicket imagen={seleccionado.imagen} />
+  </>
+)}
 
       <div className="pa-section-header">
         <div>

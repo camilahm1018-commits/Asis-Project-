@@ -6,6 +6,7 @@ import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
 import EditarTicketPendienteModal from '../../components/EditarTicketPendienteModal.jsx';
 import { navItemsInstructor } from './navItems.js';
 import { listarTicketsAdministrador, obtenerUsuarioActual } from '../../services/adminService.js';
+import ImagenTicket from '../../components/ImagenTicket.jsx';
 
 function MisTicketsInstructor() {
   const [cargando, setCargando] = useState(true);
@@ -58,7 +59,8 @@ function MisTicketsInstructor() {
 
   return (
     <PanelLayout title="Mis Reportes" rol="instructor" sidebarLabel="Instructor" navItems={navItemsInstructor}>
-      {seleccionado && <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />}
+      {seleccionado && (<><TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)}/><ImagenTicket imagen={seleccionado.imagen} /></>)}
+
       {editando && (
         <EditarTicketPendienteModal
           ticket={editando}
