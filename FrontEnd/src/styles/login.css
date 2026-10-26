@@ -204,3 +204,33 @@ body.light-mode .loginForm input:focus {
     padding: 30px 20px;
   }
 }
+
+
+.inputContenedor {
+  position: relative;
+}
+
+.inputContenedor input {
+  box-sizing: border-box;
+  padding-right: 45px;
+}
+
+.btnMostrarContrasena {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnMostrarContrasena:disabled {
+  cursor: not-allowed;
+}

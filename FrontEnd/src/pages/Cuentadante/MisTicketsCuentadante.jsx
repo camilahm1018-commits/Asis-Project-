@@ -6,6 +6,7 @@ import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
 import EditarTicketPendienteModal from '../../components/EditarTicketPendienteModal.jsx';
 import { navItemsCuentadante } from './navItems.js';
 import { listarTicketsAdministrador, obtenerUsuarioActual } from '../../services/adminService.js';
+import ImagenTicket from '../../components/ImagenTicket.jsx';
 
 function MisTicketsCuentadante() {
   const [cargando, setCargando] = useState(true);
@@ -37,7 +38,7 @@ function MisTicketsCuentadante() {
 
   return (
     <PanelLayout title="Mis Reportes" rol="cuentadante" sidebarLabel="Cuentadante" navItems={navItemsCuentadante}>
-      {seleccionado && <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />}
+      {seleccionado && (<><TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)}/><ImagenTicket imagen={seleccionado.imagen} /></>)}
       {editando && (
         <EditarTicketPendienteModal
           ticket={editando}

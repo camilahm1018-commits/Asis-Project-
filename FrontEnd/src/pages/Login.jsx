@@ -6,12 +6,15 @@ import Header from '../components/Header.jsx'
 import '../styles/login.css'
 import { useGoogleLogin } from '@react-oauth/google';
 
+
 function Login() {
   const navigate = useNavigate()
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mensajeError, setMensajeError] = useState('')
   const [cargando, setCargando] = useState(false)
+//msotrar contraseña visualizar boton
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
   useEffect(() => {
     document.body.classList.add('page-login')
@@ -123,22 +126,48 @@ function Login() {
               />
             </div>
 
-            <label htmlFor="contrasena_usuario">Contraseña</label>
+
+          <label htmlFor="contrasena_usuario">Contraseña</label>
+
             <div className="inputContenedor">
-              <svg className="inputIcono" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              <svg
+                className="inputIcono"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                />
               </svg>
-              <input 
-                type="password" 
-                id="contrasena_usuario" 
-                name="contrasena_usuario" 
-                placeholder="Contraseña" 
-                required 
-                value={contrasena} 
-                onChange={(e) => setContrasena(e.target.value)} 
-                disabled={cargando} 
+
+              <input
+                type={mostrarContrasena ? "text" : "password"}
+                id="contrasena_usuario"
+                name="contrasena_usuario"
+                placeholder="Contraseña"
+                required
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                disabled={cargando}
               />
+
+              <button
+                type="button"
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                disabled={cargando}
+                aria-label={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+                title={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+                className="btnMostrarContrasena"
+              >
+                {mostrarContrasena ? "🙈" : "👁️"}
+              </button>
             </div>
+
 
             <button type="submit" className="btnPrincipal" disabled={cargando}>
               {cargando ? 'Verificando...' : 'Continuar'}

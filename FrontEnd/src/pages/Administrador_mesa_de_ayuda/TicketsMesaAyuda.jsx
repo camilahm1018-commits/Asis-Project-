@@ -8,6 +8,7 @@ import {
   listarTicketsAdministrador, listarEstadosTicket, editarTicket,
   registrarEntradaEquipo, obtenerUsuarioActual,
 } from '../../services/adminService.js';
+import ImagenTicket from '../../components/ImagenTicket.jsx';
 
 function TicketsMesaAyuda() {
   const [cargando, setCargando] = useState(true);
@@ -74,7 +75,7 @@ function TicketsMesaAyuda() {
 
   return (
     <PanelLayout title="Tickets" rol="administrador_mesa_ayuda" sidebarLabel="Mesa de Ayuda" navItems={navItemsMesaAyuda}>
-      {seleccionado && <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />}
+    {seleccionado && (<><TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)}/><ImagenTicket imagen={seleccionado.imagen} /></>)}
 
       <div className="pa-section-header">
         <div>

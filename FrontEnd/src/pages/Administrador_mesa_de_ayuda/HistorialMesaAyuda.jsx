@@ -33,9 +33,7 @@ function HistorialMesaAyuda() {
     <PanelLayout title="Historial" rol="administrador_mesa_ayuda" sidebarLabel="Mesa de Ayuda" navItems={navItemsMesaAyuda}>
       
       {/* Modal de detalle reutilizable */}
-      {seleccionado && (
-        <TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)} />
-      )}
+      {seleccionado && (<><TicketDetailPanel ticket={seleccionado} onClose={() => setSeleccionado(null)}/><ImagenTicket imagen={seleccionado.imagen} /></>)}
 
       <div className="pa-section-header">
         <div>
