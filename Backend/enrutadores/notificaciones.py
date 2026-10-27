@@ -81,3 +81,25 @@ async def eliminar_notificacion(id: int,sesion: Sesion_dependencia):
     sesion.commit()
 
     return notificacion_bd
+
+
+@asis.get("/usuario/{id_usuario}", response_model=list[Notificacion])
+async def obtener_notificaciones_usuario(id_usuario: int, sesion: Sesion_dependencia):
+    # Obtenemos las notificaciones de este usuario, de la más reciente a la más antigua
+    query = select(Notificacion).where(
+        Notificacion.notificado_para == id_usuario
+    ).order_by(Notificacion.fecha_envio.desc())
+    return sesion.exec(query).all()
+
+@asis.put("/marcar-leida/{id_notificacion}")
+async def marcar_notificacion_leida(id_notificacion: int, sesion: Sesion_dependencia):
+    notif = sesion.get(Notificacion, id_notificacion)
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    
+    # Usamos el campo 'enviada' como indicador de 'leída' (True = ya la vio el usuario)
+    # Esto evita tener que modificar la estructura de la base de datos
+    notif.enviada = True
+    sesion.add(notif)
+    sesion.commit()
+    return {"mensaje": "Notificación marcada como leída"}
