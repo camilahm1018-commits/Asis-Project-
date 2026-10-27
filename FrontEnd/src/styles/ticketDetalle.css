@@ -312,3 +312,36 @@
   .td-scroll { padding: 22px 18px 20px; }
   .td-titulo { font-size: 18px; }
 }
+
+
+.td-imagen-seccion {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid rgba(69, 179, 191, 0.3);
+  border-radius: 12px;
+  background: rgba(69, 179, 191, 0.05);
+}
+
+.td-imagen-enlace {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 8px;
+}
+
+.td-imagen {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid rgba(69, 179, 191, 0.4);
+  cursor: zoom-in;
+}
+
+.td-imagen-ayuda {
+  margin: 8px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+

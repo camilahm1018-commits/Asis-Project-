@@ -108,6 +108,43 @@ function TicketDetailPanel({ ticket, onClose }) {
               <h3 className="td-seccion__titulo">Motivo del ticket</h3>
               <p className="td-motivo">{motivo}</p>
             </section>
+            
+        {ticket.imagen && (
+          <section className="td-imagen-seccion">
+            <h3 className="td-seccion__titulo">
+              Imagen adjunta del equipo
+            </h3>
+
+            <a
+              href={
+                ticket.imagen.startsWith('http')
+                  ? ticket.imagen
+                  : `http://localhost:8000/${ticket.imagen.replace(/^\/+/, '')}`
+              }
+              target="_blank"
+              rel="noreferrer"
+              className="td-imagen-enlace"
+            >
+              <img
+                src={
+                  ticket.imagen.startsWith('http')
+                    ? ticket.imagen
+                    : `http://localhost:8000/${ticket.imagen.replace(/^\/+/, '')}`
+                }
+                alt={`Imagen adjunta al ticket ${ticket.id}`}
+                className="td-imagen"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </a>
+
+            <p className="td-imagen-ayuda">
+              Haz clic en la imagen para verla en tamaño completo.
+            </p>
+          </section>
+        )}
+
 
             <div className="td-grid">
               <section>
