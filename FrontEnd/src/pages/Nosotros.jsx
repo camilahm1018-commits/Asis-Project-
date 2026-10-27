@@ -9,30 +9,30 @@ const Nosotros = () => {
   const datosDelEquipo = [
     {
       id: 1,
-      nombre: "Camila Hernandez",
+      nombre: "Stephany Hernandez",
       rol: "Líder y Desarrolladora Frontend",
-      descripcion: "Especialista en React y diseño de interfaces. Se encarga de que la experiencia del usuario en ASIS sea fluida, intuitiva y moderna.",
+      descripcion: "Coordina el equipo, gestiona las actividades por medio de la metodologia Kanban, define prioridades y asegura que el proyecto cumpla con los requisitos del cliente.",
       foto: "/IMG/Camila.jpeg" 
     },
     {
       id: 2,
       nombre: "Janer Rivas",
-      rol: "Desarrollador Backend",
-      descripcion: "Experto en Python, FastAPI y PostgreSQL. Construye la lógica del servidor y garantiza que los datos de tickets y equipos estén seguros.",
+      rol: "Líder de Backend",
+      descripcion: "Desarrolla los endpoints de la API en FastAPI, gestiona la lógica del servidor y garantiza la integración entre el frontend y la base de datos.",
       foto: "/IMG/Janer.jpeg" 
     },
     {
       id: 3,
       nombre: "Alejandro Fuentes",
       rol: "Analista QA y Diseño",
-      descripcion: "Creativo detrás de la identidad visual de ASIS. Se asegura de que cada flujo, color y componente tenga sentido para el usuario final.",
+      descripcion: "Prueba los endpoints y funcionalidades del sistema y verifica que los criterios de aceptación se cumplan.",
       foto: "/IMG/Alejandro.jpeg"
     },
     {
       id: 4,
       nombre: "Esteban Castrillon",
-      rol: "Desarrollador Base de Datos",
-      descripcion: "Lidera la organización de datos, coordina los sprints y asegura que el sistema cumpla con todos los requisitos de calidad y tiempos de entrega.",
+      rol: "Líder Base de Datos",
+      descripcion: "Diseña y administra la base de datos en PostgreSQL, gestiona las tablas, vistas y relaciones del sistema.",
       foto: "/IMG/Esteban.jpeg" 
     }
   ];
@@ -52,7 +52,7 @@ const Nosotros = () => {
           <h2 className="asis-titulo-principal">ASIS</h2>
           <h3>Asistencia Integral SENA</h3>
           <p className="asis-descripcion-proyecto">
-            <strong>ASIS</strong> es una solución tecnológica integral desarrollada para optimizar el control, seguimiento y mantenimiento de equipos y ambientes tecnológicos. 
+            <strong>ASIS</strong> es una solución tecnológica integral desarrollada para optimizar el control, seguimiento y mantenimiento de equipos tecnológicos y mobiliario. 
             <br /><br />
             Fue creado con el objetivo de <strong>digitalizar y agilizar</strong> los procesos de reporte de novedades, asignación de técnicos y gestión de inventario. Buscamos eliminar el envio de correos electronicos, reducir los tiempos de respuesta y garantizar una trazabilidad completa para instructores, cuentadantes y personal de soporte técnico.
           </p>

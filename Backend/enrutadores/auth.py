@@ -1,5 +1,6 @@
 import os
 import httpx
+import traceback  
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -280,6 +281,8 @@ async def restablecer_contrasena(datos: RestablecerContrasenaBody):
 # iniciar sesion con Goggle
 # ==========================================
     
+
+
 @asis.post("/google-login")
 async def google_login(datos: dict):
     try:
@@ -295,7 +298,7 @@ async def google_login(datos: dict):
             )
             
             if response.status_code != 200:
-                raise HTTPException(status_code=400, detail="Token de Google inválido o expirado")
+                raise HTTPException(status_code=400, detail=f"Token de Google inválido. Respuesta de Google: {response.text}")
             
             user_info = response.json()
             correo_google = user_info.get('email')
@@ -340,5 +343,8 @@ async def google_login(datos: dict):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"ERROR CRÍTICO EN LOGIN GOOGLE: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor")
+        print("========================================")
+        print("ERROR CRÍTICO EN LOGIN GOOGLE (TRACEBACK COMPLETO):")
+        traceback.print_exc()  # <-- ESTO IMPRIMIRÁ EL ERROR REAL EN LOS LOGS
+        print("========================================")
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
