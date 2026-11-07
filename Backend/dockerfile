@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiamos e instalamos dependencias
-COPY requierements_def.txt .
-RUN pip install --no-cache-dir -r requierements_def.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiamos el código
 COPY . .

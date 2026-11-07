@@ -12,7 +12,7 @@ from seguridad import (
     verificar_contrasena, crear_token, verificar_token,
     encriptar_contrasena, crear_token_proposito, verificar_token_proposito
 )
-from correo import correo_activacion, correo_recuperacion, correo_alerta_intento_no_valido
+from servicios.correo import correo_activacion, correo_recuperacion, correo_alerta_intento_no_valido
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 

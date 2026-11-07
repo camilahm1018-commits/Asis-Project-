@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, HTTPException
 from conexion_db import Sesion_dependencia
 from sqlmodel import select
 from seguridad import encriptar_contrasena, crear_token_proposito
-from correo import correo_activacion
+from servicios.correo import correo_activacion
 from Modelos.roles import Rol
 import secrets
 
