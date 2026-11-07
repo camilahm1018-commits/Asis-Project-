@@ -1,0 +1,226 @@
+/* ==========================================================
+   RECUPERAR_C.CSS - CON SOPORTE MODO OSCURO/CLARO
+   Repintado con variables CSS para ambos temas
+   ========================================================== */
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  color: var(--text-primary);
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  z-index: -1;
+}
+
+/* Modo claro para el body */
+body.light-mode {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%);
+}
+
+/* CONTENEDOR PRINCIPAL ASIS */
+.container {
+  width: 600px; /* ✅ Aumentado de 500px a 600px */
+  max-width: 90%;
+  margin: 80px auto 40px;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-radius: 20px;
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 
+              0 0 50px rgba(69, 179, 191, 0.15);
+  padding: 50px 40px; /* ✅ Aumentado de 40px 32px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition: all 0.3s ease;
+}
+
+/* Contenedor en modo claro */
+body.light-mode .container {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+/* PASOS DE LA INTERFAZ */
+.step {
+  color: var(--text-primary);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+/* EL TÍTULO CENTRAL DESTACADO */
+.step h2 {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: -0.3px;
+  transition: color 0.3s ease;
+}
+
+/* SUBTÍTULOS / DESCRIPCIONES */
+.step p {
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  transition: color 0.3s ease;
+}
+
+/* FORMULARIOS */
+.step form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CONTENEDORES DE ENTRADA (Cajas de texto) */
+.inputContenedor {
+  width: 100%;
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.step label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  transition: color 0.3s ease;
+}
+
+/* INPUTS TRADICIONALES */
+.step input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--bg-tertiary);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Inputs en modo claro */
+body.light-mode .step input {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .step input:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+}
+
+.step input::placeholder {
+  color: var(--text-muted);
+}
+
+.step input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.15);
+}
+
+/* INDICACIONES / REGLAS DEBAJO DE LOS INPUTS */
+.step span {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+/* BOTÓN PRINCIPAL */
+.btnPrincipal {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+  color: var(--btn-primary-text);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.btnPrincipal:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(69, 179, 191, 0.3);
+}
+
+/* ENLACES Y NAVEGACIÓN SECUNDARIA */
+.step a {
+  margin-top: 24px;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.step a:hover {
+  text-decoration: underline;
+}
+
+/* ICONO DE CONTROL FINAL DE ÉXITO */
+.successIcon {
+  font-size: 56px;
+  font-weight: bold;
+  color: var(--success-color);
+  margin-bottom: 15px;
+}
+html, body, #root {
+  background: transparent !important;
+}
+
+body {
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%) !important;
+}
+
+body.light-mode {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%) !important;
+}
+
+body.light-mode #root {
+  background: transparent !important;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (MÓVILES)
+   ========================================================== */
+@media (max-width: 600px) {
+  .container {
+    height: auto;
+    margin-top: 100px;
+    padding: 25px 20px;
+  }
+}

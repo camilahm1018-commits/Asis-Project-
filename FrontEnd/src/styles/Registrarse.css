@@ -1,0 +1,214 @@
+/* ==========================================================
+   REGISTRARSE.CSS - CON SOPORTE MODO OSCURO/CLARO
+   ========================================================== */
+
+.contentWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 80px 20px 20px 20px; 
+  box-sizing: border-box;
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-primary) 100%);
+  transition: background 0.3s ease;
+}
+
+/* Modo claro para el wrapper */
+body.light-mode .contentWrapper {
+  background: linear-gradient(160deg, #f0f4f8 0%, #e2e8f0 55%, #f0f4f8 100%);
+}
+
+.formContainer {
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 700px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+/* Modo claro para el formulario */
+body.light-mode .formContainer {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+.registroForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.registroForm h2 {
+  text-align: center;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  transition: color 0.3s ease;
+}
+
+.formSubtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  transition: color 0.3s ease;
+}
+
+.formGroupFlex {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.formField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inputs y Selects */
+.registroForm input,
+.registroForm select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+/* Modo claro para inputs */
+body.light-mode .registroForm input,
+body.light-mode .registroForm select {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .registroForm input:focus,
+body.light-mode .registroForm select:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+}
+
+.registroForm input::placeholder {
+  color: var(--text-muted);
+}
+
+.registroForm input:focus,
+.registroForm select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.1);
+}
+
+/* Etiquetas (Labels) */
+.registroForm label {
+  color: var(--accent-color);
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+/* Mensajes de Estado */
+.mensajeExito {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success-color);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.9rem;
+}
+
+.mensajeError {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: var(--danger-color);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  font-size: 0.9rem;
+}
+
+/* Botón de Envío */
+.btn {
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+  color: var(--btn-primary-text);
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(69, 179, 191, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer del formulario */
+.formFooter {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  transition: color 0.3s ease;
+}
+
+.formFooter a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.formFooter a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (MÓVILES)
+   ========================================================== */
+@media (max-width: 600px) {
+  .contentWrapper {
+    padding-top: 80px;
+  }
+  
+  .formContainer {
+    padding: 25px;
+  }
+
+  .formGroupFlex {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .registroForm h2 {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,154 @@
+/* ==========================================================
+   TICKETSGLOBAL.CSS - CON SOPORTE PARA MODO OSCURO/CLARO
+   ========================================================== */
+
+:root {
+  --asis-bg-contenedor: var(--bg-secondary);
+  --asis-bg-input: var(--bg-tertiary);
+  --asis-principal: var(--accent-color);
+  --asis-enlace: var(--accent-color);
+  --asis-hover: var(--accent-hover);
+  --asis-borde: var(--border-color);
+  --asis-blanco: var(--text-primary);
+  --asis-texto: var(--text-primary);
+  --asis-texto-suave: var(--text-secondary);
+}
+
+body.light-mode {
+  --asis-bg-contenedor: #ffffff;
+  --asis-bg-input: #f0f6ff;
+  --asis-principal: #2665ad;
+  --asis-enlace: #016ead;
+  --asis-hover: #41B3BF;
+  --asis-borde: #ccc;
+  --asis-blanco: #fff;
+  --asis-texto: #1a1a1a;
+  --asis-texto-suave: #4a5568;
+}
+
+/* ---------- Reset ---------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: var(--asis-bg-input);
+  color: var(--asis-texto);
+}
+
+/* ---------- Barra superior ---------- */
+
+.barraSuperior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--asis-bg-contenedor);
+  padding: 15px 30px;
+  border-bottom: 1px solid var(--asis-borde);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+
+.barraSuperiorIzq {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.barraSuperiorDer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  width: 55px;
+  height: 55px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.tituloApp {
+  display: flex;
+  flex-direction: column;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--asis-texto);
+}
+
+.tituloApp span {
+  font-size: 13px;
+  color: var(--asis-texto-suave);
+  font-weight: 500;
+}
+
+.etiquetaRol {
+  background: var(--asis-bg-input);
+  color: var(--asis-principal);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--asis-principal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.volver {
+  background: transparent;
+  border: 1px solid var(--asis-borde);
+  color: var(--asis-texto);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.volver:hover {
+  background: var(--asis-bg-input);
+  border-color: var(--asis-principal);
+  color: var(--asis-principal);
+}
+
+@media (max-width: 768px) {
+  .barraSuperior {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .barraSuperiorIzq,
+  .barraSuperiorDer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tituloApp {
+    font-size: 20px;
+  }
+
+  .tituloApp span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    width: 45px;
+    height: 45px;
+  }
+}

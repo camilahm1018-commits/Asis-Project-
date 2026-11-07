@@ -1,0 +1,272 @@
+/* =========================================
+   CONTACTANOS.CSS - CON SOPORTE MODO OSCURO/CLARO
+   ========================================= */
+
+/* Fondo de toda la página */
+.contacto-page {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+/* Botón de volver (arriba a la derecha) */
+.btn-volver-arriba {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.btn-volver-arriba:hover {
+  background-color: var(--accent-color);
+  color: var(--btn-primary-text);
+  transform: scale(1.05);
+}
+
+/* Tarjeta principal */
+.contacto-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+body.light-mode .contacto-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.contacto-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.subtitulo {
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.titulo {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+/* Formulario */
+.formulario-contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+/* Wrapper para el ícono + input */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 1rem;
+  color: var(--accent-color);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.textarea-icon {
+  top: 12px;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 2.8rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+body.light-mode .input-wrapper input,
+body.light-mode .input-wrapper textarea {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1a202c;
+}
+
+body.light-mode .input-wrapper input:focus,
+body.light-mode .input-wrapper textarea:focus {
+  background-color: #ffffff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+}
+
+.input-wrapper input::placeholder,
+.input-wrapper textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.input-wrapper input:focus,
+.input-wrapper textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(69, 179, 191, 0.15);
+}
+
+.input-wrapper textarea {
+  resize: vertical;
+  min-height: 100px;
+  padding-top: 2.5rem;
+}
+
+/* Botón enviar */
+.btn-enviar {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+  color: var(--btn-primary-text);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.5rem;
+}
+
+.btn-enviar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(69, 179, 191, 0.4);
+}
+
+.btn-enviar:active {
+  transform: translateY(0);
+}
+
+/* Mensaje de éxito */
+.mensaje-exito {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--success-color);
+  color: var(--success-color);
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .contacto-page {
+    padding: 1rem;
+  }
+  
+  .contacto-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .titulo {
+    font-size: 1.5rem;
+  }
+
+  .btn-volver-arriba {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+
+/* Estilo para el select de categoría que coincida con los inputs */
+.formulario-contacto select {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background-color: #002b5e; /* Azul oscuro semi-transparente */
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Quita la flecha nativa del navegador */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 12px auto;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.formulario-contacto select:focus {
+  border-color: #3b82f6; /* Azul brillante al enfocar */
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+.formulario-contacto select option {
+  background-color: #002b5e; /* Fondo oscuro para las opciones */
+  color: #ffffff;
+  padding: 10px;
+}
+
+.formulario-contacto select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
