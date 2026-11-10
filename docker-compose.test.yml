@@ -1,0 +1,20 @@
+
+
+services:
+  db_test:
+    image: postgres:15-alpine
+    container_name: asis_postgres_test
+    environment:
+      POSTGRES_USER: asis_test_user
+      POSTGRES_PASSWORD: asis_test_password
+      POSTGRES_DB: asis_test_db
+    ports:
+      - "5433:5432"
+    volumes:
+      # Mapea tus scripts sql locales a la carpeta de inicialización de postgres
+      - ./tests/backend/sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asis_test_user -d asis_test_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
