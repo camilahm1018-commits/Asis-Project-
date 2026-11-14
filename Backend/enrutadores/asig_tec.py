@@ -11,6 +11,7 @@ from Modelos.tickets import tickets
 from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
 from servicios.correo import enviar_correo_asignacion
+from servicios.validaciones_roles import validar_tecnico_activo
 
 asis = APIRouter(
     prefix="/asignacion",
@@ -47,21 +48,10 @@ def registrar_asignacion(
             detail="Este ticket ya tiene un técnico asignado"
         )
 
-    tecnico = sesion.get(Usuario, id_tecnico)
-
-    if not tecnico or not tecnico.activo:
-        raise HTTPException(
-            status_code=404,
-            detail="Técnico no encontrado o inactivo"
-        )
-
-    rol = sesion.get(Rol, tecnico.id_rol)
-
-    if not rol or rol.nombre_rol.strip().lower() != "tecnico":
-        raise HTTPException(
-            status_code=400,
-            detail="El usuario seleccionado no es un técnico"
-        )
+    validar_tecnico_activo(
+        sesion=sesion,
+        id_tecnico=id_tecnico
+    )
 
     # Actualizar el ticket.
     ticket.asignado_a = id_tecnico

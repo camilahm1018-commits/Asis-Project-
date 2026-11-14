@@ -1,3 +1,5 @@
+import os
+import shutil
 from fastapi import APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form, Depends
 from Modelos.tickets import tickets, TicketsEditar
 from Modelos.esquemas_asignacion import AsignacionSchema
@@ -16,8 +18,7 @@ from conexion_db import Sesion_dependencia, motor_bd
 from sqlmodel import Session, select
 from seguridad import verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import enviar_correo_notificacion, enviar_correo_cambio_estado
-import os
-import shutil
+from servicios.validaciones_roles import validar_tecnico_activo
 from typing import Optional
 from datetime import datetime
 
