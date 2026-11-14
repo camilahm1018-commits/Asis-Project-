@@ -34,7 +34,7 @@ export const listarUsuarios = async () => {
 
 export const crearUsuario = async (datosUsuario) => {
   try {
-    const { data } = await api.post('/usuarios/usuarios', datosUsuario, getAuthHeaders());
+    const { data } = await api.post('/usuarios/', datosUsuario, getAuthHeaders());
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo registrar el usuario');
@@ -43,7 +43,7 @@ export const crearUsuario = async (datosUsuario) => {
 
 export const editarUsuario = async (idUsuario, datosUsuario) => {
   try {
-    const { data } = await api.put(`/usuarios/usuarios/${idUsuario}`, datosUsuario, getAuthHeaders());
+    const { data } = await api.put(`/usuarios/${idUsuario}`, datosUsuario, getAuthHeaders());
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo editar el usuario');
@@ -52,7 +52,7 @@ export const editarUsuario = async (idUsuario, datosUsuario) => {
 
 export const eliminarUsuario = async (idUsuario) => {
   try {
-    const { data } = await api.delete(`/usuarios/usuarios/${idUsuario}`, getAuthHeaders());
+    const { data } = await api.delete(`/usuarios/${idUsuario}`, getAuthHeaders());
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo eliminar el usuario');
@@ -94,21 +94,12 @@ export const listarAmbientes = async () => {
   }
 };
 
-export const listarAmbientesDeCuentadante = async (idUsuario) => {
+export const listarAmbientesDeCuentadante = async (_idUsuario) => {
   try {
-    if (!idUsuario) {
-      throw new Error('ID de usuario no proporcionado');
-    }
-    
-    const { data } = await api.get(`/ambientes/cuentadante/${idUsuario}`, getAuthHeaders());
+    const { data } = await api.get('/ambientes/mis-ambientes', getAuthHeaders());
     return data;
   } catch (error) {
-    // Si el endpoint no existe en el backend, usamos el filtro local
-    if (error.response?.status === 404) {
-      const todos = await listarAmbientes();
-      return (todos || []).filter((a) => String(a.id_cuentadante) === String(idUsuario));
-    }
-    lanzarError(error, 'No se pudo obtener tus ambientes asignados');
+    lanzarError(error, 'No se pudieron obtener tus ambientes asignados');
   }
 };
 
@@ -496,20 +487,8 @@ export const listarEquiposPorAmbiente = async (idAmbiente) => {
 
 export async function solicitarRecuperacion(correo) {
   try {
-    const res = await fetch('http://127.0.0.1:8000/auth/solicitar-recuperacion', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ correo })
-    });
-    
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Error al solicitar la recuperación');
-    }
-    
-    return await res.json();
+    const { data } = await api.post('/auth/solicitar-recuperacion', { correo });
+    return data;
   } catch (error) {
     lanzarError(error, 'No se pudo solicitar la recuperación de contraseña');
   }
@@ -517,20 +496,8 @@ export async function solicitarRecuperacion(correo) {
 
 export async function restablecerContrasena(token, nueva_contrasena) {
   try {
-    const res = await fetch('http://127.0.0.1:8000/auth/restablecer-contrasena', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ token, nueva_contrasena })
-    });
-    
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Error al restablecer la contraseña');
-    }
-    
-    return await res.json();
+    const { data } = await api.post('/auth/restablecer-contrasena', { token, nueva_contrasena });
+    return data;
   } catch (error) {
     lanzarError(error, 'No se pudo restablecer la contraseña');
   }
@@ -555,7 +522,7 @@ export const preRegistrarUsuario = async (datosUsuario) => {
 export const obtenerHistorialDeTicket = async (idTicket) => {
   try {
     // Nota: Ajusta la URL si tu backend usa otra ruta (ej: /tickets/${idTicket}/historial)
-    const { data } = await api.get(`/His_tickets/his_tickets/${idTicket}`, getAuthHeaders());
+    const { data } = await api.get(`/His_tickets/por-ticket/${idTicket}`, getAuthHeaders());
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo obtener el historial de este ticket');

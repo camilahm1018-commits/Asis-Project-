@@ -1,5 +1,6 @@
 
-const URL_BACKEND = 'http://localhost:8000';
+import { API_BASE_URL } from '../services/api.js';
+const URL_BACKEND = API_BASE_URL;
 
 export default function ImagenTicket({ imagen }) {
   if (!imagen) return null;

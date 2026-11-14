@@ -1,77 +1,83 @@
-from Modelos.His_tickets import His_ticket, His_ticketCrear, His_ticketEditar
-from fastapi import APIRouter, status, HTTPException
-from conexion_db import Sesion_dependencia
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
+from Modelos.His_tickets import His_ticket, His_ticketCrear, His_ticketEditar
+from Modelos.tickets import tickets
+from seguridad import verificar_token, solo_admin
+from sesiones_roles import Sesion_por_rol
+from servicios.acceso_tickets import consulta_tickets_permitidos, puede_ver_ticket
+
+asis = APIRouter(prefix="/His_tickets", tags=["Historial de tickets"],
+                 dependencies=[Depends(verificar_token)])
 
 
-asis = APIRouter(
-    prefix="/His_tickets",
-    tags=["Historial de tickets"]
-)
+def consulta_historial(usuario):
+    ids_autorizados = consulta_tickets_permitidos(usuario).with_only_columns(tickets.id_ticket)
+    return select(His_ticket).where(His_ticket.id_ticket.in_(ids_autorizados))
+
 
 @asis.get("/his_tickets", response_model=list[His_ticket])
-async def listar_his_tickets(sesion: Sesion_dependencia):
-    lista_his = sesion.exec(select(His_ticket)).all()
-    return lista_his
+async def listar_his_tickets(sesion: Sesion_por_rol,
+                             usuario: dict = Depends(verificar_token)):
+    return sesion.exec(consulta_historial(usuario)).all()
+
+
+@asis.get("/por-ticket/{id_ticket}", response_model=list[His_ticket])
+async def historial_por_ticket(id_ticket: int, sesion: Sesion_por_rol,
+                              usuario: dict = Depends(verificar_token)):
+    if not puede_ver_ticket(sesion, usuario, id_ticket):
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    return sesion.exec(select(His_ticket).where(His_ticket.id_ticket == id_ticket)).all()
 
 
 @asis.get("/his_tickets/{id_historial}", response_model=His_ticket)
-async def listar_his_ticket_id(id_historial: int, mi_sesion: Sesion_dependencia): # type: ignore
-
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
-    if not his_ticket:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado")
-
-    return his_ticket
+async def listar_his_ticket_id(id_historial: int, sesion: Sesion_por_rol,
+                               usuario: dict = Depends(verificar_token)):
+    registro = sesion.get(His_ticket, id_historial)
+    if registro is None or not puede_ver_ticket(sesion, usuario, registro.id_ticket):
+        raise HTTPException(status_code=404, detail="Historial no encontrado")
+    return registro
 
 
-@asis.post("/his_tickets", response_model =His_ticket)
-async def crear_his_ticket(datos_his_ticket: His_ticketCrear,  mi_sesion: Sesion_dependencia): # type: ignore
-    nuevo_his_ticket = His_ticket.model_validate(datos_his_ticket.model_dump())
-    mi_sesion.add(nuevo_his_ticket)
-    mi_sesion.commit()
-    mi_sesion.refresh(nuevo_his_ticket)
-    return nuevo_his_ticket
+@asis.post("/his_tickets", response_model=His_ticket)
+async def crear_his_ticket(datos_his_ticket: His_ticketCrear, sesion: Sesion_por_rol,
+                           usuario: dict = Depends(verificar_token)):
+    rol = usuario["rol"]
+    if rol not in ("administrador", "administrador_mesa_ayuda", "tecnico"):
+        raise HTTPException(status_code=403, detail="No puedes registrar historial")
+    ticket = sesion.get(tickets, datos_his_ticket.id_ticket)
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    if rol == "tecnico" and ticket.asignado_a != usuario["id_usuario"]:
+        raise HTTPException(status_code=403, detail="Ticket no asignado a ti")
+    datos = datos_his_ticket.model_dump()
+    datos["id_usuario"] = usuario["id_usuario"]
+    nuevo = His_ticket.model_validate(datos)
+    sesion.add(nuevo)
+    sesion.commit()
+    sesion.refresh(nuevo)
+    return nuevo
 
 
-@asis.put("/his_tickets/{id_historial}", response_model=His_ticket)
-async def editar_his_ticket(id_historial: int, datos_his_ticket: His_ticketEditar,  mi_sesion: Sesion_dependencia):
+@asis.put("/his_tickets/{id_historial}", response_model=His_ticket,
+          dependencies=[Depends(solo_admin)])
+async def editar_his_ticket(id_historial: int, datos_his_ticket: His_ticketEditar,
+                            sesion: Sesion_por_rol):
+    registro = sesion.get(His_ticket, id_historial)
+    if registro is None:
+        raise HTTPException(status_code=404, detail="Historial no encontrado")
+    registro.sqlmodel_update(datos_his_ticket.model_dump(exclude_unset=True))
+    sesion.add(registro)
+    sesion.commit()
+    sesion.refresh(registro)
+    return registro
 
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
 
-    if not his_ticket:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado"
-        )
-
-
-    his_ticket_dict = datos_his_ticket.model_dump(exclude_unset=True)
-    his_ticket.sqlmodel_update(his_ticket_dict)
-
-    mi_sesion.add(his_ticket)
-    mi_sesion.commit()
-    mi_sesion.refresh(his_ticket)
-
-    return his_ticket
-        
-
-@asis.delete("/his_tickets/{id_historial}", response_model=His_ticket)
-async def eliminar_his_ticket(id_historial: int, mi_sesion: Sesion_dependencia):
-
-    his_ticket = mi_sesion.get(His_ticket, id_historial)
-
-    if not his_ticket:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Historial de ticket no encontrado"
-        )
-
-    his_ticket_eliminado = His_ticket.model_validate(his_ticket)
-
-    mi_sesion.delete(his_ticket)
-    mi_sesion.commit()
-
-    return his_ticket_eliminado
+@asis.delete("/his_tickets/{id_historial}", response_model=His_ticket,
+             dependencies=[Depends(solo_admin)])
+async def eliminar_his_ticket(id_historial: int, sesion: Sesion_por_rol):
+    registro = sesion.get(His_ticket, id_historial)
+    if registro is None:
+        raise HTTPException(status_code=404, detail="Historial no encontrado")
+    sesion.delete(registro)
+    sesion.commit()
+    return registro

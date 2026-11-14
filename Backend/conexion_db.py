@@ -1,18 +1,13 @@
 import os
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, create_engine
 from sqlalchemy.engine import make_url
 from typing import Annotated
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 
-# 1. URL de conexión DESDE VARIABLE DE ENTORNO (con fallback para desarrollo local)
-url_bd = os.getenv(
-    "DATABASE_URL", 
-    "postgresql+psycopg2://postgres:1234@localhost:5432/asisdb"
-)
-
-# 2. Motor de base de datos
-motor_bd = create_engine(url_bd, echo=False)
+# Solo se usa como URL base para construir las conexiones limitadas por rol.
+# Nunca se crea una sesión general como superusuario en los endpoints.
+url_bd = os.environ["DATABASE_URL"]
 
 # Conexión limitada para autenticación y activación de cuentas.
 url_auth = make_url(url_bd).set(
@@ -105,12 +100,8 @@ motor_cuentadante = create_engine(
 # 3. Función lifespan para crear las tablas al iniciar
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    SQLModel.metadata.create_all(motor_bd)
+    from servicios.bootstrap_admin import crear_admin_inicial
+    crear_admin_inicial()
     yield
 
-# 4. Función para obtener la sesión
-def obtener_sesion():
-    with Session(motor_bd) as mi_sesion:
-        yield mi_sesion
-
-Sesion_dependencia = Annotated[Session, Depends(obtener_sesion)]
+# Todas las sesiones de endpoints se obtienen en sesiones_roles.py.

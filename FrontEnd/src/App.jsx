@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 // Auth
 import Login from './pages/Login.jsx'
@@ -65,44 +66,44 @@ function App() {
         <Route path="/contactanos" element={<Contactanos />} />
 
         {/* Rutas de Administrador */}
-        <Route path="/administrador" element={<PanelAdministrador />} />
-        <Route path="/administrador/usuarios" element={<UsuariosAdministrador />} />
-        <Route path="/administrador/ambientes" element={<AmbientesAdministrador />} />
-        <Route path="/administrador/equipos" element={<EquiposAdministrador />} />
-        <Route path="/administrador/tickets" element={<TicketsAdministrador />} />
-        <Route path="/administrador/reportes" element={<ReportesAdministrador />} />
-        <Route path="/administrador/configuracion" element={<ConfiguracionAdministrador />} />
+        <Route path="/administrador" element={<ProtectedRoute roles={['administrador']}><PanelAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/usuarios" element={<ProtectedRoute roles={['administrador']}><UsuariosAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/ambientes" element={<ProtectedRoute roles={['administrador']}><AmbientesAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/equipos" element={<ProtectedRoute roles={['administrador']}><EquiposAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/tickets" element={<ProtectedRoute roles={['administrador']}><TicketsAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/reportes" element={<ProtectedRoute roles={['administrador']}><ReportesAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/configuracion" element={<ProtectedRoute roles={['administrador']}><ConfiguracionAdministrador /></ProtectedRoute>} />
 
         {/* Rutas de Mesa de Ayuda */}
-        <Route path="/mesa-ayuda/panel" element={<PanelMesaAyuda />} />
-        <Route path="/mesa-ayuda/tickets" element={<TicketsMesaAyuda />} />
-        <Route path="/mesa-ayuda/historial" element={<HistorialMesaAyuda />} />
-        <Route path="/mesa-ayuda/asignar" element={<AsignarTecnico />} />
-        <Route path="/mesa-ayuda/tecnicos" element={<TecnicosMesaAyuda />} />
-        <Route path="/mesa-ayuda/reportes" element={<ReportesMesaAyuda />} />
+        <Route path="/mesa-ayuda/panel" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><PanelMesaAyuda /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/tickets" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><TicketsMesaAyuda /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/historial" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><HistorialMesaAyuda /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/asignar" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><AsignarTecnico /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/tecnicos" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><TecnicosMesaAyuda /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/reportes" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><ReportesMesaAyuda /></ProtectedRoute>} />
 
         {/* Rutas de Técnico */}
-        <Route path="/tecnico" element={<PanelTecnico />} />
-        <Route path="/tecnico/disponibles" element={<TicketsDisponiblesTecnico />} />
-        <Route path="/tecnico/tickets" element={<MisTicketsTecnico />} />
-        <Route path="/tecnico/historial" element={<HistorialTecnico />} />
-        <Route path="/tecnico/perfil" element={<PerfilTecnico />} />
+        <Route path="/tecnico" element={<ProtectedRoute roles={['tecnico']}><PanelTecnico /></ProtectedRoute>} />
+        <Route path="/tecnico/disponibles" element={<ProtectedRoute roles={['tecnico']}><TicketsDisponiblesTecnico /></ProtectedRoute>} />
+        <Route path="/tecnico/tickets" element={<ProtectedRoute roles={['tecnico']}><MisTicketsTecnico /></ProtectedRoute>} />
+        <Route path="/tecnico/historial" element={<ProtectedRoute roles={['tecnico']}><HistorialTecnico /></ProtectedRoute>} />
+        <Route path="/tecnico/perfil" element={<ProtectedRoute roles={['tecnico']}><PerfilTecnico /></ProtectedRoute>} />
 
         {/* Rutas de Instructor */}
-        <Route path="/instructor" element={<PanelInstructor />} />
-        <Route path="/instructor/reportar" element={<RegistrarTicketSimple />} />
-        <Route path="/instructor/mis-reportes" element={<MisTicketsInstructor />} />
-        <Route path="/instructor/equipos" element={<MisEquiposInstructor />} />
+        <Route path="/instructor" element={<ProtectedRoute roles={['instructor']}><PanelInstructor /></ProtectedRoute>} />
+        <Route path="/instructor/reportar" element={<ProtectedRoute roles={['instructor']}><RegistrarTicketSimple /></ProtectedRoute>} />
+        <Route path="/instructor/mis-reportes" element={<ProtectedRoute roles={['instructor']}><MisTicketsInstructor /></ProtectedRoute>} />
+        <Route path="/instructor/equipos" element={<ProtectedRoute roles={['instructor']}><MisEquiposInstructor /></ProtectedRoute>} />
 
 
         {/* Rutas de Cuentadante */}
-        <Route path="/cuentadante" element={<PanelCuentadante />} />
-        <Route path="/cuentadante/inventario" element={<InventarioCuentadante />} />
-        <Route path="/cuentadante/ambientes" element={<AmbientesCuentadante />} />
-        <Route path="/cuentadante/salida" element={<RegistrarSalidaCuentadante />} />
-        <Route path="/cuentadante/mis-reportes" element={<MisTicketsCuentadante />} />
-        <Route path="/cuentadante/historial" element={<HistorialEquiposCuentadante />} />
-        <Route path="/cuentadante/reportes" element={<ReportesCuentadante />} />
+        <Route path="/cuentadante" element={<ProtectedRoute roles={['cuentadante']}><PanelCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/inventario" element={<ProtectedRoute roles={['cuentadante']}><InventarioCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/ambientes" element={<ProtectedRoute roles={['cuentadante']}><AmbientesCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/salida" element={<ProtectedRoute roles={['cuentadante']}><RegistrarSalidaCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/mis-reportes" element={<ProtectedRoute roles={['cuentadante']}><MisTicketsCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/historial" element={<ProtectedRoute roles={['cuentadante']}><HistorialEquiposCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/reportes" element={<ProtectedRoute roles={['cuentadante']}><ReportesCuentadante /></ProtectedRoute>} />
         
         {/* Ruta comodín */}
         <Route path="*" element={<Navigate to="/login" replace />} />

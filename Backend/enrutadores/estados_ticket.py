@@ -1,22 +1,25 @@
+from fastapi import Depends
+from seguridad import verificar_token, solo_admin
 from Modelos.estados_ticket import estados_ticket,estados_ticketCrear, estados_ticketEditar
 from fastapi import APIRouter, status, HTTPException
-from conexion_db import Sesion_dependencia
+from sesiones_roles import Sesion_por_rol
 from sqlmodel import select
 
 
 asis = APIRouter(
+    dependencies=[Depends(verificar_token)],
     prefix="/estados_ticket",
     tags=["Estados de Tickets"]
 )
 
 @asis.get("/estados_ticket", response_model=list[estados_ticket])
-async def listar_estados_ticket(sesion: Sesion_dependencia):
+async def listar_estados_ticket(sesion: Sesion_por_rol):
     lista_estados = sesion.exec(select(estados_ticket)).all()
     return lista_estados
 
 
 @asis.get("/estados_ticket/{id_estado}", response_model=estados_ticket)
-async def listar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia): # type: ignore
+async def listar_estado_ticket(id_estado: int, mi_sesion: Sesion_por_rol): # type: ignore
 
     estado = mi_sesion.get(estados_ticket, id_estado)
     if not estado:
@@ -27,8 +30,8 @@ async def listar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia): #
     return estado
 
 
-@asis.post("/estados_ticket", response_model =estados_ticket)
-async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Sesion_dependencia): # type: ignore
+@asis.post("/estados_ticket", response_model =estados_ticket, dependencies=[Depends(solo_admin)])
+async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Sesion_por_rol): # type: ignore
     nuevo_estado = estados_ticket.model_validate(datos_estado)
     
     mi_sesion.add(nuevo_estado)
@@ -37,8 +40,8 @@ async def crear_estado_ticket(datos_estado: estados_ticketCrear,  mi_sesion: Ses
     return nuevo_estado
 
 
-@asis.put("/estados_ticket/{id_estado}", response_model=estados_ticket)
-async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEditar,  mi_sesion: Sesion_dependencia):
+@asis.put("/estados_ticket/{id_estado}", response_model=estados_ticket, dependencies=[Depends(solo_admin)])
+async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEditar,  mi_sesion: Sesion_por_rol):
 
     estado = mi_sesion.get(estados_ticket, id_estado)
 
@@ -59,8 +62,8 @@ async def editar_estado_ticket(id_estado: int, datos_estado: estados_ticketEdita
     return estado
         
 
-@asis.delete("/estados_ticket/{id_estado}", response_model=estados_ticket)
-async def eliminar_estado_ticket(id_estado: int, mi_sesion: Sesion_dependencia):
+@asis.delete("/estados_ticket/{id_estado}", response_model=estados_ticket, dependencies=[Depends(solo_admin)])
+async def eliminar_estado_ticket(id_estado: int, mi_sesion: Sesion_por_rol):
 
     estado = mi_sesion.get(estados_ticket, id_estado)
 

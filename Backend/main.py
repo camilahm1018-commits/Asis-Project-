@@ -27,7 +27,9 @@ def prueba():
 # 2. ¡La magia del CORS! Le damos permiso a React para hablar con nosotros
 asis.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], # El puerto por defecto de React (Vite)
+    allow_origins=[x.strip() for x in os.getenv(
+        "ASIS_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",") if x.strip()], # El puerto por defecto de React (Vite)
     allow_credentials=True,
     allow_methods=["*"], # Permitimos todos los métodos (GET, POST, etc.)
     allow_headers=["*"], # Permitimos todos los headers

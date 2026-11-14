@@ -438,33 +438,8 @@ VALUES
 ('Julian','Silva','julian.silva@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000019','3001000019',5),
 ('Melissa','Cortes','melissa.cortes@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000020','3001000020',5);
 
--- ==========================================
--- ADMINISTRADOR INICIAL DE ASIS
--- ==========================================
-
-INSERT INTO usuarios (
-    nombre_u,
-    apellidos_u,
-    correo_u,
-    contrasena_u,
-    id_tipo_identificacion,
-    numero_documento,
-    telefono_u,
-    id_rol,
-    activo
-)
-SELECT
-    'esteban',
-    'admin',
-    'admin@sena.edu.co',
-    '$2b$12$uNPjG022Vwfcr5fJDMAiGeqoWVqj77m0pNALa72s27Y8DoqyUvBqG',
-    1,
-    '12345665469',
-    '3054165000',
-    id_rol,
-    TRUE
-FROM rol
-WHERE nombre_rol = 'administrador';
+-- El administrador inicial se crea desde Backend/servicios/bootstrap_admin.py.
+-- La contraseña se configura en .env y nunca se almacena en el SQL.
 
 -- AMBIENTES
 INSERT INTO ambientes(id_ambiente, nombre_a, ubicacion, capacidad_equipos, estado, descripcion, id_cuentadante)

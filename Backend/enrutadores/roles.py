@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from Modelos.roles import Rol,RolCrear,RolEditar
-from conexion_db import Sesion_dependencia, Sesion_admin
+from conexion_db import Sesion_admin
+from sesiones_roles import Sesion_por_rol
 from sqlmodel import select
 from seguridad import verificar_token, solo_admin
 
@@ -11,13 +12,13 @@ asis = APIRouter(
 
 #Leer todos los roles
 @asis.get("/", response_model=list[Rol])
-async def listar_roles(session: Sesion_dependencia):
+async def listar_roles(session: Sesion_por_rol):
     listRol = session.exec(select(Rol)).all()
     return listRol
 
 #Leer un rol por ID
 @asis.get("/{id}", response_model=Rol)
-async def listar_rol_id(id: int, session: Sesion_dependencia):
+async def listar_rol_id(id: int, session: Sesion_por_rol):
     rol_bd = session.get(Rol, id)
     if not rol_bd:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")

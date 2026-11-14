@@ -1,3 +1,4 @@
+import os
 from sqlmodel import Session
 from conexion_db import motor_auth
 from Modelos.Usuarios import Usuario
@@ -13,7 +14,9 @@ from fastapi.security import OAuth2PasswordBearer
 # CONFIGURACIÓN DEL TOKEN
 # ==========================================
 
-CLAVE_SECRETA = "asis_cgmlti_clave_super_secreta_2026"
+CLAVE_SECRETA = os.environ.get("ASIS_JWT_SECRET", "")
+if len(CLAVE_SECRETA) < 32:
+    raise RuntimeError("Configura ASIS_JWT_SECRET con al menos 32 caracteres en el archivo .env")
 ALGORITMO = "HS256"
 MINUTOS_EXPIRACION = 480  # 8 horas
 

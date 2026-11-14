@@ -1,104 +1,95 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
+from sesiones_roles import Sesion_por_rol
+from seguridad import verificar_token, solo_admin, solo_gestion_tickets
+from Modelos.notificaciones import Notificacion, NotificacionCrear, NotificacionEditar
+from Modelos.tickets import tickets
 
-from Modelos.notificaciones import Notificacion,NotificacionCrear,NotificacionEditar
-
-from conexion_db import Sesion_dependencia
-
-asis = APIRouter(
-    prefix="/notificaciones",
-    tags=["notificaciones"]
-)
-
-@asis.get("/notificaciones",response_model=list[Notificacion])
-async def listar_notificaciones(sesion: Sesion_dependencia):
-
-    notificaciones = sesion.exec(select(Notificacion)).all()
-    return notificaciones
+asis = APIRouter(prefix="/notificaciones", tags=["notificaciones"],
+                 dependencies=[Depends(verificar_token)])
 
 
-@asis.get("/notificaciones/{id}",response_model=Notificacion)
-async def obtener_notificacion(id: int,sesion: Sesion_dependencia):
-    notificacion_bd = sesion.get(Notificacion,id)
+def autorizada(notif, usuario):
+    return (usuario["rol"] in ("administrador", "administrador_mesa_ayuda")
+            or notif.notificado_para == usuario["id_usuario"])
 
-    if not notificacion_bd:
-        raise HTTPException(
-            status_code=404,
-            detail="Notificación no encontrada"
-        )
-    return notificacion_bd
+
+@asis.get("/notificaciones", response_model=list[Notificacion],
+          dependencies=[Depends(solo_gestion_tickets)])
+async def listar_notificaciones(sesion: Sesion_por_rol):
+    return sesion.exec(select(Notificacion)).all()
+
+
+@asis.get("/notificaciones/{id}", response_model=Notificacion)
+async def obtener_notificacion(id: int, sesion: Sesion_por_rol,
+                               usuario: dict = Depends(verificar_token)):
+    notif = sesion.get(Notificacion, id)
+    if notif is None or not autorizada(notif, usuario):
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    return notif
 
 
 @asis.post("/notificaciones", response_model=Notificacion)
-async def crear_notificacion(datos: NotificacionCrear, sesion: Sesion_dependencia):
-    try:
-        print(f"📩 Recibiendo notificación: {datos.model_dump()}")
-        nueva_notificacion = Notificacion.model_validate(datos.model_dump())
-        sesion.add(nueva_notificacion)
-        sesion.commit()
-        sesion.refresh(nueva_notificacion)
-        print(f"✅ Notificación creada: {nueva_notificacion.id_notificacion}")
-        return nueva_notificacion
-    except Exception as e: 
-        print(f"❌ Error al crear notificación: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@asis.put("/notificaciones/{id}",response_model=Notificacion)
-async def editar_notificacion(id: int,datos: NotificacionEditar,sesion: Sesion_dependencia):
-
-    notificacion_bd = sesion.get(Notificacion,id)
-
-    if not notificacion_bd:
-        raise HTTPException(
-            status_code=404,
-            detail="Notificación no encontrada"
-        )
-
-    notificacion_dict = datos.model_dump(exclude_unset=True)
-
-    notificacion_bd.sqlmodel_update(notificacion_dict)
-
-    sesion.add(notificacion_bd)
+async def crear_notificacion(datos: NotificacionCrear, sesion: Sesion_por_rol,
+                             usuario: dict = Depends(verificar_token)):
+    rol = usuario["rol"]
+    if rol not in ("administrador", "administrador_mesa_ayuda", "tecnico"):
+        raise HTTPException(status_code=403, detail="No autorizado")
+    t = sesion.get(tickets, datos.id_ticket)
+    if t is None:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    if rol == "tecnico" and (t.asignado_a != usuario["id_usuario"] or datos.notificado_para != t.creado_por):
+        raise HTTPException(status_code=403, detail="Destinatario o ticket no autorizado")
+    payload = datos.model_dump()
+    payload["notificado_por"] = usuario["id_usuario"]
+    payload["enviada"] = False  # FrontEnd usa este campo como indicador de lectura.
+    notif = Notificacion.model_validate(payload)
+    sesion.add(notif)
     sesion.commit()
-    sesion.refresh(notificacion_bd)
+    sesion.refresh(notif)
+    return notif
 
-    return notificacion_bd
 
-
-@asis.delete("/notificaciones/{id}",response_model=Notificacion)
-async def eliminar_notificacion(id: int,sesion: Sesion_dependencia):
-
-    notificacion_bd = sesion.get(Notificacion,id)
-
-    if not notificacion_bd:
-        raise HTTPException(
-            status_code=404,
-            detail="Notificación no encontrada"
-        )
-
-    sesion.delete(notificacion_bd)
+@asis.put("/notificaciones/{id}", response_model=Notificacion,
+          dependencies=[Depends(solo_admin)])
+async def editar_notificacion(id: int, datos: NotificacionEditar, sesion: Sesion_por_rol):
+    notif = sesion.get(Notificacion, id)
+    if notif is None:
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    notif.sqlmodel_update(datos.model_dump(exclude_unset=True))
+    sesion.add(notif)
     sesion.commit()
+    sesion.refresh(notif)
+    return notif
 
-    return notificacion_bd
+
+@asis.delete("/notificaciones/{id}", response_model=Notificacion,
+             dependencies=[Depends(solo_admin)])
+async def eliminar_notificacion(id: int, sesion: Sesion_por_rol):
+    notif = sesion.get(Notificacion, id)
+    if notif is None:
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    sesion.delete(notif)
+    sesion.commit()
+    return notif
 
 
 @asis.get("/usuario/{id_usuario}", response_model=list[Notificacion])
-async def obtener_notificaciones_usuario(id_usuario: int, sesion: Sesion_dependencia):
-    # Obtenemos las notificaciones de este usuario, de la más reciente a la más antigua
-    query = select(Notificacion).where(
+async def obtener_notificaciones_usuario(id_usuario: int, sesion: Sesion_por_rol,
+                                         usuario: dict = Depends(verificar_token)):
+    if usuario["id_usuario"] != id_usuario and usuario["rol"] != "administrador":
+        raise HTTPException(status_code=403, detail="No puedes consultar otras notificaciones")
+    return sesion.exec(select(Notificacion).where(
         Notificacion.notificado_para == id_usuario
-    ).order_by(Notificacion.fecha_envio.desc())
-    return sesion.exec(query).all()
+    ).order_by(Notificacion.fecha_envio.desc())).all()
+
 
 @asis.put("/marcar-leida/{id_notificacion}")
-async def marcar_notificacion_leida(id_notificacion: int, sesion: Sesion_dependencia):
+async def marcar_notificacion_leida(id_notificacion: int, sesion: Sesion_por_rol,
+                                     usuario: dict = Depends(verificar_token)):
     notif = sesion.get(Notificacion, id_notificacion)
-    if not notif:
+    if notif is None or notif.notificado_para != usuario["id_usuario"]:
         raise HTTPException(status_code=404, detail="Notificación no encontrada")
-    
-    # Usamos el campo 'enviada' como indicador de 'leída' (True = ya la vio el usuario)
-    # Esto evita tener que modificar la estructura de la base de datos
     notif.enviada = True
     sesion.add(notif)
     sesion.commit()

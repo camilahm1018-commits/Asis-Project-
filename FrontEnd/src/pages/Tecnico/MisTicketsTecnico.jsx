@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../services/api.js';
 // src/pages/tecnico/MisTicketsTecnico.jsx
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
@@ -282,13 +283,13 @@ function MisTicketsTecnico() {
                 </p>
 
                 <a
-                  href={`http://localhost:8000/${t.imagen}`}
+                  href={`${API_BASE_URL}/${t.imagen}`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <img
-                    src={`http://localhost:8000/${t.imagen}`}
+                    src={`${API_BASE_URL}/${t.imagen}`}
                     alt="Imagen del equipo"
                     style={{
                       width: 180,

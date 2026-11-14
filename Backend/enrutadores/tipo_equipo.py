@@ -1,24 +1,27 @@
+from fastapi import Depends
+from seguridad import verificar_token, solo_admin
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
 from Modelos.tipo_equipo import TipoEquipo,TipoEquipoCrear,TipoEquipoEditar
 
 
-from conexion_db import Sesion_dependencia
+from sesiones_roles import Sesion_por_rol
 
 asis = APIRouter(
+    dependencies=[Depends(verificar_token)],
     prefix="/tipo_equipo",
     tags=["Tipo de equipo"]
 )
 
 
 @asis.get("/tipos-equipo",response_model=list[TipoEquipo])
-async def listar_tipos_equipo(sesion: Sesion_dependencia):
+async def listar_tipos_equipo(sesion: Sesion_por_rol):
     return sesion.exec(select(TipoEquipo)).all()
 
 
 @asis.get("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def obtener_tipo_equipo(id: int,sesion: Sesion_dependencia):
+async def obtener_tipo_equipo(id: int,sesion: Sesion_por_rol):
     tipo_bd = sesion.get(TipoEquipo,id)
 
     if not tipo_bd:
@@ -30,8 +33,8 @@ async def obtener_tipo_equipo(id: int,sesion: Sesion_dependencia):
     return tipo_bd
 
 
-@asis.post("/tipos-equipo",response_model=TipoEquipo)
-async def crear_tipo_equipo(datos: TipoEquipoCrear,sesion: Sesion_dependencia):
+@asis.post("/tipos-equipo",response_model=TipoEquipo, dependencies=[Depends(solo_admin)])
+async def crear_tipo_equipo(datos: TipoEquipoCrear,sesion: Sesion_por_rol):
 
     nuevo = TipoEquipo.model_validate(datos.model_dump())
 
@@ -42,8 +45,8 @@ async def crear_tipo_equipo(datos: TipoEquipoCrear,sesion: Sesion_dependencia):
     return nuevo
 
 
-@asis.put("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_dependencia):
+@asis.put("/tipos-equipo/{id}",response_model=TipoEquipo, dependencies=[Depends(solo_admin)])
+async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_por_rol):
 
     tipo_bd = sesion.get(TipoEquipo,id)
 
@@ -62,8 +65,8 @@ async def editar_tipo_equipo(id: int,datos: TipoEquipoEditar,sesion: Sesion_depe
     return tipo_bd
 
 
-@asis.delete("/tipos-equipo/{id}",response_model=TipoEquipo)
-async def eliminar_tipo_equipo(id: int,sesion: Sesion_dependencia):
+@asis.delete("/tipos-equipo/{id}",response_model=TipoEquipo, dependencies=[Depends(solo_admin)])
+async def eliminar_tipo_equipo(id: int,sesion: Sesion_por_rol):
 
     tipo_bd = sesion.get(TipoEquipo,id)
 

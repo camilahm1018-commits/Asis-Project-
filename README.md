@@ -1,3 +1,5 @@
+Contraseña Administrador apiswagger: admin@sena.edu.co - 1234567890123
+
 # ASIS — Asistencia Integral SENA
 
 Sistema web para la **gestión de tickets de equipos tecnológicos** (daños, traslados y préstamos) del Centro de Gestión de Mercados, Logística y Tecnologías de la Información (CGMLTI) del SENA. Permite reportar una falla, asignar un técnico, seguir el estado de cada equipo, mantener su historial y generar reportes, con un panel distinto para cada rol.

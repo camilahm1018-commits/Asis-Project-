@@ -14,12 +14,15 @@ from enrutadores.asig_tec import (
     registrar_asignacion,
     _enviar_notificacion_asignacion
 )
-from conexion_db import Sesion_dependencia, motor_bd
+from conexion_db import motor_admin
 from sqlmodel import Session, select
 from seguridad import verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import enviar_correo_notificacion, enviar_correo_cambio_estado
 from servicios.validaciones_roles import validar_tecnico_activo
+from servicios.acceso_tickets import consulta_tickets_permitidos
+from sesiones_roles import Sesion_por_rol
 from typing import Optional
+from pydantic import BaseModel
 from datetime import datetime
 
 asis = APIRouter(
@@ -29,18 +32,25 @@ asis = APIRouter(
 )
 
 @asis.get("/", response_model=list[tickets])
-async def listar_tickets(session: Sesion_dependencia):
-    return session.exec(select(tickets)).all()
+async def listar_tickets(
+    session: Sesion_por_rol,
+    usuario_actual: dict = Depends(verificar_token)
+):
+    return session.exec(consulta_tickets_permitidos(usuario_actual)).all()
+
 
 @asis.get("/{id}", response_model=tickets)
-async def listar_tickets_id(id: int, session: Sesion_dependencia):
-    tik_bd = session.get(tickets, id)
-    if not tik_bd:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"El ticket con ID {id} no existe."
-        )
-    return tik_bd
+async def listar_tickets_id(
+    id: int,
+    session: Sesion_por_rol,
+    usuario_actual: dict = Depends(verificar_token)
+):
+    ticket = session.exec(
+        consulta_tickets_permitidos(usuario_actual).where(tickets.id_ticket == id)
+    ).first()
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    return ticket
 
 
 # ==========================================
@@ -49,67 +59,80 @@ async def listar_tickets_id(id: int, session: Sesion_dependencia):
 
 @asis.post("/", response_model=tickets)
 async def crear_ticket(
-    session: Sesion_dependencia,
+    session: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     motivo: str = Form(...),
     id_equipo: int = Form(...),
     tipo_salida: str = Form(...),
     id_motivo_novedad: Optional[int] = Form(default=None),
-    id_estado: int = Form(...),
+    id_estado: Optional[int] = Form(default=None),
     atendido: bool = Form(False),
     fecha_salida: Optional[datetime] = Form(default=None),
     imagen: Optional[UploadFile] = File(default=None),
     usuario_actual: dict = Depends(verificar_token)
 ):
-    # 1. Crear el ticket sin imagen inicialmente
-    tik_validado = tickets(
-        motivo=motivo,
-        id_equipo=id_equipo,
-        tipo_salida=tipo_salida,
-        id_motivo_novedad=id_motivo_novedad,
-        id_estado=id_estado,
-        creado_por=usuario_actual["id_usuario"],
-        atendido=atendido,
-        fecha_salida=fecha_salida
-    )
+    rol = usuario_actual["rol"]
+    id_usuario = usuario_actual["id_usuario"]
+    if rol not in ("administrador", "instructor", "cuentadante"):
+        raise HTTPException(status_code=403, detail="No puedes crear tickets")
+    if tipo_salida not in ("dano", "traslado", "prestamo"):
+        raise HTTPException(status_code=422, detail="Tipo de salida no válido")
+    equipo = session.get(Equipo, id_equipo)
+    if equipo is None:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado")
+    if rol == "cuentadante":
+        ambiente = session.get(Ambiente, equipo.id_ambiente)
+        if ambiente is None or ambiente.id_cuentadante != id_usuario:
+            raise HTTPException(status_code=403, detail="Equipo fuera de tus ambientes")
 
-    session.add(tik_validado)
-    session.commit()
-    session.refresh(tik_validado)
+    # Solo el administrador puede decidir libremente el estado inicial.
+    if rol != "administrador":
+        nombre_estado = "Pendiente" if tipo_salida == "dano" else "Trasladado"
+        estado = session.exec(select(estados_ticket).where(
+            estados_ticket.nombre_e == nombre_estado
+        )).first()
+        if estado is None:
+            raise HTTPException(status_code=500, detail="Estado inicial no configurado")
+        id_estado = estado.id_estado
+        atendido = False
+    elif id_estado is None or session.get(estados_ticket, id_estado) is None:
+        raise HTTPException(status_code=422, detail="Selecciona un estado válido")
 
-    # 2. Guardar imagen si el usuario adjuntó una
+    extension = None
     if imagen and imagen.filename:
-        extensiones_permitidas = {".jpg", ".jpeg", ".png"}
         extension = os.path.splitext(imagen.filename)[1].lower()
+        if extension not in (".jpg", ".jpeg", ".png"):
+            raise HTTPException(status_code=400, detail="Solo se permiten imágenes JPG, JPEG o PNG")
+        if imagen.size is not None and imagen.size > 5 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="La imagen supera 5 MB")
 
-        if extension not in extensiones_permitidas:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Solo se permiten imágenes JPG, JPEG o PNG."
-            )
+    nuevo = tickets(
+        motivo=motivo, id_equipo=id_equipo, tipo_salida=tipo_salida,
+        id_motivo_novedad=id_motivo_novedad, id_estado=id_estado,
+        creado_por=id_usuario, atendido=atendido, fecha_salida=fecha_salida or datetime.now()
+    )
+    session.add(nuevo)
+    session.commit()
+    session.refresh(nuevo)
 
+    if extension:
         carpeta = "uploads/tickets"
         os.makedirs(carpeta, exist_ok=True)
+        ruta = os.path.join(carpeta, f"ticket_{nuevo.id_ticket}{extension}")
+        try:
+            with open(ruta, "wb") as archivo:
+                shutil.copyfileobj(imagen.file, archivo)
+            nuevo.imagen = ruta
+            session.add(nuevo)
+            session.commit()
+            session.refresh(nuevo)
+        except Exception:
+            session.rollback()
+            # No se borra el ticket ya creado: mantener registro y avisar al usuario.
+            raise HTTPException(status_code=500, detail="Ticket registrado, pero falló la imagen")
 
-        nombre_archivo = f"ticket_{tik_validado.id_ticket}{extension}"
-        ruta_archivo = os.path.join(carpeta, nombre_archivo)
-
-        with open(ruta_archivo, "wb") as archivo:
-            shutil.copyfileobj(imagen.file, archivo)
-
-        # Guardar ruta en la BD
-        tik_validado.imagen = ruta_archivo
-        session.add(tik_validado)
-        session.commit()
-        session.refresh(tik_validado)
-
-    # 3. Enviar notificación por correo en segundo plano
-    background_tasks.add_task(
-        _enviar_notificacion_creacion,
-        tik_validado.id_ticket
-    )
-
-    return tik_validado
+    background_tasks.add_task(_enviar_notificacion_creacion, nuevo.id_ticket)
+    return nuevo
 
 # ==========================================
 # 🔄 EDITAR TICKET → Si cambia el estado, notifica
@@ -118,7 +141,7 @@ async def crear_ticket(
 async def editar_ticket(
     id: int,
     datos_tik: TicketsEditar,
-    session: Sesion_dependencia,
+    session: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     usuario_actual: dict = Depends(verificar_token)
 ):
@@ -227,15 +250,6 @@ async def editar_ticket(
         )
     
     return tik_bd
-from pydantic import BaseModel
-
-# ==========================================
-# 📋 ESQUEMA PARA ASIGNACIÓN
-# ==========================================
-class AsignacionSchema(BaseModel):
-    id_tecnico: int
-    id_asignado_por: int
-
 # ==========================================
 # 🎯 ASIGNAR TÉCNICO (Tickets nuevos)
 # ==========================================
@@ -243,22 +257,16 @@ class AsignacionSchema(BaseModel):
 async def asignar_tecnico(
     id: int,
     datos: AsignacionSchema,
-    session: Sesion_dependencia
+    session: Sesion_por_rol,
+    background_tasks: BackgroundTasks,
+    usuario_actual: dict = Depends(verificar_token)
 ):
-    tik_bd = session.get(tickets, id)
-    if not tik_bd:
-        raise HTTPException(status_code=404, detail="Ticket no encontrado")
-    
-    tecnico = session.get(Usuario, datos.id_tecnico)
-    if not tecnico:
-        raise HTTPException(status_code=404, detail="Técnico no encontrado")
-
-    tik_bd.asignado_a = datos.id_tecnico
-    session.add(tik_bd)
-    session.commit()
-    session.refresh(tik_bd)
-    
-    return tik_bd
+    with session.begin():
+        asignacion = registrar_asignacion(session, id, datos.id_tecnico,
+                                          usuario_actual["id_usuario"])
+    session.refresh(asignacion)
+    background_tasks.add_task(_enviar_notificacion_asignacion, asignacion.id_asignacion)
+    return session.get(tickets, id)
 
 # ==========================================
 # 🔄 REASIGNAR TÉCNICO (Cambiar de técnico)
@@ -267,26 +275,36 @@ async def asignar_tecnico(
 async def reasignar_tecnico(
     id: int,
     datos: AsignacionSchema,
-    session: Sesion_dependencia
+    session: Sesion_por_rol,
+    background_tasks: BackgroundTasks,
+    usuario_actual: dict = Depends(verificar_token)
 ):
-    tik_bd = session.get(tickets, id)
-    if not tik_bd:
-        raise HTTPException(status_code=404, detail="Ticket no encontrado")
-    
-    validar_tecnico_activo(
-    sesion=session,
-    id_tecnico=datos.id_tecnico
-)
-    if not tecnico:
-        raise HTTPException(status_code=404, detail="Técnico no encontrado")
-
-    # Actualizamos el técnico asignado
-    tik_bd.asignado_a = datos.id_tecnico
-    session.add(tik_bd)
-    session.commit()
-    session.refresh(tik_bd)
-    
-    return tik_bd
+    # Actualizar ticket, historial y asignación en una sola transacción.
+    with session.begin():
+        ticket = session.exec(select(tickets).where(tickets.id_ticket == id).with_for_update()).first()
+        if ticket is None:
+            raise HTTPException(status_code=404, detail="Ticket no encontrado")
+        if ticket.asignado_a is None:
+            raise HTTPException(status_code=409, detail="Utiliza asignar para tickets sin técnico")
+        if ticket.asignado_a == datos.id_tecnico:
+            raise HTTPException(status_code=409, detail="El técnico ya está asignado")
+        validar_tecnico_activo(session, datos.id_tecnico)
+        tecnico_anterior = ticket.asignado_a
+        ticket.asignado_a = datos.id_tecnico
+        nueva_asig = Asig_tec(id_ticket=id, id_tecnico=datos.id_tecnico,
+                               asignado_por=usuario_actual["id_usuario"])
+        session.add(ticket)
+        session.add(nueva_asig)
+        session.add(His_ticket(
+            id_ticket=id, id_usuario=usuario_actual["id_usuario"],
+            accion="Reasignar técnico",
+            observacion=f"De técnico #{tecnico_anterior} a #{datos.id_tecnico}",
+            estado_resultante="Reasignado"
+        ))
+        session.flush()
+    session.refresh(nueva_asig)
+    background_tasks.add_task(_enviar_notificacion_asignacion, nueva_asig.id_asignacion)
+    return session.get(tickets, id)
 
 # ==========================================
 # 🚫 DESASIGNAR TÉCNICO (Devolver a la cola)
@@ -294,23 +312,74 @@ async def reasignar_tecnico(
 @asis.put("/{id}/desasignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def desasignar_tecnico(
     id: int,
-    session: Sesion_dependencia
+    session: Sesion_por_rol,
+    usuario_actual: dict = Depends(verificar_token)
 ):
-    tik_bd = session.get(tickets, id)
-    if not tik_bd:
-        raise HTTPException(status_code=404, detail="Ticket no encontrado")
-    
-    # Quitamos el técnico asignado (lo dejamos en NULL/None)
-    tik_bd.asignado_a = None
-    session.add(tik_bd)
-    session.commit()
-    session.refresh(tik_bd)
-    
-    return tik_bd
+    with session.begin():
+        ticket = session.exec(select(tickets).where(tickets.id_ticket == id).with_for_update()).first()
+        if ticket is None:
+            raise HTTPException(status_code=404, detail="Ticket no encontrado")
+        if ticket.asignado_a is None:
+            raise HTTPException(status_code=409, detail="El ticket ya está sin asignar")
+        anterior = ticket.asignado_a
+        ticket.asignado_a = None
+        session.add(ticket)
+        session.add(His_ticket(
+            id_ticket=id, id_usuario=usuario_actual["id_usuario"],
+            accion="Desasignar técnico",
+            observacion=f"Se retiró al técnico #{anterior}",
+            estado_resultante="Sin asignar"
+        ))
+    return session.get(tickets, id)
+
+# Devolución de un equipo al ambiente (RF-007 / RF-010).
+
+class RegistroEntrada(BaseModel):
+    id_estado_entregado: int
+    id_usuario_actual: int | None = None  # compatibilidad; el servidor usa el JWT
+
+
+@asis.put("/{id}/registrar-entrada", response_model=tickets,
+          dependencies=[Depends(solo_gestion_tickets)])
+async def registrar_entrada(
+    id: int,
+    datos: RegistroEntrada,
+    session: Sesion_por_rol,
+    background_tasks: BackgroundTasks,
+    usuario_actual: dict = Depends(verificar_token)
+):
+    with session.begin():
+        ticket = session.exec(
+            select(tickets).where(tickets.id_ticket == id).with_for_update()
+        ).first()
+        if ticket is None:
+            raise HTTPException(status_code=404, detail="Ticket no encontrado")
+        estado = session.get(estados_ticket, datos.id_estado_entregado)
+        if estado is None or estado.nombre_e.strip().lower() != "entregado en ambiente":
+            raise HTTPException(status_code=422, detail="Estado de entrega no válido")
+        estado_anterior = ticket.id_estado
+        ticket.id_estado = datos.id_estado_entregado
+        ticket.atendido = True
+        ticket.fecha_retorno = datetime.now()
+        session.add(ticket)
+        session.add(His_ticket(
+            id_ticket=id,
+            id_usuario=usuario_actual["id_usuario"],
+            accion="Registrar entrada de equipo",
+            observacion="Equipo devuelto al ambiente",
+            estado_resultante="Entregado en ambiente"
+        ))
+    session.refresh(ticket)
+    if estado_anterior != ticket.id_estado:
+        background_tasks.add_task(
+            _enviar_notificacion_cambio_estado, id, estado_anterior, ticket.id_estado
+        )
+    return ticket
+
 
 #Eliminar ticket
 @asis.delete("/{id}", response_model=tickets, dependencies=[Depends(solo_admin)])
-async def eliminar_ticket(id: int, session: Sesion_dependencia):
+async def eliminar_ticket(id: int, session: Sesion_por_rol):
     tik_bd = session.get(tickets, id)
     if not tik_bd:
         raise HTTPException(
@@ -327,7 +396,7 @@ async def eliminar_ticket(id: int, session: Sesion_dependencia):
 # ==========================================
 def _enviar_notificacion_creacion(id_ticket: int):
     try:
-        with Session(motor_bd) as sesion:
+        with Session(motor_admin) as sesion:
             ticket = sesion.get(tickets, id_ticket)
             if not ticket:
                 print(f"❌ No se encontró el ticket {id_ticket}")
@@ -399,7 +468,7 @@ def _enviar_notificacion_creacion(id_ticket: int):
 # ==========================================
 def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, estado_nuevo: int):
     try:
-        with Session(motor_bd) as sesion:
+        with Session(motor_admin) as sesion:
             ticket = sesion.get(tickets, id_ticket)
             if not ticket:
                 print(f"❌ No se encontró el ticket {id_ticket}")

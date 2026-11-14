@@ -1,61 +1,58 @@
 import axios from 'axios';
 
-// Configuración base
-const api = axios.create({
-  baseURL: 'http://localhost:8000',
+// Mantiene localhost, pero funciona también cuando abres el FrontEnd por la IP del PC.
+export const API_BASE_URL = (import.meta.env.VITE_API_URL ||
+  `${window.location.protocol}//${window.location.hostname}:8000`).replace(/\/$/, '');
+
+const api = axios.create({ baseURL: API_BASE_URL });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
-// ==========================================
-// FUNCIÓN DE LOGIN
-// ==========================================
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 &&
+        !String(error.config?.url || '').includes('/auth/login') &&
+        !String(error.config?.url || '').includes('/auth/google-login')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('usuario');
+      if (window.location.pathname !== '/login') window.location.assign('/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const login = async (correo, contrasena) => {
   try {
-    // ⚠️ CRUCIAL: Tu backend usa OAuth2PasswordRequestForm
-    // Esto significa que NO enviamos JSON, sino datos de formulario
     const formData = new URLSearchParams();
-    formData.append('username', correo);    // FastAPI espera 'username'
+    formData.append('username', correo);
     formData.append('password', contrasena);
-
-    const response = await api.post('/auth/login', formData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+    const { data } = await api.post('/auth/login', formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
-
-    return response.data;
-
+    return data;
   } catch (error) {
-    // ⚠️ Capturar correctamente los errores de FastAPI
-    // FastAPI devuelve: { "detail": "Correo o contraseña incorrectos" }
-    if (error.response && error.response.data) {
-      const mensajeBackend = error.response.data.detail || 'Error al iniciar sesión';
-      throw new Error(mensajeBackend);
+    if (error.response?.data) {
+      throw new Error(error.response.data.detail || 'Error al iniciar sesión');
     }
-    // Si es un error de red o no hay respuesta del servidor
     throw new Error('No se pudo conectar con el servidor');
   }
 };
 
-// ==========================================
-// FUNCIONES AUXILIARES (opcionales pero útiles)
-// ==========================================
+export const getToken = () => localStorage.getItem('access_token');
 
-// Obtener el token actual
-export const getToken = () => {
-  return localStorage.getItem('access_token');
-};
-
-// Headers para peticiones autenticadas (para usar en otros endpoints)
 export const getAuthHeaders = () => {
   const token = getToken();
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  return { headers: token ? { Authorization: `Bearer ${token}` } : {} };
 };
 
-// Cerrar sesión
 export const logout = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('usuario');

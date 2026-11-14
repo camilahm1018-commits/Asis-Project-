@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../services/api.js';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -27,7 +28,7 @@ function RestablecerContrasena() {
 
     setCargando(true);
     try {
-      const response = await fetch('http://localhost:8000/auth/restablecer-contrasena', {
+      const response = await fetch(`${API_BASE_URL}/auth/restablecer-contrasena`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',},

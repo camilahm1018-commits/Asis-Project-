@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '../components/Header.jsx'
+import { API_BASE_URL } from '../services/api.js'
 import '../styles/Registrarse.css'
 
 // Estado inicial con los nombres EXACTOS de tu modelo UsuarioCrear
@@ -52,7 +53,7 @@ function Registrarse() {
       const { confirmar_contrasena, ...datosParaEnviar } = form
 
       // ✅ URL CORREGIDA: Apunta a tu endpoint POST /usuarios
-      const response = await fetch('http://127.0.0.1:8000/usuarios', {
+      const response = await fetch(`${API_BASE_URL}/usuarios/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../services/api.js';
 // src/components/TicketDetailPanel.jsx
 // Detalle completo de un ticket (equipo, personas, fechas) con su historial
 // de acciones (RF-012). Se muestra como tarjeta centrada con animación de
@@ -119,7 +120,7 @@ function TicketDetailPanel({ ticket, onClose }) {
               href={
                 ticket.imagen.startsWith('http')
                   ? ticket.imagen
-                  : `http://localhost:8000/${ticket.imagen.replace(/^\/+/, '')}`
+                  : `${API_BASE_URL}/${ticket.imagen.replace(/^\/+/, '')}`
               }
               target="_blank"
               rel="noreferrer"
@@ -129,7 +130,7 @@ function TicketDetailPanel({ ticket, onClose }) {
                 src={
                   ticket.imagen.startsWith('http')
                     ? ticket.imagen
-                    : `http://localhost:8000/${ticket.imagen.replace(/^\/+/, '')}`
+                    : `${API_BASE_URL}/${ticket.imagen.replace(/^\/+/, '')}`
                 }
                 alt={`Imagen adjunta al ticket ${ticket.id}`}
                 className="td-imagen"

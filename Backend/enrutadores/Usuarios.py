@@ -1,8 +1,9 @@
 from Modelos.Usuarios import (UsuarioCrear, UsuarioEditar, Usuario, UsuarioLeer, UsuarioPreRegistro)
 from fastapi import APIRouter, status, HTTPException, Depends
-from conexion_db import Sesion_dependencia, Sesion_admin
+from conexion_db import Sesion_admin
+from sesiones_roles import Sesion_por_rol
 from sqlmodel import select
-from seguridad import encriptar_contrasena, crear_token_proposito, verificar_token, solo_admin
+from seguridad import encriptar_contrasena, crear_token_proposito, verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import correo_activacion
 from Modelos.roles import Rol
 import secrets
@@ -22,15 +23,20 @@ async def listar_usuarios(sesion: Sesion_admin):
 # ==========================================
 # 2. LISTAR SOLO TÉCNICOS (Ruta específica antes de /{id_usuario})
 # ==========================================
-@asis.get("/tecnicos", response_model=list[UsuarioLeer], dependencies=[Depends(solo_admin)])
-async def listar_solo_tecnicos(sesion: Sesion_admin):
-    consulta = (select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
-        .where(Rol.nombre_rol == "tecnico"))
-    tecnicos = sesion.exec(consulta).all()
-    return tecnicos
+@asis.get("/tecnicos", dependencies=[Depends(solo_gestion_tickets)])
+async def listar_solo_tecnicos(sesion: Sesion_por_rol):
+    # Proyección mínima: mesa de ayuda no necesita documento ni contraseña.
+    filas = sesion.exec(
+        select(Usuario.id_usuario, Usuario.nombre_u, Usuario.apellidos_u,
+               Usuario.correo_u, Usuario.activo)
+        .join(Rol, Usuario.id_rol == Rol.id_rol)
+        .where(Rol.nombre_rol == "tecnico")
+    ).all()
+    return [dict(id_usuario=i, nombre_u=n, apellidos_u=a, correo_u=c, activo=ac)
+            for i, n, a, c, ac in filas]
 
 @asis.get("/resumen")
-async def resumen_usuarios(sesion: Sesion_dependencia):
+async def resumen_usuarios(sesion: Sesion_por_rol):
     filas = sesion.exec(
         select(
             Usuario.id_usuario,

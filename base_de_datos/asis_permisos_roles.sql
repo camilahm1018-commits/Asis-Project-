@@ -105,3 +105,20 @@ TO cuentadante;
 -- completo a usuarios. Primero deben corregirse los filtros por usuario
 -- y el uso ambiguo de 'enviada' como indicador de lectura.
 -- Tampoco se concede DELETE a ninguno de los cuatro roles.
+
+-- Ajustes de integración FastAPI / React.
+-- Mesa: lista de técnicos con correo de contacto, no hash/documento.
+GRANT SELECT (correo_u) ON TABLE public.usuarios TO administrador_mesa_ayuda;
+-- Instructor puede marcar como dañado únicamente el equipo recién reportado;
+-- el endpoint verifica rol, ticket creador y ventana de tiempo.
+GRANT UPDATE (estado) ON TABLE public.equipos TO instructor;
+-- Imágenes de reportes subidas después de la inserción inicial.
+GRANT UPDATE (imagen) ON TABLE public.tickets TO cuentadante;
+-- Notificaciones: lectura y marcar propia leída; escritura por técnico/mesa.
+GRANT SELECT ON TABLE public.notificaciones TO
+    instructor, tecnico, administrador_mesa_ayuda, cuentadante;
+GRANT UPDATE (enviada) ON TABLE public.notificaciones TO
+    instructor, tecnico, administrador_mesa_ayuda, cuentadante;
+GRANT INSERT ON TABLE public.notificaciones TO tecnico, administrador_mesa_ayuda;
+GRANT USAGE ON SEQUENCE public.notificaciones_id_notificacion_seq
+TO tecnico, administrador_mesa_ayuda;

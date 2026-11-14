@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, BackgroundTasks, Depends
 from pydantic import BaseModel, ConfigDict
 from seguridad import verificar_token, solo_gestion_tickets, solo_tecnico
 from sqlmodel import select, Session
-from conexion_db import Sesion_dependencia, motor_bd
+from conexion_db import motor_admin
 from Modelos.asig_tec import Asig_tec, Asig_tecEditar, Asig_tecCrear, Asig_tecLeer
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
@@ -12,14 +12,13 @@ from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
 from servicios.correo import enviar_correo_asignacion
 from servicios.validaciones_roles import validar_tecnico_activo
+from sesiones_roles import Sesion_por_rol
 
 asis = APIRouter(
     prefix="/asignacion",
     tags=["Asignacion Tecnico"],
     dependencies=[Depends(verificar_token)]
 )
-
-
 
 
 def registrar_asignacion(
@@ -70,12 +69,12 @@ def registrar_asignacion(
     return nueva_asignacion
 
 @asis.get("/", response_model=list[Asig_tec], dependencies=[Depends(solo_gestion_tickets)])
-async def listar_asig(session: Sesion_dependencia):
+async def listar_asig(session: Sesion_por_rol):
     lista_asig = session.exec(select(Asig_tec)).all()
     return lista_asig
 
 @asis.get("/{id}", response_model=Asig_tec, dependencies=[Depends(solo_gestion_tickets)])
-async def listar_asig_id(id: int, session: Sesion_dependencia):
+async def listar_asig_id(id: int, session: Sesion_por_rol):
     asig_bd = session.get(Asig_tec, id)
     if not asig_bd:
         raise HTTPException(
@@ -91,7 +90,7 @@ async def listar_asig_id(id: int, session: Sesion_dependencia):
 )
 async def asignar_tecnico_a_ticket(
     datos: SolicitudAsignacion,
-    sesion: Sesion_dependencia,
+    sesion: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     usuario_actual: dict = Depends(verificar_token)
 ):
@@ -119,7 +118,7 @@ async def asignar_tecnico_a_ticket(
 )
 async def tomar_ticket(
     id_ticket: int,
-    sesion: Sesion_dependencia,
+    sesion: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     usuario_actual: dict = Depends(verificar_token)
 ):
@@ -151,7 +150,7 @@ async def tomar_ticket(
 # ==========================================
 def _enviar_notificacion_asignacion(id_asignacion: int):
     try:
-        with Session(motor_bd) as sesion:
+        with Session(motor_admin) as sesion:
             # 1. Obtener la asignación
             asignacion = sesion.get(Asig_tec, id_asignacion)
             if not asignacion:

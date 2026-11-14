@@ -195,6 +195,9 @@ class ActivarCuentaBody(BaseModel):
 @asis.post("/activar-cuenta")
 async def activar_cuenta(datos: ActivarCuentaBody):
 
+    if len(datos.nueva_contrasena) < 12:
+        raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
+
     id_usuario = verificar_token_proposito(datos.token, "activacion")
 
     with Session(motor_auth) as sesion:
@@ -233,22 +236,12 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
         if usuario and usuario.activo:
             token = crear_token_proposito(usuario.id_usuario, "recuperacion", minutos=30)
             
-            # 🔍 AGREGADO: Imprimir el token en los logs para desarrollo
-            print(f"\n{'='*60}")
-            print(f" TOKEN DE RECUPERACIÓN GENERADO:")
-            print(f"📧 Correo: {usuario.correo_u}")
-            print(f"👤 Usuario: {usuario.nombre_u}")
-            print(f"🎟️ Token: {token}")
-            print(f"⏰ Válido por: 30 minutos")
-            print(f"{'='*60}\n")
-            
             # Intentar enviar correo (puede fallar si no hay SMTP configurado)
             try:
                 correo_recuperacion(usuario.correo_u, usuario.nombre_u, token)
                 print("✅ Correo enviado exitosamente")
             except Exception as e:
                 print(f"⚠️ No se pudo enviar el correo: {e}")
-                print("💡 Usa el token de arriba para probar manualmente")
 
         return {"mensaje": "Si el correo está registrado, te llegará un link para restablecer tu contraseña."}
 
@@ -260,6 +253,9 @@ class RestablecerContrasenaBody(BaseModel):
 
 @asis.post("/restablecer-contrasena")
 async def restablecer_contrasena(datos: RestablecerContrasenaBody):
+
+    if len(datos.nueva_contrasena) < 12:
+        raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
 
     id_usuario = verificar_token_proposito(datos.token, "recuperacion")
 
@@ -298,7 +294,7 @@ async def google_login(datos: dict):
             )
             
             if response.status_code != 200:
-                raise HTTPException(status_code=400, detail=f"Token de Google inválido. Respuesta de Google: {response.text}")
+                raise HTTPException(status_code=400, detail="Token de Google inválido")
             
             user_info = response.json()
             correo_google = user_info.get('email')

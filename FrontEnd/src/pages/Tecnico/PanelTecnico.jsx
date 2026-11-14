@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../services/api.js';
 // src/pages/tecnico/PanelTecnico.jsx
 // Ruta: /tecnico  (rol: "tecnico")
 import { useEffect, useState } from 'react';
@@ -85,7 +86,7 @@ function PanelTecnico() {
                 <td>{t.ambiente}</td>
                 <td><span className="pa-badge" style={{ background: `${t.estadoColor}26`, color: t.estadoColor, borderColor: `${t.estadoColor}4d` }}>{t.estado}</span></td>
                 <td className="pa-table-mono">{t.fecha ? new Date(t.fecha).toLocaleDateString() : '—'}</td>
-                <td>{t.imagen ? (<a href={`http://localhost:8000/${t.imagen}`}target="_blank"rel="noreferrer" style={{color: '#45B3BF',fontWeight: '600',textDecoration: 'none',cursor: 'pointer'}}> Ver imagen</a>) : ('—')}</td>
+                <td>{t.imagen ? (<a href={`${API_BASE_URL}/${t.imagen}`}target="_blank"rel="noreferrer" style={{color: '#45B3BF',fontWeight: '600',textDecoration: 'none',cursor: 'pointer'}}> Ver imagen</a>) : ('—')}</td>
               </tr>
             ))}
           </tbody>

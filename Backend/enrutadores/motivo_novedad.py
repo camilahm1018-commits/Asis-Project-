@@ -1,18 +1,21 @@
+from fastapi import Depends
+from seguridad import verificar_token, solo_admin
 from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 
-from conexion_db import Sesion_dependencia
+from sesiones_roles import Sesion_por_rol
 from Modelos.motivo_novedad import MotivoNovedad,MotivoCrear,MotivoEditar
 
 
 asis = APIRouter(
+    dependencies=[Depends(verificar_token)],
     prefix="/motivos-novedad",
     tags=["Motivos novedad"]
 )
 
 
 @asis.get("/", response_model=list[MotivoNovedad])
-async def listar_motivos(sesion: Sesion_dependencia):
+async def listar_motivos(sesion: Sesion_por_rol):
 
     motivos = sesion.exec(select(MotivoNovedad)).all()
 
@@ -22,7 +25,7 @@ async def listar_motivos(sesion: Sesion_dependencia):
 @asis.get("/{id}", response_model=MotivoNovedad)
 async def obtener_motivo(
     id: int,
-    sesion: Sesion_dependencia
+    sesion: Sesion_por_rol
 ):
 
     motivo = sesion.get(MotivoNovedad, id)
@@ -36,10 +39,10 @@ async def obtener_motivo(
     return motivo
 
 
-@asis.post("/", response_model=MotivoNovedad)
+@asis.post("/", response_model=MotivoNovedad, dependencies=[Depends(solo_admin)])
 async def crear_motivo(
     datos: MotivoCrear,
-    sesion: Sesion_dependencia
+    sesion: Sesion_por_rol
 ):
 
     nuevo_motivo = MotivoNovedad.model_validate(datos)
@@ -51,11 +54,11 @@ async def crear_motivo(
     return nuevo_motivo
 
 
-@asis.put("/{id}", response_model=MotivoNovedad)
+@asis.put("/{id}", response_model=MotivoNovedad, dependencies=[Depends(solo_admin)])
 async def editar_motivo(
     id: int,
     datos: MotivoEditar,
-    sesion: Sesion_dependencia
+    sesion: Sesion_por_rol
 ):
 
     motivo = sesion.get(MotivoNovedad, id)
@@ -76,10 +79,10 @@ async def editar_motivo(
     return motivo
 
 
-@asis.delete("/{id}", response_model=MotivoNovedad)
+@asis.delete("/{id}", response_model=MotivoNovedad, dependencies=[Depends(solo_admin)])
 async def eliminar_motivo(
     id: int,
-    sesion: Sesion_dependencia
+    sesion: Sesion_por_rol
 ):
 
     motivo = sesion.get(MotivoNovedad, id)
