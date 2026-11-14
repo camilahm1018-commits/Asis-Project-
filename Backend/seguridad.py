@@ -200,6 +200,22 @@ def solo_admin(
 
     return usuario_actual
 
+def solo_gestion_tickets(
+    usuario_actual=Depends(verificar_token)
+):
+    roles_permitidos = [
+        "administrador",
+        "administrador_mesa_ayuda"
+    ]
+
+    if usuario_actual["rol"] not in roles_permitidos:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos para gestionar asignaciones de tickets"
+        )
+
+    return usuario_actual
+
 
 # ==========================================
 # PERMISOS DE TÉCNICO

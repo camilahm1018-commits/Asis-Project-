@@ -330,24 +330,25 @@ export const listarAsignaciones = async () => {
   }
 };
 
-export const asignarTecnico = async (idTicket, idTecnico, asignadoPor) => {
+export const asignarTecnico = async (idTicket, idTecnico) => {
   try {
-    const { data } = await api.post('/asignacion/', {
-      id_ticket: idTicket,
-      id_tecnico: idTecnico,
-      asignado_por: asignadoPor,
-    }, getAuthHeaders());
+    const { data } = await api.post(
+      '/asignacion/',
+      {
+        id_ticket: idTicket,
+        id_tecnico: idTecnico
+      },
+      getAuthHeaders()
+    );
+
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo asignar el técnico');
   }
 };
 
-// Asignar un técnico también debe reflejarse en tickets.asignado_a
-// para que el resto del panel (tablas, dashboard) lo muestre de una vez.
-export const asignarTecnicoATicket = async (idTicket, idTecnico, asignadoPor) => {
-  await asignarTecnico(idTicket, idTecnico, asignadoPor);
-  return editarTicket(idTicket, { asignado_a: idTecnico });
+export const asignarTecnicoATicket = async (idTicket, idTecnico) => {
+  return asignarTecnico(idTicket, idTecnico);
 };
 
 // ==========================================
@@ -427,7 +428,7 @@ export const listarTicketsAdministrador = async () => {
   const [tickets, equipos, usuarios, ambientes, estados] = await Promise.all([
     listarTicketsCrudos(),
     listarEquipos(),
-    listarUsuarios(),
+    listarUsuariosResumen(),
     listarAmbientes(),
     listarEstadosTicket(),
   ]);
@@ -594,15 +595,15 @@ export const reasignarTecnico = async (idTicket, idTecnico, idAsignadoPor) => {
 // ==========================================
 export const desasignarTecnico = async (idTicket) => {
   try {
-    // Enviamos 'null' explícitamente para borrar la asignación
     const { data } = await api.put(
-      `/tickets/${idTicket}`, 
-      { asignado_a: null }, 
+      `/tickets/${idTicket}/desasignar`,
+      {},
       getAuthHeaders()
     );
+
     return data;
   } catch (error) {
-    lanzarError(error, 'No se pudo desasignar el técnico del ticket');
+    lanzarError(error, 'No se pudo desasignar el técnico');
   }
 };
 
@@ -618,4 +619,27 @@ export const crearNotificacion = async (datosNotificacion) => {
     console.error("Error al crear notificación:", error.response?.data);
     lanzarError(error, 'No se pudo crear la notificación');
   }
+};
+
+export const tomarTicket = async (idTicket) => {
+  try {
+    const { data } = await api.post(
+      `/asignacion/tomar/${idTicket}`,
+      {},
+      getAuthHeaders()
+    );
+
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo tomar el ticket');
+  }
+};
+
+export const listarUsuariosResumen = async () => {
+  const { data } = await api.get(
+    '/usuarios/resumen',
+    getAuthHeaders()
+  );
+
+  return data;
 };

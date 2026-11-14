@@ -11,7 +11,8 @@ import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
 import { navItemsTecnico } from './navItems.js';
 import {
-  listarTicketsAdministrador, asignarTecnicoATicket, obtenerUsuarioActual,
+  listarTicketsAdministrador,
+  tomarTicket
 } from '../../services/adminService.js';
 
 function TicketsDisponiblesTecnico() {
@@ -43,7 +44,7 @@ function TicketsDisponiblesTecnico() {
   async function handleTomar(ticket) {
     setTomando(ticket.id);
     try {
-      await asignarTecnicoATicket(ticket.id, usuario?.id_usuario, usuario?.id_usuario);
+      await tomarTicket(ticket.id);
       await cargar();
     } catch (err) {
       alert(err.message);

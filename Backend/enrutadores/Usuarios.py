@@ -29,6 +29,24 @@ async def listar_solo_tecnicos(sesion: Sesion_admin):
     tecnicos = sesion.exec(consulta).all()
     return tecnicos
 
+@asis.get("/resumen")
+async def resumen_usuarios(sesion: Sesion_dependencia):
+    filas = sesion.exec(
+        select(
+            Usuario.id_usuario,
+            Usuario.nombre_u,
+            Usuario.apellidos_u
+        )
+    ).all()
+
+    return [
+        {
+            "id_usuario": id_usuario,
+            "nombre_u": nombre,
+            "apellidos_u": apellidos
+        }
+        for id_usuario, nombre, apellidos in filas
+    ]
 
 # ==========================================
 # 3. OBTENER USUARIO POR ID

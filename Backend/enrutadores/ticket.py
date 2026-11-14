@@ -1,12 +1,20 @@
-from fastapi import APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form, Depends
 from Modelos.tickets import tickets, TicketsEditar
+from Modelos.esquemas_asignacion import AsignacionSchema
 from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
 from Modelos.estados_ticket import estados_ticket
+from Modelos.asig_tec import Asig_tec
+from Modelos.His_tickets import His_ticket
+from enrutadores.asig_tec import (
+    registrar_asignacion,
+    _enviar_notificacion_asignacion
+)
 from conexion_db import Sesion_dependencia, motor_bd
 from sqlmodel import Session, select
+from seguridad import verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import enviar_correo_notificacion, enviar_correo_cambio_estado
 import os
 import shutil
@@ -15,7 +23,8 @@ from datetime import datetime
 
 asis = APIRouter(
     prefix="/tickets",
-    tags=["Tickets"]
+    tags=["Tickets"], 
+    dependencies=[Depends(verificar_token)]
 )
 
 @asis.get("/", response_model=list[tickets])
@@ -46,10 +55,10 @@ async def crear_ticket(
     tipo_salida: str = Form(...),
     id_motivo_novedad: Optional[int] = Form(default=None),
     id_estado: int = Form(...),
-    creado_por: int = Form(...),
     atendido: bool = Form(False),
     fecha_salida: Optional[datetime] = Form(default=None),
     imagen: Optional[UploadFile] = File(default=None),
+    usuario_actual: dict = Depends(verificar_token)
 ):
     # 1. Crear el ticket sin imagen inicialmente
     tik_validado = tickets(
@@ -58,7 +67,7 @@ async def crear_ticket(
         tipo_salida=tipo_salida,
         id_motivo_novedad=id_motivo_novedad,
         id_estado=id_estado,
-        creado_por=creado_por,
+        creado_por=usuario_actual["id_usuario"],
         atendido=atendido,
         fecha_salida=fecha_salida
     )
@@ -109,7 +118,8 @@ async def editar_ticket(
     id: int,
     datos_tik: TicketsEditar,
     session: Sesion_dependencia,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    usuario_actual: dict = Depends(verificar_token)
 ):
     tik_bd = session.get(tickets, id)
     if not tik_bd:
@@ -121,6 +131,86 @@ async def editar_ticket(
     estado_anterior = tik_bd.id_estado
     
     tik_dict = datos_tik.model_dump(exclude_unset=True)
+
+    rol = usuario_actual["rol"]
+    id_usuario = usuario_actual["id_usuario"]
+
+    # Administrador y mesa de ayuda:
+    # pueden gestionar los datos del ticket,
+    # pero no cambiar su creador ni su técnico asignado.
+    if rol in ["administrador", "administrador_mesa_ayuda"]:
+        campos_permitidos = {
+            "motivo",
+            "fecha_salida",
+            "fecha_retorno",
+            "atendido",
+            "id_equipo",
+            "id_estado",
+            "id_motivo_novedad",
+            "tipo_salida"
+        }
+
+    # Técnico: solamente puede actualizar el estado
+    # y la atención de los tickets asignados a él.
+    elif rol == "tecnico":
+
+        if tik_bd.asignado_a != id_usuario:
+            raise HTTPException(
+                status_code=403,
+                detail="Este ticket no está asignado a ti"
+            )
+
+        campos_permitidos = {
+            "id_estado",
+            "atendido",
+            "fecha_retorno"
+        }
+
+    # Instructor: solamente puede editar un reporte
+    # propio que todavía esté pendiente y sin técnico.
+    elif rol == "instructor":
+
+        estado_actual = session.get(
+            estados_ticket,
+            tik_bd.id_estado
+        )
+
+        if (
+            tik_bd.creado_por != id_usuario
+            or tik_bd.asignado_a is not None
+            or not estado_actual
+            or estado_actual.nombre_e.strip().lower() != "pendiente"
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="No puedes editar este reporte"
+            )
+
+        campos_permitidos = {
+            "motivo",
+            "id_equipo"
+        }
+
+    # Los demás perfiles no pueden editar tickets.
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Tu rol no permite editar tickets"
+        )
+
+    # Rechazar cualquier campo que el rol no pueda modificar.
+    campos_prohibidos = set(tik_dict) - campos_permitidos
+
+    if campos_prohibidos:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "No puedes modificar los siguientes campos: "
+                + ", ".join(sorted(campos_prohibidos))
+            )
+        )
+
+    # Aplicar únicamente las modificaciones autorizadas.
     tik_bd.sqlmodel_update(tik_dict)
     session.add(tik_bd)
     session.commit()
@@ -148,7 +238,7 @@ class AsignacionSchema(BaseModel):
 # ==========================================
 # 🎯 ASIGNAR TÉCNICO (Tickets nuevos)
 # ==========================================
-@asis.put("/{id}/asignar", response_model=tickets)
+@asis.put("/{id}/asignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def asignar_tecnico(
     id: int,
     datos: AsignacionSchema,
@@ -172,7 +262,7 @@ async def asignar_tecnico(
 # ==========================================
 # 🔄 REASIGNAR TÉCNICO (Cambiar de técnico)
 # ==========================================
-@asis.put("/{id}/reasignar", response_model=tickets)
+@asis.put("/{id}/reasignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def reasignar_tecnico(
     id: int,
     datos: AsignacionSchema,
@@ -197,7 +287,7 @@ async def reasignar_tecnico(
 # ==========================================
 # 🚫 DESASIGNAR TÉCNICO (Devolver a la cola)
 # ==========================================
-@asis.put("/{id}/desasignar", response_model=tickets)
+@asis.put("/{id}/desasignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def desasignar_tecnico(
     id: int,
     session: Sesion_dependencia
@@ -214,7 +304,8 @@ async def desasignar_tecnico(
     
     return tik_bd
 
-@asis.delete("/{id}", response_model=tickets)
+#Eliminar ticket
+@asis.delete("/{id}", response_model=tickets, dependencies=[Depends(solo_admin)])
 async def eliminar_ticket(id: int, session: Sesion_dependencia):
     tik_bd = session.get(tickets, id)
     if not tik_bd:
