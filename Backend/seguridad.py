@@ -1,3 +1,7 @@
+from sqlmodel import Session
+from conexion_db import motor_auth
+from Modelos.Usuarios import Usuario
+from Modelos.roles import Rol
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -72,7 +76,8 @@ def crear_token(datos: dict) -> str:
     )
 
     datos_token.update({
-        "exp": expiracion
+        "exp": expiracion,
+        "tipo": "acceso"
     })
 
     return jwt.encode(
@@ -86,39 +91,49 @@ def crear_token(datos: dict) -> str:
 # VERIFICAR TOKEN
 # ==========================================
 
-def verificar_token(
-    token: str = Depends(oauth2_scheme)
-):
+def verificar_token(token: str = Depends(oauth2_scheme)):
 
     error_credenciales = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token inválido o expirado",
-        headers={
-            "WWW-Authenticate": "Bearer"
-        }
+        detail="Token inválido, expirado o usuario inactivo",
+        headers={"WWW-Authenticate": "Bearer"}
     )
 
     try:
-
         payload = jwt.decode(
             token,
             CLAVE_SECRETA,
             algorithms=[ALGORITMO]
         )
-
-        id_usuario: int = payload.get("id_usuario")
-        rol: str = payload.get("rol")
-
-        if id_usuario is None or rol is None:
+        
+        if payload.get("tipo") != "acceso":
             raise error_credenciales
 
-        return {
-            "id_usuario": id_usuario,
-            "rol": rol
-        }
+        id_usuario = payload.get("id_usuario")
+
+        if not isinstance(id_usuario, int) or isinstance(id_usuario, bool):
+            raise error_credenciales
 
     except JWTError:
         raise error_credenciales
+
+    # Verificar el usuario y su rol actual en PostgreSQL
+    with Session(motor_auth) as sesion:
+
+        usuario = sesion.get(Usuario, id_usuario)
+
+        if not usuario or not usuario.activo:
+            raise error_credenciales
+
+        rol = sesion.get(Rol, usuario.id_rol)
+
+        if not rol:
+            raise error_credenciales
+
+        return {
+            "id_usuario": usuario.id_usuario,
+            "rol": rol.nombre_rol
+        }
 
 
 # ==========================================
@@ -176,10 +191,7 @@ def solo_admin(
     usuario_actual=Depends(verificar_token)
 ):
 
-    if usuario_actual["rol"] not in [
-        "administrador",
-        "administrador_mesa_ayuda"
-    ]:
+    if usuario_actual["rol"] != "administrador":
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

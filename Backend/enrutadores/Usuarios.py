@@ -1,20 +1,20 @@
 from Modelos.Usuarios import (UsuarioCrear, UsuarioEditar, Usuario, UsuarioLeer, UsuarioPreRegistro)
-from fastapi import APIRouter, status, HTTPException
-from conexion_db import Sesion_dependencia
+from fastapi import APIRouter, status, HTTPException, Depends
+from conexion_db import Sesion_dependencia, Sesion_admin
 from sqlmodel import select
-from seguridad import encriptar_contrasena, crear_token_proposito
+from seguridad import encriptar_contrasena, crear_token_proposito, verificar_token, solo_admin
 from servicios.correo import correo_activacion
 from Modelos.roles import Rol
 import secrets
 
-asis = APIRouter(prefix="/usuarios", tags=["Usuarios"])
+asis = APIRouter(prefix="/usuarios", tags=["Usuarios"], dependencies=[Depends(verificar_token)])
 
 
 # ==========================================
 # 1. LISTAR TODOS LOS USUARIOS
 # ==========================================
-@asis.get("/", response_model=list[UsuarioLeer])
-async def listar_usuarios(sesion: Sesion_dependencia):
+@asis.get("/", response_model=list[UsuarioLeer], dependencies=[Depends(solo_admin)])
+async def listar_usuarios(sesion: Sesion_admin):
     lista_usu = sesion.exec(select(Usuario)).all()
     return lista_usu
 
@@ -22,8 +22,8 @@ async def listar_usuarios(sesion: Sesion_dependencia):
 # ==========================================
 # 2. LISTAR SOLO TÉCNICOS (Ruta específica antes de /{id_usuario})
 # ==========================================
-@asis.get("/tecnicos", response_model=list[UsuarioLeer])
-async def listar_solo_tecnicos(sesion: Sesion_dependencia):
+@asis.get("/tecnicos", response_model=list[UsuarioLeer], dependencies=[Depends(solo_admin)])
+async def listar_solo_tecnicos(sesion: Sesion_admin):
     consulta = (select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
         .where(Rol.nombre_rol == "tecnico"))
     tecnicos = sesion.exec(consulta).all()
@@ -33,8 +33,8 @@ async def listar_solo_tecnicos(sesion: Sesion_dependencia):
 # ==========================================
 # 3. OBTENER USUARIO POR ID
 # ==========================================
-@asis.get("/{id_usuario}", response_model=UsuarioLeer)
-async def listar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia):
+@asis.get("/{id_usuario}", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
+async def listar_usuario(id_usuario: int, mi_sesion: Sesion_admin):
     usuario = mi_sesion.get(Usuario, id_usuario)
 
     if not usuario:
@@ -49,8 +49,8 @@ async def listar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia):
 # ==========================================
 # 4. CREAR USUARIO (Registro directo)
 # ==========================================
-@asis.post("/", response_model=UsuarioLeer)
-async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_dependencia):
+@asis.post("/", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
+async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_admin):
     datos = datos_usuario.model_dump()
     
     # ENCRIPTAR CONTRASEÑA
@@ -68,8 +68,8 @@ async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_dependenc
 # ==========================================
 # 5. PRE-REGISTRO (RF-016) - Ruta específica
 # ==========================================
-@asis.post("/pre-registrar", response_model=UsuarioLeer)
-async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_dependencia):
+@asis.post("/pre-registrar", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
+async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_admin):
     contrasena_temporal = encriptar_contrasena(secrets.token_urlsafe(24))
 
     nuevo_usuario = Usuario(
@@ -91,8 +91,8 @@ async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_dep
 # ==========================================
 # 6. EDITAR USUARIO
 # ==========================================
-@asis.put("/{id_usuario}", response_model=UsuarioLeer)
-async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesion: Sesion_dependencia):
+@asis.put("/{id_usuario}", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
+async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesion: Sesion_admin):
     usuario = mi_sesion.get(Usuario, id_usuario)
 
     if not usuario:
@@ -117,8 +117,8 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesio
 # ==========================================
 # 7. ELIMINAR USUARIO
 # ==========================================
-@asis.delete("/{id_usuario}", response_model=UsuarioLeer)
-async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_dependencia):
+@asis.delete("/{id_usuario}", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
+async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_admin):
     usuario = mi_sesion.get(Usuario, id_usuario)
 
     if not usuario:

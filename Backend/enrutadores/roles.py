@@ -1,19 +1,21 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from Modelos.roles import Rol,RolCrear,RolEditar
-from conexion_db import Sesion_dependencia
+from conexion_db import Sesion_dependencia, Sesion_admin
 from sqlmodel import select
+from seguridad import verificar_token, solo_admin
 
 asis = APIRouter(
     prefix="/roles",
-    tags=["Roles"]
+    tags=["Roles"], dependencies=[Depends(verificar_token)]
 )
 
+#Leer todos los roles
 @asis.get("/", response_model=list[Rol])
 async def listar_roles(session: Sesion_dependencia):
     listRol = session.exec(select(Rol)).all()
     return listRol
 
-
+#Leer un rol por ID
 @asis.get("/{id}", response_model=Rol)
 async def listar_rol_id(id: int, session: Sesion_dependencia):
     rol_bd = session.get(Rol, id)
@@ -21,8 +23,9 @@ async def listar_rol_id(id: int, session: Sesion_dependencia):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f"El Rol con ID {id}, no existe.")
     return rol_bd
 
-@asis.post("/", response_model=Rol)
-async def crear_rol(datos_rol: RolCrear, session: Sesion_dependencia):
+#Crear un rol
+@asis.post("/", response_model=Rol, dependencies=[Depends(solo_admin)])
+async def crear_rol(datos_rol: RolCrear, session: Sesion_admin):
     rol_validado = Rol.model_validate(
         datos_rol.model_dump()
     )
@@ -32,8 +35,9 @@ async def crear_rol(datos_rol: RolCrear, session: Sesion_dependencia):
     session.refresh(rol_validado)
     return rol_validado
 
-@asis.put("/{id}", response_model=Rol)
-async def editar_rol(id: int, datos_rol: RolEditar, session: Sesion_dependencia):
+#editar un rol
+@asis.put("/{id}", response_model=Rol, dependencies=[Depends(solo_admin)])
+async def editar_rol(id: int, datos_rol: RolEditar, session: Sesion_admin):
     
     rol_bd = session.get(Rol, id)
     if not rol_bd:
@@ -46,8 +50,9 @@ async def editar_rol(id: int, datos_rol: RolEditar, session: Sesion_dependencia)
     session.refresh(rol_bd)
     return rol_bd
 
-@asis.delete("/{id}", response_model=Rol)
-async def eliminar_rol(id: int, session: Sesion_dependencia):
+#eliminar un rol
+@asis.delete("/{id}", response_model=Rol, dependencies=[Depends(solo_admin)])
+async def eliminar_rol(id: int, session: Sesion_admin):
     rol_bd = session.get(Rol, id)
     
     if not rol_bd:

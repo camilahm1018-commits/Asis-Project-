@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from conexion_db import motor_bd
+from conexion_db import motor_auth
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
 from seguridad import (
@@ -25,7 +25,7 @@ asis = APIRouter(prefix="/auth",tags=["Autenticación"])
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends()):
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.exec(select(Usuario).where(Usuario.correo_u == form_data.username)).first()
 
@@ -102,7 +102,7 @@ async def login(
 async def mi_perfil(
     usuario_actual=Depends(verificar_token)):
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.get(
             Usuario,
@@ -151,7 +151,7 @@ MENSAJE_CONFIRMACION_GENERICO = (
 @asis.post("/confirmar-datos")
 async def confirmar_datos(datos: ConfirmarDatosBody):
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.exec(
             select(Usuario).where(Usuario.numero_documento == datos.numero_documento)
@@ -197,7 +197,7 @@ async def activar_cuenta(datos: ActivarCuentaBody):
 
     id_usuario = verificar_token_proposito(datos.token, "activacion")
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.get(Usuario, id_usuario)
 
@@ -224,7 +224,7 @@ class SolicitarRecuperacionBody(BaseModel):
 @asis.post("/solicitar-recuperacion")
 async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.exec(
             select(Usuario).where(Usuario.correo_u == datos.correo)
@@ -263,7 +263,7 @@ async def restablecer_contrasena(datos: RestablecerContrasenaBody):
 
     id_usuario = verificar_token_proposito(datos.token, "recuperacion")
 
-    with Session(motor_bd) as sesion:
+    with Session(motor_auth) as sesion:
 
         usuario = sesion.get(Usuario, id_usuario)
 
@@ -307,7 +307,7 @@ async def google_login(datos: dict):
                 raise HTTPException(status_code=400, detail="No se pudo obtener el correo de Google")
 
         # 2. BUSCAR EN LA BASE DE DATOS
-        with Session(motor_bd) as sesion:
+        with Session(motor_auth) as sesion:
             usuario = sesion.exec(select(Usuario).where(Usuario.correo_u == correo_google)).first()
 
             if not usuario:
