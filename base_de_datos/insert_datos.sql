@@ -390,39 +390,24 @@ INSERT INTO motivo_novedad(nombre_novedad) VALUES
 
 -- USUARIOS (Contraseñas hasheadas con bcrypt para '12345')
 
--- ==========================================
--- ADMINISTRADOR INICIAL DE ASIS
--- ==========================================
 
-INSERT INTO usuarios (
-    nombre_u,
-    apellidos_u,
-    correo_u,
-    contrasena_u,
-    id_tipo_identificacion,
-    numero_documento,
-    telefono_u,
-    id_rol,
-    activo
+-- AMBIENTES
+INSERT INTO ambientes (
+    id_ambiente,
+    nombre_a,
+    ubicacion,
+    capacidad_equipos,
+    estado,
+    descripcion,
+    id_cuentadante
 )
-SELECT
-    'Admin',
-    'ASIS',
-    'admin.asis@sena.edu.co',
-    '$2b$12$9ax7bXplm7jhYXn.uDjkqeqEi.ancDDDgcV.lvvMMV/CshMalatmy',
-    1,
-    '900000001',
-    '3000000000',
-    id_rol,
-    TRUE
-FROM rol
-WHERE nombre_rol = 'administrador';
+VALUES
+
 
 INSERT INTO usuarios(nombre_u, apellidos_u, correo_u, contrasena_u, id_tipo_identificacion, numero_documento, telefono_u, id_rol)
 VALUES
 -- Cuentadante inicial (id_usuario = 1)
 ('Janer','Cillopillo','janer.cillopillo@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'123456789','3000000000',4),
-
 -- Instructores
 ('Carlos','Ramirez','carlos.ramirez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000001','3001000001',1),
 ('Laura','Martinez','laura.martinez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000002','3001000002',1),
@@ -452,6 +437,34 @@ VALUES
 ('Valentina','Ortega','valentina.ortega@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000018','3001000018',5),
 ('Julian','Silva','julian.silva@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000019','3001000019',5),
 ('Melissa','Cortes','melissa.cortes@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000020','3001000020',5);
+
+-- ==========================================
+-- ADMINISTRADOR INICIAL DE ASIS
+-- ==========================================
+
+INSERT INTO usuarios (
+    nombre_u,
+    apellidos_u,
+    correo_u,
+    contrasena_u,
+    id_tipo_identificacion,
+    numero_documento,
+    telefono_u,
+    id_rol,
+    activo
+)
+SELECT
+    'esteban',
+    'admin',
+    'admin@sena.edu.co',
+    '$2b$12$uNPjG022Vwfcr5fJDMAiGeqoWVqj77m0pNALa72s27Y8DoqyUvBqG',
+    1,
+    '12345665469',
+    '3054165000',
+    id_rol,
+    TRUE
+FROM rol
+WHERE nombre_rol = 'administrador';
 
 -- AMBIENTES
 INSERT INTO ambientes(id_ambiente, nombre_a, ubicacion, capacidad_equipos, estado, descripcion, id_cuentadante)
