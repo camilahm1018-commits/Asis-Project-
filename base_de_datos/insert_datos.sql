@@ -389,6 +389,35 @@ INSERT INTO motivo_novedad(nombre_novedad) VALUES
 ('No cumple con los requisitos para reparación');
 
 -- USUARIOS (Contraseñas hasheadas con bcrypt para '12345')
+
+-- ==========================================
+-- ADMINISTRADOR INICIAL DE ASIS
+-- ==========================================
+
+INSERT INTO usuarios (
+    nombre_u,
+    apellidos_u,
+    correo_u,
+    contrasena_u,
+    id_tipo_identificacion,
+    numero_documento,
+    telefono_u,
+    id_rol,
+    activo
+)
+SELECT
+    'Admin',
+    'ASIS',
+    'admin.asis@sena.edu.co',
+    '$2b$12$9ax7bXplm7jhYXn.uDjkqeqEi.ancDDDgcV.lvvMMV/CshMalatmy',
+    1,
+    '900000001',
+    '3000000000',
+    id_rol,
+    TRUE
+FROM rol
+WHERE nombre_rol = 'administrador';
+
 INSERT INTO usuarios(nombre_u, apellidos_u, correo_u, contrasena_u, id_tipo_identificacion, numero_documento, telefono_u, id_rol)
 VALUES
 -- Cuentadante inicial (id_usuario = 1)

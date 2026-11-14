@@ -273,7 +273,10 @@ async def reasignar_tecnico(
     if not tik_bd:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
     
-    tecnico = session.get(Usuario, datos.id_tecnico)
+    validar_tecnico_activo(
+    sesion=session,
+    id_tecnico=datos.id_tecnico
+)
     if not tecnico:
         raise HTTPException(status_code=404, detail="Técnico no encontrado")
 
