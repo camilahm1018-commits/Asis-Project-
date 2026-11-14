@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # === BASE DE DATOS POSTGRESQL ===
@@ -10,12 +9,20 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "1234"
       POSTGRES_DB: asisdb
+
+      ASIS_DB_AUTH_PASSWORD: ${ASIS_DB_AUTH_PASSWORD:?Falta ASIS_DB_AUTH_PASSWORD}
+      ASIS_DB_ADMIN_PASSWORD: ${ASIS_DB_ADMIN_PASSWORD:?Falta ASIS_DB_ADMIN_PASSWORD}
+      ASIS_DB_INSTRUCTOR_PASSWORD: ${ASIS_DB_INSTRUCTOR_PASSWORD:?Falta ASIS_DB_INSTRUCTOR_PASSWORD}
+      ASIS_DB_TECNICO_PASSWORD: ${ASIS_DB_TECNICO_PASSWORD:?Falta ASIS_DB_TECNICO_PASSWORD}
+      ASIS_DB_MESA_PASSWORD: ${ASIS_DB_MESA_PASSWORD:?Falta ASIS_DB_MESA_PASSWORD}
+      ASIS_DB_CUENTADANTE_PASSWORD: ${ASIS_DB_CUENTADANTE_PASSWORD:?Falta ASIS_DB_CUENTADANTE_PASSWORD}
+
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # ESTA ES LA LÍNEA NUEVA QUE VINCULA EL SCRIPT PARA INSERTAR LOS DATOS EN EL MOMENTO DE INICIAR EL DOCKER
-      - ./base_de_datos/insert_datos.sql:/docker-entrypoint-initdb.d/insert_datos.sql
+      - ./base_de_datos/insert_datos.sql:/docker-entrypoint-initdb.d/01_insert_datos.sql:ro
+      - ./base_de_datos/z_roles_postgres.sql:/docker-entrypoint-initdb.d/99_roles.sql:ro
 
   # === BACKEND FASTAPI ===
   backend:
@@ -28,6 +35,14 @@ services:
       - ./Backend/.env
     environment:
         DATABASE_URL: postgresql+psycopg2://postgres:1234@db:5432/asisdb
+
+        ASIS_DB_AUTH_PASSWORD: ${ASIS_DB_AUTH_PASSWORD:?Falta ASIS_DB_AUTH_PASSWORD}
+        ASIS_DB_ADMIN_PASSWORD: ${ASIS_DB_ADMIN_PASSWORD:?Falta ASIS_DB_ADMIN_PASSWORD}
+        ASIS_DB_INSTRUCTOR_PASSWORD: ${ASIS_DB_INSTRUCTOR_PASSWORD:?Falta ASIS_DB_INSTRUCTOR_PASSWORD}
+        ASIS_DB_TECNICO_PASSWORD: ${ASIS_DB_TECNICO_PASSWORD:?Falta ASIS_DB_TECNICO_PASSWORD}
+        ASIS_DB_MESA_PASSWORD: ${ASIS_DB_MESA_PASSWORD:?Falta ASIS_DB_MESA_PASSWORD}
+        ASIS_DB_CUENTADANTE_PASSWORD: ${ASIS_DB_CUENTADANTE_PASSWORD:?Falta ASIS_DB_CUENTADANTE_PASSWORD}
+    
     volumes:
       - ./Backend:/app
     depends_on:
