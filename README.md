@@ -652,3 +652,431 @@ Repositorio: <https://github.com/camilahm1018-commits/Asis-Project->
 ---
 
 *ASIS — Asistencia Integral SENA · Sistema de Gestión de Tickets.*
+
+
+
+# Instalación y ejecución de ASIS
+
+## 1. Descripción
+
+**ASIS (Sistema de Administración y Seguimiento de Incidencias)** es una aplicación desarrollada para gestionar equipos, ambientes, usuarios, tickets y reportes de incidencias.
+
+El proyecto utiliza las siguientes tecnologías:
+
+- **FrontEnd:** React, Vite y JavaScript.
+- **BackEnd:** Python y FastAPI.
+- **Base de datos:** PostgreSQL.
+- **Contenedores:** Docker y Docker Compose.
+
+ASIS puede ejecutarse tanto en **Linux (Pop!_OS, Ubuntu y distribuciones compatibles)** como en **Windows mediante Docker Desktop**.
+
+---
+
+## 2. Requisitos previos
+
+Antes de instalar el proyecto, es necesario contar con las siguientes herramientas:
+
+| Herramienta | Linux | Windows |
+|---|---|---|
+| Git | Requerido | Requerido |
+| Docker | Docker Engine | Docker Desktop |
+| Docker Compose | Requerido | Incluido con Docker Desktop |
+| Terminal | Bash | PowerShell |
+| WSL 2 | No requerido | Recomendado para Docker Desktop |
+
+**Nota:** Docker Desktop debe estar configurado para utilizar contenedores Linux.
+
+---
+
+## 3. Instalación en Linux
+
+### Paso 1. Verificar Docker
+
+Abrir una terminal y ejecutar:
+
+```bash
+docker --version
+docker compose version
+```
+
+Los comandos deben mostrar las versiones instaladas.
+
+### Paso 2. Clonar el repositorio
+
+```bash
+git clone https://github.com/camilahm1018-commits/Asis-Project-.git
+```
+
+Ingresar a la carpeta del proyecto:
+
+```bash
+cd Asis-Project-
+```
+
+Si el proyecto ya fue descargado, solamente es necesario ingresar a su directorio.
+
+### Paso 3. Configurar las variables de entorno
+
+Ejecutar el script de configuración para Linux:
+
+```bash
+bash scripts/preparar_env.sh
+```
+
+Este script está diseñado para preparar los archivos de configuración necesarios:
+
+```text
+Asis-Project-/
+├── .env
+├── Backend/
+│   └── .env
+└── FrontEnd/
+    └── .env
+```
+
+Los archivos contienen las variables necesarias para las conexiones a PostgreSQL, la autenticación JWT y la configuración del sistema.
+
+**Importante:** comprobar que las variables requeridas tengan valores válidos. Si ya existe una instalación con datos, deben conservarse las credenciales correspondientes.
+
+### Paso 4. Validar Docker Compose
+
+```bash
+sudo docker compose config --quiet
+```
+
+Si el comando no muestra errores, la configuración de Docker Compose es válida.
+
+### Paso 5. Construir e iniciar los contenedores
+
+```bash
+sudo docker compose up -d --build
+```
+
+Este comando construye las imágenes necesarias e inicia los servicios de la aplicación.
+
+### Paso 6. Verificar los servicios
+
+```bash
+sudo docker compose ps
+```
+
+Se espera encontrar los siguientes contenedores en ejecución:
+
+```text
+asis_backend
+asis_db
+asis_frontend
+```
+
+### Paso 7. Acceder a ASIS
+
+Abrir un navegador e ingresar a:
+
+| Servicio | Dirección |
+|---|---|
+| Aplicación web | http://localhost:5173 |
+| API FastAPI | http://localhost:8000 |
+| Documentación Swagger | http://localhost:8000/docs |
+
+---
+
+## 4. Instalación en Windows
+
+### Paso 1. Iniciar Docker Desktop
+
+Abrir Docker Desktop y comprobar que el motor de Docker se encuentre funcionando.
+
+Posteriormente, abrir PowerShell y ejecutar:
+
+```powershell
+docker --version
+docker compose version
+```
+
+### Paso 2. Clonar el repositorio
+
+Desde PowerShell, ingresar al directorio donde se desea guardar el proyecto y ejecutar:
+
+```powershell
+git clone https://github.com/camilahm1018-commits/Asis-Project-.git
+```
+
+Ingresar a la carpeta:
+
+```powershell
+cd Asis-Project-
+```
+
+### Paso 3. Configurar las variables de entorno
+
+Para Windows se utiliza el script de PowerShell:
+
+```text
+scripts/preparar_env.ps1
+```
+
+Verificar que el archivo exista:
+
+```powershell
+Test-Path .\scripts\preparar_env.ps1
+```
+
+Si devuelve `True`, ejecutar:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\preparar_env.ps1
+```
+
+El script permite preparar los archivos `.env` necesarios para configurar las variables privadas de ASIS.
+
+**Nota:** si el archivo `preparar_env.ps1` no está incluido en el repositorio, deberá incorporarse antes de ejecutar este paso. El archivo `.sh` es la versión para Bash y no se ejecuta directamente en PowerShell.
+
+### Paso 4. Validar Docker Compose
+
+```powershell
+docker compose config --quiet
+```
+
+Si no aparecen errores, continuar con la instalación.
+
+### Paso 5. Construir e iniciar los contenedores
+
+```powershell
+docker compose up -d --build
+```
+
+### Paso 6. Verificar los servicios
+
+```powershell
+docker compose ps
+```
+
+Los servicios `backend`, `db` y `frontend` deben encontrarse en ejecución.
+
+### Paso 7. Acceder a ASIS
+
+Desde el navegador, ingresar a:
+
+| Servicio | Dirección |
+|---|---|
+| Aplicación web | http://localhost:5173 |
+| API FastAPI | http://localhost:8000 |
+| Documentación Swagger | http://localhost:8000/docs |
+
+---
+
+## 5. Administración de los contenedores
+
+Después de la instalación inicial, no es necesario ejecutar nuevamente los scripts de configuración cada vez que se inicia el proyecto.
+
+### Linux
+
+**Iniciar ASIS:**
+
+```bash
+sudo docker compose up -d
+```
+
+**Detener ASIS:**
+
+```bash
+sudo docker compose down
+```
+
+**Comprobar contenedores:**
+
+```bash
+sudo docker compose ps
+```
+
+**Reconstruir el proyecto después de modificar su código:**
+
+```bash
+sudo docker compose up -d --build
+```
+
+**Consultar registros de los servicios:**
+
+```bash
+sudo docker compose logs --tail=50 backend db frontend
+```
+
+### Windows
+
+**Iniciar ASIS:**
+
+```powershell
+docker compose up -d
+```
+
+**Detener ASIS:**
+
+```powershell
+docker compose down
+```
+
+**Comprobar contenedores:**
+
+```powershell
+docker compose ps
+```
+
+**Reconstruir el proyecto:**
+
+```powershell
+docker compose up -d --build
+```
+
+**Consultar registros de los servicios:**
+
+```powershell
+docker compose logs --tail=50 backend db frontend
+```
+
+Todos estos comandos deben ejecutarse desde la carpeta principal del proyecto, donde se encuentra `docker-compose.yml`.
+
+---
+
+## 6. Configuración de los archivos `.env`
+
+ASIS utiliza archivos de entorno para administrar las variables de configuración de manera independiente del código fuente.
+
+| Archivo | Función |
+|---|---|
+| `.env` | Credenciales de PostgreSQL, cuentas técnicas, clave JWT y administrador inicial |
+| `Backend/.env` | Configuración del servidor, correo electrónico y servicios del Backend |
+| `FrontEnd/.env` | Variables de configuración del FrontEnd |
+
+### Consideraciones de seguridad
+
+- No publicar archivos `.env` con credenciales reales en GitHub.
+- Utilizar `.env.example` como plantilla de configuración.
+- Generar claves privadas seguras para cada instalación.
+- Conservar las contraseñas asociadas a una base de datos PostgreSQL existente.
+- No modificar la clave JWT de una instalación activa sin considerar que los tokens existentes dejarán de ser válidos.
+
+En una instalación nueva, la contraseña inicial del administrador se define mediante la variable `ASIS_INITIAL_ADMIN_PASSWORD`, cuando el mecanismo de inicialización está habilitado.
+
+**El archivo `.env` debe configurarse una sola vez por instalación**, salvo que sea necesario modificar sus variables.
+
+---
+
+## 7. Actualización del proyecto
+
+Para descargar los cambios más recientes del repositorio, ejecutar desde la rama correspondiente:
+
+```bash
+git pull
+```
+
+En Windows se utiliza el mismo comando.
+
+Posteriormente, reconstruir los contenedores.
+
+**Linux:**
+
+```bash
+sudo docker compose up -d --build
+```
+
+**Windows:**
+
+```powershell
+docker compose up -d --build
+```
+
+Antes de actualizar una instalación que ya contiene información, es recomendable realizar un respaldo de PostgreSQL y revisar posibles cambios en los scripts de la base de datos.
+
+---
+
+## 8. Solución de problemas frecuentes
+
+### Error: `ASIS_JWT_SECRET is missing a value`
+
+**Causa:** la variable de autenticación JWT no está configurada o se encuentra vacía.
+
+**Solución:** comprobar el archivo `.env` principal, configurar una clave JWT segura y validar nuevamente Docker Compose.
+
+### Error: `no configuration file provided: not found`
+
+**Causa:** Docker Compose se está ejecutando fuera del directorio del proyecto.
+
+**Solución:** ingresar a la carpeta donde se encuentra `docker-compose.yml` y volver a ejecutar el comando.
+
+### El FrontEnd no puede conectarse al Backend
+
+Comprobar el estado de los contenedores y verificar que las variables de conexión a la API estén correctamente configuradas.
+
+También revisar la disponibilidad de:
+
+```text
+http://localhost:8000/docs
+```
+
+### PostgreSQL no inicia correctamente
+
+Consultar los registros del servicio:
+
+**Linux:**
+
+```bash
+sudo docker compose logs --tail=100 db
+```
+
+**Windows:**
+
+```powershell
+docker compose logs --tail=100 db
+```
+
+Revisar las credenciales, los volúmenes y los scripts de inicialización.
+
+### Error de permisos de Docker en Linux
+
+Si aparece un error relacionado con el acceso al socket de Docker, ejecutar los comandos con `sudo` o configurar los permisos del usuario según la documentación oficial de Docker.
+
+---
+
+## 9. Recomendaciones importantes
+
+1. No ejecutar `docker compose down -v` sin disponer de un respaldo, ya que puede eliminar los volúmenes de PostgreSQL.
+2. Mantener los archivos `.env` fuera del control de versiones.
+3. Realizar respaldos antes de modificar la estructura de la base de datos.
+4. Ejecutar las pruebas automatizadas en un entorno independiente antes de aplicar cambios importantes.
+5. Verificar el funcionamiento de los servicios antes de utilizar ASIS.
+
+---
+
+## 10. Resumen de instalación rápida
+
+### Linux (Pop!_OS)
+
+```bash
+git clone https://github.com/camilahm1018-commits/Asis-Project-.git
+cd Asis-Project-
+bash scripts/preparar_env.sh
+sudo docker compose config --quiet
+sudo docker compose up -d --build
+sudo docker compose ps
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/camilahm1018-commits/Asis-Project-.git
+cd Asis-Project-
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\preparar_env.ps1
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
+```
+
+**Nota:** estos procedimientos presuponen que Docker está instalado, que los scripts existen y que las variables privadas de la instalación se encuentran correctamente configuradas.
+
+Una vez iniciados los servicios, la aplicación estará disponible en:
+
+**http://localhost:5173**
+
+---
+
+*Proyecto ASIS — Sistema de Administración y Seguimiento de Incidencias.*
