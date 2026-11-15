@@ -1,0 +1,13 @@
+# Agrega estas líneas al .gitignore del proyecto (no sustituyas el actual):
+qa-reportes/
+FrontEnd/test-results/
+FrontEnd/playwright-report/
+FrontEnd/coverage/
+Backend/.coverage
+Backend/htmlcov/
+.pytest_cache/
+**/.pytest_cache/
+*.log
+# Asegúrate de mantener:
+.env
+**/.env

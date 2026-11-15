@@ -1,0 +1,73 @@
+{
+  "fecha_utc": "2026-11-15T02:38:20.401820+00:00",
+  "nota": "Heurísticas de revisión; un resultado vacío NO acredita seguridad.",
+  "hallazgos": [
+    {
+      "archivo": "FrontEnd/src/components/ProtectedRoute.jsx",
+      "linea": 12,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/services/api.js",
+      "linea": 10,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/services/api.js",
+      "linea": 49,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/services/adminService.js",
+      "linea": 279,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/pages/Login.jsx",
+      "linea": 38,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/pages/Login.jsx",
+      "linea": 74,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/hooks/useNotificaciones.js",
+      "linea": 15,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/hooks/useNotificaciones.js",
+      "linea": 52,
+      "tipo": "token_en_localstorage",
+      "nivel": "informativa"
+    },
+    {
+      "archivo": "FrontEnd/src/pages/Administrador/reportes/exportarPDF.js",
+      "linea": 32,
+      "tipo": "sql_dinamico_por_concatenacion",
+      "nivel": "alta"
+    },
+    {
+      "archivo": "FrontEnd/src/pages/Administrador/reportes/exportarPDF.js",
+      "linea": 69,
+      "tipo": "sql_dinamico_por_concatenacion",
+      "nivel": "alta"
+    },
+    {
+      "archivo": ".env, Backend/.env, FrontEnd/.env",
+      "linea": 0,
+      "tipo": "archivos_env_rastreados_por_git",
+      "nivel": "alta"
+    }
+  ],
+  "total": 11
+}

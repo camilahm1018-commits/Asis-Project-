@@ -1,0 +1,6 @@
+# Agregar a .gitignore si todavía no aparecen
+qa-reportes/
+.coverage
+.pytest_cache/
+playwright-report/
+test-results/

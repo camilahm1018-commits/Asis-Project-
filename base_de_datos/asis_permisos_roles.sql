@@ -67,6 +67,13 @@ TO administrador_mesa_ayuda;
 GRANT USAGE ON SEQUENCE public.asignacion_tecnico_id_asignacion_seq
 TO administrador_mesa_ayuda;
 
+GRANT SELECT (id_usuario, nombre_u, apellidos_u, correo_u, activo, id_rol)
+ON TABLE public.usuarios
+TO administrador_mesa_ayuda;
+
+GRANT SELECT ON TABLE public.notificaciones
+TO administrador_mesa_ayuda;
+
 -- CUENTADANTE: gestionar inventario, ambientes y salidas de equipo.
 GRANT INSERT, UPDATE ON TABLE public.ambientes TO cuentadante;
 GRANT INSERT, UPDATE ON TABLE public.equipos TO cuentadante;
