@@ -194,7 +194,7 @@ def solo_admin(
     usuario_actual=Depends(verificar_token)
 ):
 
-    if usuario_actual["rol"] != "administrador":
+    if usuario_actual["rol"].strip().lower() != "administrador":
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
