@@ -115,7 +115,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   }
 
   return (
-    <div style={{ maxWidth: 640 }}>
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
       <form onSubmit={handleEnviar} className="pa-card">
         <div className="pa-card__header">Registrar Salida de Equipo</div>
         <div className="pa-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
