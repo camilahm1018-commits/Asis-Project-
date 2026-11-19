@@ -5,16 +5,19 @@ import { useTheme } from '../hooks/useTheme.js'; // ✅ Agregado
 import useAutoLogout from '../hooks/useAutoLogout.js';
 import '../styles/panelAdmin.css';
 
+
 const navItems = [
-  { to: '/administrador', label: 'Dashboard', icon: '⊞', end: true },
-  { to: '/administrador/usuarios', label: 'Usuarios', icon: '👥' },
-  { to: '/administrador/ambientes', label: 'Ambientes', icon: '🏫' },
-  { to: '/administrador/equipos', label: 'Equipos', icon: '💻' },
-  { to: '/administrador/tickets', label: 'Tickets', icon: '🎫' },
-  { to: '/administrador/reportes', label: 'Reportes', icon: '📊' },
-  { to: '/administrador/configuracion', label: 'Configuración', icon: '⚙️' },
-  { to: '/administrador/perfil', label: 'Mi Perfil', icon: '👤' },
+  { to: '/administrador', label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/administrador/usuarios', label: 'Usuarios', icon: 'group' },
+  { to: '/administrador/ambientes', label: 'Ambientes', icon: 'meeting_room' },
+  { to: '/administrador/equipos', label: 'Equipos', icon: 'computer' },
+  { to: '/administrador/tickets', label: 'Tickets', icon: 'confirmation_number' },
+  { to: '/administrador/reportes', label: 'Reportes', icon: 'analytics' },
+  { to: '/administrador/configuracion', label: 'Configuración', icon: 'settings' },
+  { to: '/administrador/perfil', label: 'Mi Perfil', icon: 'person' },
 ];
+
+
 
 function AdminLayout({ title, children }) {
   const navigate = useNavigate();
@@ -73,7 +76,7 @@ function AdminLayout({ title, children }) {
                 `panel-admin__nav-item${isActive ? ' active' : ''}`
               }
             >
-              <span className="panel-admin__nav-icon">{item.icon}</span>
+              <span className="panel-admin__nav-icon material-symbols-rounded">{item.icon}</span>
               <span className="panel-admin__nav-label">{item.label}</span>
             </NavLink>
           ))}

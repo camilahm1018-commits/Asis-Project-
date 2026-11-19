@@ -66,7 +66,7 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
                 `panel-admin__nav-item${isActive ? ' active' : ''}`
               }
             >
-              <span className="panel-admin__nav-icon">{item.icon}</span>
+              <span className="panel-admin__nav-icon material-symbols-rounded">{item.icon}</span>
               <span className="panel-admin__nav-label">{item.label}</span>
             </NavLink>
           ))}

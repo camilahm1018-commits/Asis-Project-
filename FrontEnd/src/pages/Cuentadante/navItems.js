@@ -1,11 +1,12 @@
-// src/pages/cuentadante/navItems.js
 export const navItemsCuentadante = [
-  { to: '/cuentadante', label: 'Dashboard', icon: '⊞', end: true },
-  { to: '/cuentadante/inventario', label: 'Inventario', icon: '📦' },
-  { to: '/cuentadante/ambientes', label: 'Ambientes', icon: '🏫' },
-  { to: '/cuentadante/salida', label: 'Registrar Salida', icon: '📤' },
-  { to: '/cuentadante/mis-reportes', label: 'Mis Reportes', icon: '🎫' },
-  { to: '/cuentadante/historial', label: 'Historial Equipos', icon: '📋' },
-  { to: '/cuentadante/reportes', label: 'Reportes', icon: '📊' },
-  { to: '/cuentadante/perfil', label: 'Mi Perfil', icon: '👤' },
+  { to: '/cuentadante', label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/cuentadante/inventario', label: 'Inventario', icon: 'inventory_2' },
+  { to: '/cuentadante/ambientes', label: 'Ambientes', icon: 'meeting_room' },
+  { to: '/cuentadante/salida', label: 'Registrar Salida', icon: 'output' },
+  { to: '/cuentadante/mis-reportes', label: 'Mis Reportes', icon: 'confirmation_number' },
+  { to: '/cuentadante/historial', label: 'Historial Equipos', icon: 'history' },
+  { to: '/cuentadante/reportes', label: 'Reportes', icon: 'analytics' },
+  { to: '/cuentadante/perfil', label: 'Mi Perfil', icon: 'person' },
 ];
+
+
