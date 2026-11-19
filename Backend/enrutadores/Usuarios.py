@@ -10,6 +10,48 @@ import secrets
 
 asis = APIRouter(prefix="/usuarios", tags=["Usuarios"], dependencies=[Depends(verificar_token)])
 
+def validar_datos_duplicados(sesion, correo=None, documento=None, id_excluir=None):
+    correo_duplicado = False
+    documento_duplicado = False
+
+    if correo:
+        consulta_correo = select(Usuario.id_usuario).where(
+            Usuario.correo_u.ilike(correo.strip())
+        )
+
+        if id_excluir is not None:
+            consulta_correo = consulta_correo.where(
+                Usuario.id_usuario != id_excluir
+            )
+
+        correo_duplicado = sesion.exec(consulta_correo).first() is not None
+
+    if documento:
+        consulta_documento = select(Usuario.id_usuario).where(
+            Usuario.numero_documento == documento.strip()
+        )
+
+        if id_excluir is not None:
+            consulta_documento = consulta_documento.where(
+                Usuario.id_usuario != id_excluir
+            )
+
+        documento_duplicado = sesion.exec(consulta_documento).first() is not None
+
+    if correo_duplicado and documento_duplicado:
+        mensaje = "El correo electrónico y el número de documento ya están registrados."
+    elif correo_duplicado:
+        mensaje = "El correo electrónico ya se encuentra registrado."
+    elif documento_duplicado:
+        mensaje = "El número de documento ya se encuentra registrado."
+    else:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=mensaje
+    )
+
 
 # ==========================================
 # 1. LISTAR TODOS LOS USUARIOS
@@ -75,8 +117,15 @@ async def listar_usuario(id_usuario: int, mi_sesion: Sesion_admin):
 # ==========================================
 @asis.post("/", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
 async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_admin):
+
+    validar_datos_duplicados(
+        mi_sesion,
+        datos_usuario.correo_u,
+        datos_usuario.numero_documento
+    )
+
     datos = datos_usuario.model_dump()
-    
+
     # ENCRIPTAR CONTRASEÑA
     datos["contrasena_u"] = encriptar_contrasena(datos["contrasena_u"])
 
@@ -94,6 +143,12 @@ async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_admin):
 # ==========================================
 @asis.post("/pre-registrar", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
 async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_admin):
+
+    validar_datos_duplicados(
+        mi_sesion,
+        datos.correo_u,
+        datos.numero_documento
+    )
     contrasena_temporal = encriptar_contrasena(secrets.token_urlsafe(24))
 
     nuevo_usuario = Usuario(
@@ -126,6 +181,13 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesio
         )
 
     usuario_dict = datos_usuario.model_dump(exclude_unset=True)
+
+    validar_datos_duplicados(
+        mi_sesion,
+        usuario_dict.get("correo_u"),
+        usuario_dict.get("numero_documento"),
+        id_excluir=id_usuario
+    )
 
     # SI CAMBIÓ LA CONTRASEÑA
     if "contrasena_u" in usuario_dict:
