@@ -324,7 +324,30 @@ ORDER BY h.fecha DESC;
 -- DATOS INICIALES
 -- ==========================================
 
--- Tipos de identificación
+-- ==========================================================
+-- ASIS - DATOS DE PRUEBA PARA POSTGRESQL
+-- Sistema de Gestión de Tickets - CGMLTI
+-- ==========================================================
+-- IMPORTANTE:
+-- 1. Este archivo corresponde a DATOS SEMILLA; las tablas y vistas deben
+--    estar creadas previamente por el script de estructura de ASIS.
+-- 2. Ejecutar una sola vez sobre tablas vacías.
+-- 3. Los nombres, documentos, teléfonos y correos son FICTICIOS.
+-- 4. La contraseña de todos los usuarios será: AsisDemo2026*
+--    Se almacena como hash bcrypt mediante pgcrypto (costo 12).
+-- 5. No volver a ejecutar sobre una base que ya tenga estos registros.
+-- ==========================================================
+
+BEGIN;
+
+-- Necesario para generar hashes bcrypt compatibles con aplicaciones
+-- que validan contraseñas con bcrypt.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- ==========================================================
+-- 1. DATOS INICIALES OBLIGATORIOS
+-- ==========================================================
+
 INSERT INTO tipo_identificacion (iniciales, nombre_tipo) VALUES
 ('CC', 'Cédula de Ciudadanía'),
 ('CE', 'Cédula de Extranjería'),
@@ -335,7 +358,6 @@ INSERT INTO tipo_identificacion (iniciales, nombre_tipo) VALUES
 ('PEP', 'Permiso Especial de Permanencia'),
 ('PPT', 'Permiso por Protección Temporal');
 
--- Roles
 INSERT INTO rol(nombre_rol) VALUES
 ('instructor'),
 ('tecnico'),
@@ -343,17 +365,15 @@ INSERT INTO rol(nombre_rol) VALUES
 ('cuentadante'),
 ('administrador_mesa_ayuda');
 
--- Estados de ticket
 INSERT INTO estados_ticket(nombre_e, color) VALUES
-('Pendiente',            'rojo'),
-('En reparacion',        'naranja'),
-('Reparado',             'amarillo'),
-('Entregado en ambiente','verde'),
-('Dado de baja',         'negro'),
-('Inactivar ticket',     'morado'),
-('Trasladado',           'azul');
+('Pendiente', 'rojo'),
+('En reparacion', 'naranja'),
+('Reparado', 'amarillo'),
+('Entregado en ambiente', 'verde'),
+('Dado de baja', 'negro'),
+('Inactivar ticket', 'morado'),
+('Trasladado', 'azul');
 
--- Tipos de equipo
 INSERT INTO tipo_equipo(nombre_t) VALUES
 ('Computador'),
 ('Portatil'),
@@ -361,161 +381,310 @@ INSERT INTO tipo_equipo(nombre_t) VALUES
 ('Cargador'),
 ('All In One'),
 ('Computador de Mesa'),
-('Mac'),
 ('Laptop'),
 ('TV');
 
--- Motivos de novedad
+-- ==========================================================
+-- 2. MOTIVOS DE NOVEDAD
+-- ==========================================================
+
 INSERT INTO motivo_novedad(nombre_novedad) VALUES
-('Falta de repuesto'),
-('Daño irreparable'),
-('Equipo obsoleto'),
-('Sin presupuesto'),
-('En espera de proveedor'),
-('Otro'),
-('Daño por humedad'),
-('Daño por sobrecarga eléctrica'),
-('Repuesto descontinuado'),
-('Costo de reparación superior al valor del equipo'),
-('Garantía vencida'),
-('Daño en la placa base'),
-('Daño físico irreversible'),
-('Manipulación no autorizada'),
-('Equipo fuera de soporte del fabricante'),
-('No se encontró la falla reportada'),
-('Accesorios incompatibles'),
-('Pendiente de aprobación para reparación'),
-('Equipo dado de baja por inventario'),
-('No cumple con los requisitos para reparación');
+('Falla de hardware'),
+('Falla de software'),
+('Problema de conectividad'),
+('Daño físico'),
+('Mantenimiento preventivo'),
+('Actualización de software'),
+('Problema de alimentación eléctrica'),
+('Solicitud de revisión'),
+('Traslado de equipo'),
+('Préstamo de equipo');
 
--- USUARIOS (Contraseñas hasheadas con bcrypt para '12345')
+-- ==========================================================
+-- 3. USUARIOS FICTICIOS
+-- 12 cuentadantes, 10 instructores, 6 técnicos,
+-- 1 administrador y 1 administrador de mesa de ayuda.
+-- ==========================================================
 
-
--- AMBIENTES
-INSERT INTO ambientes (
-    id_ambiente,
-    nombre_a,
-    ubicacion,
-    capacidad_equipos,
-    estado,
-    descripcion,
-    id_cuentadante
-)
+INSERT INTO usuarios
+(nombre_u, apellidos_u, correo_u, contrasena_u, numero_documento,
+ telefono_u, id_rol, id_tipo_identificacion, activo)
 VALUES
-
-
-INSERT INTO usuarios(nombre_u, apellidos_u, correo_u, contrasena_u, id_tipo_identificacion, numero_documento, telefono_u, id_rol)
-VALUES
--- Cuentadante inicial (id_usuario = 1)
-('Janer','Cillopillo','janer.cillopillo@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'123456789','3000000000',4),
--- Instructores
-('Carlos','Ramirez','carlos.ramirez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000001','3001000001',1),
-('Laura','Martinez','laura.martinez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000002','3001000002',1),
-('Andres','Gomez','andres.gomez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000003','3001000003',1),
-('Paula','Rojas','paula.rojas@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000004','3001000004',1),
-('Miguel','Torres','miguel.torres@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000005','3001000005',1),
-
--- Tecnicos
-('Daniel','Castro','daniel.castro@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000006','3001000006',2),
-('Camila','Lopez','camila.lopez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000007','3001000007',2),
-('Felipe','Herrera','felipe.herrera@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000008','3001000008',2),
-('Natalia','Vargas','natalia.vargas@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000009','3001000009',2),
-('Kevin','Suarez','kevin.suarez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000010','3001000010',2),
-
--- Administradores
-('Jhon','Perez','jhon.perez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000011','3001000011',3),
-('Diana','Morales','diana.morales@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000012','3001000012',3),
-('Sergio','Garcia','sergio.garcia@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000013','3001000013',3),
-
 -- Cuentadantes
-('Luisa','Fernandez','luisa.fernandez@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000014','3001000014',4),
-('Oscar','Ruiz','oscar.ruiz@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000015','3001000015',4),
-('Tatiana','Diaz','tatiana.diaz@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000016','3001000016',4),
-('Cristian','Mendoza','cristian.mendoza@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000017','3001000017',4),
+('Laura', 'Martínez Rojas', 'laura.martinez01@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000001', '3000000001', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrés', 'Gómez Torres', 'andres.gomez02@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000002', '3000000002', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Diana', 'Rodríguez Pérez', 'diana.rodriguez03@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000003', '3000000003', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Carlos', 'Hernández López', 'carlos.hernandez04@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000004', '3000000004', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Natalia', 'Ramírez Díaz', 'natalia.ramirez05@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000005', '3000000005', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Julián', 'Castro Moreno', 'julian.castro06@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000006', '3000000006', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Paola', 'Vargas Silva', 'paola.vargas07@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000007', '3000000007', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Miguel', 'Ortiz Romero', 'miguel.ortiz08@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000008', '3000000008', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Valentina', 'Morales Ruiz', 'valentina.morales09@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000009', '3000000009', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Felipe', 'Jiménez Acosta', 'felipe.jimenez10@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000010', '3000000010', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Camila', 'Suárez Méndez', 'camila.suarez11@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000011', '3000000011', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Santiago', 'Navarro León', 'santiago.navarro12@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000012', '3000000012', (SELECT id_rol FROM rol WHERE nombre_rol='Cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
--- Administradores mesa de ayuda
-('Valentina','Ortega','valentina.ortega@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000018','3001000018',5),
-('Julian','Silva','julian.silva@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000019','3001000019',5),
-('Melissa','Cortes','melissa.cortes@sena.edu.co','$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'100000020','3001000020',5);
+-- Instructores
+('María', 'Fernández Castro', 'maria.fernandez13@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000013', '3000000013', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('David', 'Pardo Sánchez', 'david.pardo14@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000014', '3000000014', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrea', 'Cárdenas Gil', 'andrea.cardenas15@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000015', '3000000015', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Sebastián', 'Rojas Vega', 'sebastian.rojas16@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000016', '3000000016', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Paula', 'Mendoza Ortiz', 'paula.mendoza17@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000017', '3000000017', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Juan', 'Bautista Reyes', 'juan.bautista18@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000018', '3000000018', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Daniela', 'Peña Vargas', 'daniela.pena19@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000019', '3000000019', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Óscar', 'Medina Cruz', 'oscar.medina20@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000020', '3000000020', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Luisa', 'Herrera Campos', 'luisa.herrera21@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000021', '3000000021', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Nicolás', 'Duarte Rincón', 'nicolas.duarte22@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000022', '3000000022', (SELECT id_rol FROM rol WHERE nombre_rol='Instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
--- El administrador inicial se crea desde Backend/servicios/bootstrap_admin.py.
--- La contraseña se configura en .env y nunca se almacena en el SQL.
+-- Técnicos
+('Kevin', 'Ramírez Torres', 'kevin.ramirez23@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000023', '3000000023', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Wilson', 'García Moreno', 'wilson.garcia24@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000024', '3000000024', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Esteban', 'López Rojas', 'esteban.lopez25@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000025', '3000000025', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrés', 'Molina Pérez', 'andres.molina26@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000026', '3000000026', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Jorge', 'Salazar Díaz', 'jorge.salazar27@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000027', '3000000027', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Mateo', 'Cruz Herrera', 'mateo.cruz28@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000028', '3000000028', (SELECT id_rol FROM rol WHERE nombre_rol='Tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
--- AMBIENTES
-INSERT INTO ambientes(id_ambiente, nombre_a, ubicacion, capacidad_equipos, estado, descripcion, id_cuentadante)
-VALUES
-(101,'Ambiente ADSO 101','Bloque A - Piso 1',30,'activo','Ambiente de formación para Análisis y Desarrollo de Software',15),
-(102,'Ambiente ADSO 102','Bloque A - Piso 1',30,'activo','Ambiente destinado al desarrollo de aplicaciones',16),
-(103,'Ambiente de Programación','Bloque A - Piso 2',30,'activo','Equipado para prácticas de programación',17),
-(104,'Ambiente de Bases de Datos','Bloque A - Piso 2',25,'activo','Prácticas de PostgreSQL, MySQL y SQL Server',18),
-(105,'Ambiente de Redes','Bloque B - Piso 1',24,'activo','Configuración y administración de redes',1),
-(106,'Ambiente de Telecomunicaciones','Bloque B - Piso 1',20,'activo','Prácticas de telecomunicaciones',15),
-(107,'Ambiente de Electrónica','Bloque B - Piso 2',20,'activo','Diagnóstico y reparación de componentes electrónicos',16),
-(108,'Ambiente de Automatización Industrial','Bloque B - Piso 2',18,'activo','Procesos de automatización y control',17),
-(109,'Ambiente de Robótica','Bloque B - Piso 2',18,'activo','Desarrollo de proyectos de robótica',18),
-(110,'Ambiente de Mantenimiento de Equipos','Bloque C - Piso 1',20,'activo','Mantenimiento preventivo y correctivo de computadores',1),
-(111,'Ambiente de Soporte Técnico','Bloque C - Piso 1',20,'activo','Atención de incidencias de hardware y software',15),
-(112,'Ambiente de Desarrollo Web','Bloque C - Piso 2',30,'activo','Construcción de aplicaciones web',16),
-(113,'Ambiente de Desarrollo Móvil','Bloque C - Piso 2',24,'activo','Desarrollo de aplicaciones Android e iOS',17),
-(114,'Ambiente de Ciberseguridad','Bloque C - Piso 2',20,'activo','Prácticas de seguridad informática y pentesting',18),
-(115,'Ambiente de Cloud Computing','Bloque D - Piso 1',20,'activo','Servicios en la nube y virtualización',1),
-(116,'Ambiente de Inteligencia Artificial','Bloque D - Piso 1',20,'activo','Desarrollo de soluciones con IA',15),
-(117,'Ambiente de Innovación y Emprendimiento','Bloque D - Piso 2',25,'activo','Desarrollo de proyectos de innovación',16),
-(118,'Ambiente de Diseño Multimedia','Bloque D - Piso 2',22,'activo','Creación de contenido multimedia',17),
-(119,'Ambiente de Mesa de Ayuda','Bloque E - Piso 1',15,'activo','Gestión de soporte y atención a usuarios',18),
-(120,'Ambiente TIC','Bloque E - Piso 2',30,'activo','Tecnologías de la Información y las Comunicaciones',1);
+-- Administración
+('Sandra', 'Beltrán Ríos', 'sandra.beltran29@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000029', '3000000029', (SELECT id_rol FROM rol WHERE nombre_rol='Administrador'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Ricardo', 'Vélez Castro', 'ricardo.velez30@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000030', '3000000030', (SELECT id_rol FROM rol WHERE nombre_rol='Administrador_mesa_ayuda'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE);
 
--- EQUIPOS
-INSERT INTO equipos(codigo, nombre, marca, serial, descripcion, estado, id_ambiente, id_tipo)
-VALUES
-('EQ-001','Computador HP ProDesk','HP','SNHP000001','Equipo para formación','Activo',101,1),
-('PT-001','Portátil ThinkPad','Lenovo','SNLN000002','Portátil institucional','Activo',102,2),
-('TV-001','Televisor Smart','Samsung','SNSM000003','Televisor para apoyo audiovisual','Activo',103,3),
-('CG-001','Cargador Dell 90W','Dell','SNDL000004','Cargador para portátil','Activo',104,4),
-('EQ-002','All In One EliteOne','HP','SNHP000005','Equipo All In One','Activo',105,5),
-('EQ-003','Computador de Mesa OptiPlex','Dell','SNDL000006','Equipo de escritorio','Activo',106,6),
-('MC-001','Mac iMac 24','Apple','SNAP000007','Equipo macOS','Activo',107,7),
-('PT-002','Laptop Aspire 5','Acer','SNAC000008','Laptop institucional','Activo',108,8),
-('TV-002','TV LG 55','LG','SNLG000009','Pantalla para presentaciones','Activo',109,9),
-('EQ-004','Computador HP EliteDesk','HP','SNHP000010','Equipo de laboratorio','Activo',110,1),
-('PT-003','Portátil Latitude','Dell','SNDL000011','Portátil institucional','Activo',111,2),
-('TV-003','Televisor TCL 50','TCL','SNTC000012','Pantalla multimedia','Activo',112,3),
-('CG-002','Cargador Lenovo 65W','Lenovo','SNLN000013','Cargador original','Activo',113,4),
-('EQ-005','All In One IdeaCentre','Lenovo','SNLN000014','Equipo All In One','Activo',114,5),
-('EQ-006','Computador de Mesa Vostro','Dell','SNDL000015','Equipo para prácticas','Activo',115,6),
-('MC-002','MacBook Air','Apple','SNAP000016','Portátil macOS','Activo',116,7),
-('PT-004','Laptop Pavilion','HP','SNHP000017','Laptop HP','Activo',117,8),
-('TV-004','TV Samsung Crystal','Samsung','SNSM000018','Pantalla institucional','Activo',118,9),
-('EQ-007','Computador Lenovo ThinkCentre','Lenovo','SNLN000019','Equipo ADSO','Activo',119,1),
-('PT-005','Portátil Inspiron','Dell','SNDL000020','Portátil de apoyo','Activo',120,2);
+-- ==========================================================
+-- 4. AMBIENTES: 12 POR PISO, DESDE 101 HASTA 612
+-- ==========================================================
 
--- ==========================================
--- TICKETS (Con datos RF-006)
--- ==========================================
-INSERT INTO tickets (
-    motivo, fecha_salida, fecha_retorno, atendido, id_equipo,
-    creado_por, asignado_a, id_estado, id_motivo_novedad,
-    tipo_salida, id_ambiente_destino, persona_prestamo, fecha_devolucion
-) VALUES
--- 1. DAÑO (estado Pendiente, atendido FALSE)
-('El computador no enciende tras apagón.', '2026-09-01 08:00:00', NULL, FALSE, 1, 2, NULL, 1, NULL, 'daño', NULL, NULL, NULL),
+INSERT INTO ambientes
+(id_ambiente, nombre_a, ubicacion, capacidad_equipos, estado, descripcion, id_cuentadante)
+SELECT
+    (piso * 100 + numero) AS id_ambiente,
+    'Ambiente ' || (piso * 100 + numero) AS nombre_a,
+    'Piso ' || piso || ' - Centro de formación CGMLTI' AS ubicacion,
+    30 AS capacidad_equipos,
+    'activo' AS estado,
+    'Ambiente de formación dotado con equipos tecnológicos para actividades de aprendizaje.' AS descripcion,
+    (
+        SELECT u.id_usuario
+        FROM usuarios u
+        JOIN rol r ON r.id_rol = u.id_rol
+        WHERE r.nombre_rol = 'Cuentadante'
+        ORDER BY u.id_usuario
+        OFFSET ((piso * 12 + numero - 1) % 12)
+        LIMIT 1
+    ) AS id_cuentadante
+FROM generate_series(1, 6) AS piso
+CROSS JOIN generate_series(1, 12) AS numero;
 
--- 2. TRASLADO (con ambiente destino)
-('Traslado temporal al ambiente de Redes para demostración.', '2026-09-02 09:00:00', NULL, FALSE, 2, 15, NULL, 1, NULL, 'traslado', 105, NULL, NULL),
+-- ==========================================================
+-- 5. EQUIPOS: 30 POR AMBIENTE = 2.160 EQUIPOS
+-- ==========================================================
 
--- 3. PRÉSTAMO TEMPORAL (con persona y fecha)
-('Préstamo de televisor para evento de inauguración.', '2026-09-03 10:00:00', NULL, FALSE, 3, 1, NULL, 1, NULL, 'prestamo', NULL, 'Carlos Ramirez', '2026-09-10'),
+INSERT INTO equipos
+(codigo, nombre, marca, serial, descripcion, estado, id_ambiente, id_tipo)
+SELECT
+    'ASIS-' || a.id_ambiente || '-' || LPAD(n.numero::TEXT, 2, '0') AS codigo,
+    CASE
+        WHEN t.nombre_t IN ('Computador', 'Computador de Mesa') THEN 'Equipo de escritorio ' || n.numero
+        WHEN t.nombre_t IN ('Portatil', 'Laptop') THEN 'Equipo portátil ' || n.numero
+        WHEN t.nombre_t IN ('Televisor', 'TV') THEN 'Pantalla de apoyo ' || n.numero
+        ELSE 'Accesorio tecnológico ' || n.numero
+    END AS nombre,
+    CASE (n.numero % 6)
+        WHEN 0 THEN 'HP'
+        WHEN 1 THEN 'Dell'
+        WHEN 2 THEN 'Lenovo'
+        WHEN 3 THEN 'Samsung'
+        WHEN 4 THEN 'Acer'
+        ELSE 'Asus'
+    END AS marca,
+    'SN-' || a.id_ambiente || '-' || LPAD(n.numero::TEXT, 4, '0') AS serial,
+    'Activo tecnológico registrado para control de inventario y mantenimiento.' AS descripcion,
+    CASE
+        WHEN n.numero % 17 = 0 THEN 'En mantenimiento'
+        WHEN n.numero % 23 = 0 THEN 'Fuera de servicio'
+        ELSE 'Disponible'
+    END AS estado,
+    a.id_ambiente,
+    t.id_tipo
+FROM ambientes a
+CROSS JOIN generate_series(1, 30) AS n(numero)
+JOIN tipo_equipo t
+  ON t.id_tipo = ((n.numero - 1) % 8) + 1;
 
--- 4. Resto de tickets de ejemplo
-('El computador no enciende.', '2026-08-01 08:00:00', '2026-08-03 15:00:00', TRUE, 1, 2, 7, 3, NULL, 'daño', NULL, NULL, NULL),
-('La pantalla del portátil presenta líneas verticales.', '2026-08-02 09:30:00', NULL, TRUE, 2, 3, 8, 2, NULL, 'daño', NULL, NULL, NULL),
-('El televisor no muestra imagen.', '2026-08-02 10:00:00', NULL, TRUE, 3, 4, 9, 1, NULL, 'daño', NULL, NULL, NULL),
-('El cargador dejó de funcionar.', '2026-08-03 08:20:00', '2026-08-04 11:30:00', TRUE, 4, 5, 10, 4, NULL, 'daño', NULL, NULL, NULL),
-('El All In One está muy lento.', '2026-08-03 09:00:00', NULL, TRUE, 5, 6, 11, 2, NULL, 'daño', NULL, NULL, NULL),
-('No reconoce dispositivos USB.', '2026-08-03 10:15:00', NULL, TRUE, 6, 2, 7, 2, NULL, 'daño', NULL, NULL, NULL),
-('La Mac presenta error de arranque.', '2026-08-04 08:00:00', NULL, TRUE, 7, 3, 8, 1, NULL, 'daño', NULL, NULL, NULL),
-('La batería de la laptop no carga.', '2026-08-04 09:10:00', NULL, TRUE, 8, 4, 9, 2, NULL, 'daño', NULL, NULL, NULL),
-('El TV no reproduce sonido.', '2026-08-04 10:00:00', '2026-08-05 12:30:00', TRUE, 9, 5, 10, 4, NULL, 'daño', NULL, NULL, NULL),
-('El computador se reinicia constantemente.', '2026-08-05 07:50:00', NULL, TRUE, 10, 6, 11, 1, NULL, 'daño', NULL, NULL, NULL),
-('El teclado del portátil no responde.', '2026-08-05 08:40:00', NULL, TRUE, 11, 2, 7, 2, NULL, 'daño', NULL, NULL, NULL),
-('El televisor tiene la pantalla quebrada.', '2026-08-05 09:00:00', NULL, TRUE, 12, 3, 8, 5, 2, 'daño', 
+-- ==========================================================
+-- 6. TICKETS: 144 REGISTROS DE PRUEBA
+-- Se distribuyen por los 72 ambientes (2 por ambiente).
+-- ==========================================================
+
+WITH equipos_ordenados AS (
+    SELECT id_equipo,
+           ROW_NUMBER() OVER (ORDER BY id_equipo) AS rn
+    FROM equipos
+),
+tecnicos AS (
+    SELECT u.id_usuario,
+           ROW_NUMBER() OVER (ORDER BY u.id_usuario) AS rn
+    FROM usuarios u
+    JOIN rol r ON r.id_rol = u.id_rol
+    WHERE r.nombre_rol = 'Tecnico'
+),
+instructores AS (
+    SELECT u.id_usuario,
+           ROW_NUMBER() OVER (ORDER BY u.id_usuario) AS rn
+    FROM usuarios u
+    JOIN rol r ON r.id_rol = u.id_rol
+    WHERE r.nombre_rol = 'Instructor'
+),
+estados AS (
+    SELECT id_estado,
+           ROW_NUMBER() OVER (ORDER BY id_estado) AS rn
+    FROM estados_ticket
+),
+motivos AS (
+    SELECT id_motivo,
+           ROW_NUMBER() OVER (ORDER BY id_motivo) AS rn
+    FROM motivo_novedad
+)
+INSERT INTO tickets
+(motivo, fecha_salida, fecha_retorno, atendido, id_equipo, creado_por,
+ asignado_a, id_estado, id_motivo_novedad, imagen, tipo_salida,
+ id_ambiente_destino, persona_prestamo, fecha_devolucion)
+SELECT
+    CASE (g.n % 8)
+        WHEN 0 THEN 'El equipo presenta lentitud durante el inicio del sistema operativo.'
+        WHEN 1 THEN 'Se reporta falla de conexión a la red del ambiente.'
+        WHEN 2 THEN 'El monitor presenta inconvenientes de visualización.'
+        WHEN 3 THEN 'Se solicita revisión del teclado y los periféricos.'
+        WHEN 4 THEN 'El equipo requiere mantenimiento preventivo.'
+        WHEN 5 THEN 'Se reporta inconveniente con el sistema operativo.'
+        WHEN 6 THEN 'El equipo no enciende durante la jornada de formación.'
+        ELSE 'Se solicita diagnóstico general del equipo tecnológico.'
+    END,
+    NOW() - (g.n || ' days')::INTERVAL,
+    CASE WHEN g.n % 6 IN (2, 3, 4)
+         THEN NOW() - ((g.n - 1) || ' days')::INTERVAL
+         ELSE NULL
+    END,
+    CASE WHEN g.n % 6 IN (2, 3, 4) THEN TRUE ELSE FALSE END,
+    eo.id_equipo,
+    i.id_usuario,
+    CASE WHEN g.n % 5 = 0 THEN NULL ELSE te.id_usuario END,
+    es.id_estado,
+    mo.id_motivo,
+    NULL,
+    CASE
+        WHEN g.n % 12 = 0 THEN 'traslado'
+        WHEN g.n % 10 = 0 THEN 'prestamo'
+        ELSE 'daño'
+    END,
+    CASE WHEN g.n % 12 = 0
+         THEN (SELECT id_ambiente FROM ambientes ORDER BY id_ambiente OFFSET (g.n % 72) LIMIT 1)
+         ELSE NULL
+    END,
+    CASE WHEN g.n % 10 = 0 THEN 'Funcionario de apoyo de formación' ELSE NULL END,
+    CASE WHEN g.n % 10 = 0 THEN CURRENT_DATE + (g.n % 10) ELSE NULL END
+FROM generate_series(1, 144) AS g(n)
+JOIN equipos_ordenados eo ON eo.rn = ((g.n - 1) * 15 + 1)
+JOIN instructores i ON i.rn = ((g.n - 1) % 10) + 1
+JOIN tecnicos te ON te.rn = ((g.n - 1) % 6) + 1
+JOIN estados es ON es.rn = ((g.n - 1) % 7) + 1
+JOIN motivos mo ON mo.rn = ((g.n - 1) % 10) + 1;
+
+-- ==========================================================
+-- 7. ASIGNACIONES DE TÉCNICOS
+-- Se registra una asignación para cada ticket que tenga técnico.
+-- ==========================================================
+
+INSERT INTO asignacion_tecnico
+(id_ticket, id_tecnico, asignado_por)
+SELECT
+    t.id_ticket,
+    t.asignado_a,
+    (SELECT id_usuario
+     FROM usuarios
+     WHERE correo_u = 'ricardo.velez30@soy.sena.edu.co')
+FROM tickets t
+WHERE t.asignado_a IS NOT NULL;
+
+-- ==========================================================
+-- 8. HISTORIAL DE TICKETS
+-- Se registra la creación de cada ticket.
+-- ==========================================================
+
+INSERT INTO historial_tickets
+(accion, observacion, fecha, estado_resultante, id_ticket, id_usuario)
+SELECT
+    'Creación de ticket',
+    'Ticket registrado para reportar una novedad del equipo.',
+    t.creado_en,
+    e.nombre_e,
+    t.id_ticket,
+    t.creado_por
+FROM tickets t
+JOIN estados_ticket e ON e.id_estado = t.id_estado;
+
+-- Segundo registro de historial para tickets que tienen técnico asignado.
+INSERT INTO historial_tickets
+(accion, observacion, fecha, estado_resultante, id_ticket, id_usuario)
+SELECT
+    'Asignación de técnico',
+    'El ticket fue asignado a un técnico de mesa de ayuda.',
+    t.creado_en + INTERVAL '1 hour',
+    e.nombre_e,
+    t.id_ticket,
+    t.asignado_a
+FROM tickets t
+JOIN estados_ticket e ON e.id_estado = t.id_estado
+WHERE t.asignado_a IS NOT NULL;
+
+-- ==========================================================
+-- 9. NOTIFICACIONES
+-- Se genera una notificación de ejemplo por cada ticket.
+-- ==========================================================
+
+INSERT INTO notificaciones
+(canal, mensaje, enviada, fecha_envio, id_ticket, notificado_para, notificado_por)
+SELECT
+    CASE WHEN t.id_ticket % 2 = 0 THEN 'correo' ELSE 'sms' END,
+    'ASIS: se ha registrado una actualización en el ticket #' || t.id_ticket || '.',
+    CASE WHEN t.id_ticket % 4 = 0 THEN FALSE ELSE TRUE END,
+    t.creado_en + INTERVAL '5 minutes',
+    t.id_ticket,
+    t.creado_por,
+    (SELECT id_usuario
+     FROM usuarios
+     WHERE correo_u = 'ricardo.velez30@soy.sena.edu.co')
+FROM tickets t;
+
+COMMIT;
+
+-- ==========================================================
+-- 10. CONSULTAS PARA VERIFICAR LA CARGA
+-- ==========================================================
+
+--SELECT 'Tipos de identificación' AS tabla, COUNT(*) AS registros FROM tipo_identificacion
+--UNION ALL SELECT 'Roles', COUNT(*) FROM rol
+--UNION ALL SELECT 'Usuarios', COUNT(*) FROM usuarios
+--UNION ALL SELECT 'Ambientes', COUNT(*) FROM ambientes
+--UNION ALL SELECT 'Tipos de equipo', COUNT(*) FROM tipo_equipo
+--UNION ALL SELECT 'Equipos', COUNT(*) FROM equipos
+--UNION ALL SELECT 'Estados de ticket', COUNT(*) FROM estados_ticket
+--UNION ALL SELECT 'Motivos de novedad', COUNT(*) FROM motivo_novedad
+--UNION ALL SELECT 'Tickets', COUNT(*) FROM tickets
+--UNION ALL SELECT 'Asignaciones', COUNT(*) FROM asignacion_tecnico
+--UNION ALL SELECT 'Historial', COUNT(*) FROM historial_tickets
+--UNION ALL SELECT 'Notificaciones', COUNT(*) FROM notificaciones
+--ORDER BY tabla;
+
+-- Distribución de ambientes por piso
+--SELECT FLOOR(id_ambiente / 100) AS piso, COUNT(*) AS cantidad_ambientes
+--FROM ambientes
+--GROUP BY FLOOR(id_ambiente / 100)
+--ORDER BY piso;
+
+-- Cantidad de equipos por ambiente
+--SELECT id_ambiente, COUNT(*) AS cantidad_equipos
+--FROM equipos
+--GROUP BY id_ambiente
+--ORDER BY id_ambiente;
+
+
+--La contraseña de prueba de los usuarios es AsisDemo2026*.

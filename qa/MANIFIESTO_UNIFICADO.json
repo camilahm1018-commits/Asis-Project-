@@ -1,0 +1,374 @@
+{
+  "nombre": "ASIS Kit Unificado QA y Seguridad",
+  "origen": [
+    "ASIS_Kit_Pruebas_Ampliado.zip",
+    "ASIS_Kit_Pruebas_Seguridad_SQLInjection.zip"
+  ],
+  "archivos": [
+    {
+      "ruta": "Backend/pytest.ini",
+      "sha256": "50bc59faeb984268cbf0d18f88f59d5268f5887e17eda9c975f71d2f9d76be6a",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/conftest.py",
+      "sha256": "65d036652049a8ae1875b865f3764a8747bc4aa22ebfba77794e421b22d2a4fe",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/integration/test_asignaciones_ampliadas.py",
+      "sha256": "86c8be06dff6a1c92808ed21be97efa3e4fa0eb30f795fb165892c060ee9a0f7",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/integration/test_tickets_ampliados.py",
+      "sha256": "0a0f8aa25b8d742e878c77e613d6a8f0ad5409a38ad3f2905338b1d44873ea2f",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/integration/test_tickets_http.py",
+      "sha256": "09e9c90b2b67ea0739e45047b32ca04ea77cfabce65bdbf02be222416c5ab751",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/live/test_api_live_readonly.py",
+      "sha256": "a76d6e9eec0db71bceef3738ac51cd2df0cb2407bfec9f3ffcb04f287372e127",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/performance/test_distribucion_consultas.py",
+      "sha256": "d41ef8b8cbf700688ff9b1c8392b6a231da4ec04d673fea64dc851c59fd19387",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/performance/test_latencia_api.py",
+      "sha256": "73e568b29e3ba7236b78ed6e5ac486f7bd46f3d4e0717107400102266028c523",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/regression/test_base_roles.py",
+      "sha256": "d1c43799ca407bef618fe9a9eba29b8fb2b52663651d251eaccb4640112afb9a",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/regression/test_contratos.py",
+      "sha256": "d1f9173a1d341866c03428f27ec2a1ccce8076685eb4016c3a051a5c124c0e28",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/regression/test_seguridad_rutas_ampliada.py",
+      "sha256": "c711cca8c7c77954c062f75f23920f69227e0211bfe8312c1e4e1574af2017bd",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/requirements-test.txt",
+      "sha256": "103b5fafcd12c600242d67ac55670c1e36bcbeeb9a2ccededc1639361978abea",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/security/test_jwt_negativo_aislado.py",
+      "sha256": "388e3731be56ab52333885653cb30d5f779178492df72b4d1dfbbe87de7e738a",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "Backend/tests/security/test_sqli_live_local.py",
+      "sha256": "6a69d4ffde041629e32b79620ee35d720c906391ec659bd713658a922ddb4e7c",
+      "origen": "kit seguridad (marcador live añadido)"
+    },
+    {
+      "ruta": "Backend/tests/security/test_sqli_login_aislado.py",
+      "sha256": "43848b668bd8e1e984dcf9348f1b37d11f308b7ed7ac6f7c1386c0a2531181a5",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "Backend/tests/security/test_sqli_rutas_aislado.py",
+      "sha256": "bcc86d0020d44ad215163b3f2a7db5cdf79daa990c03abe3315e728dca9c56a6",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_acceso_tickets.py",
+      "sha256": "daba0e04a86f35e1f9ff8b1ded2531883ddb1424904f4ce7a8f37a4ce15f2dc3",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_esquemas_ampliados.py",
+      "sha256": "f79f4f0106d3f94676c5999185ece3b1103771099f26ceefb38330d21e647bcb",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_permisos_ampliados.py",
+      "sha256": "457450dfa8792428a4f9aa9d5a416bda17c2715433352d2799d5bb214d14568b",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_seguridad.py",
+      "sha256": "b99f5158e22cb1f6cee07ff20e93fdfcdea4579e9301a09fcee74901caa02098",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_tecnicos_ampliados.py",
+      "sha256": "16445bb5ab1b38e67a684f43c37f0dcbb82535892738aa6772fa40914f9a5a0e",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "Backend/tests/unit/test_token_proposito_ampliado.py",
+      "sha256": "5c6cd7950559e8d41de410b04c75513279663df1a39d2bd6abdd574b427acf1d",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/e2e/login_simulado_qa.spec.js",
+      "sha256": "fee643baef5e3c8465b1f1529e98e61d7a15f119ff7ec52224eb3f40d968f2d1",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/e2e/regresion.spec.js",
+      "sha256": "3208fed68a4232cffeffce727daab15c3667ca02d4be5431c2f5c3a9307c1db5",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/e2e/rendimiento.spec.js",
+      "sha256": "f743671cfa65c477bd2e19f2b69f5400a7f9f3ba218f09a6f42b37af7d48d2ae",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/e2e/rendimiento_varias_muestras.spec.js",
+      "sha256": "13f095bd41fa6ce593aa476af5bb41b2066a7eaa3e2095eb8d84f31e7e5458f6",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/e2e/seguridad_asis.spec.js",
+      "sha256": "e0b75602412d3d9e06504ded978d3045292e5208a0742ef1142149b9faa9ff34",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "FrontEnd/playwright.config.js",
+      "sha256": "bf5040c5adff3631d22ef94f66bdf7824b2897659218e6a450efaf18cf9f4aa0",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/ApiContratoAmpliado.test.js",
+      "sha256": "c942e16fcf3a1ef49a764f1633763389d968c13ae3b14b006d8e7a222a8258f6",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/Login.test.jsx",
+      "sha256": "1c830887c7a0378fec2544e91bb270db9fb35397804c87eb6aaa5a3c3396d37b",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/LoginTodosLosRoles.test.jsx",
+      "sha256": "df24c89a0789d692cc4ed65ff8b8f69978dd6e4ab672ea2b8101741ba3d5ec6b",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/ProtectedRoute.test.jsx",
+      "sha256": "ddd6bdc9e5175e8812b42ff8605607d527211e4935fe89f78d2cd610e3b344b9",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/ProtectedRouteMatriz.test.jsx",
+      "sha256": "995e74a874ff249db3a0050af3b1d340b5eb67a46675f88378f1f02e5c903d12",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/api.test.js",
+      "sha256": "b36e78f33dfb4230a070500714e948ad4a4b7cf48e25587b9b95110bd07c910a",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/src/__tests__/setup.js",
+      "sha256": "c98e75065afd4efb270dc0fc7458f94db3aa5c3ab8d16cbd8e50078a5904417f",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "FrontEnd/vitest.config.js",
+      "sha256": "43251bab3c0ea6a6f8cdde042ff74b0564e24980414c5aecda165ccfd3b4bd9d",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "LEEME_KIT_UNIFICADO.md",
+      "sha256": "76e2886cbb154ec84f4b3df2909c3e65fdc062b381508b25ef0bbf637e7ed1f7",
+      "origen": "nuevo"
+    },
+    {
+      "ruta": "qa/AGREGAR_AL_GITIGNORE.txt",
+      "sha256": "65c4459fd7ed81840c9d026c9d1cb987aa8a1a0f120b3d05ab829f4c7a1519d3",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/AGREGAR_AL_GITIGNORE_AMPLIADO.txt",
+      "sha256": "6a81ff50fc300471d72ae6ff15eda3ad4fec63b7fdf87f89ef8dbb46d0332cb2",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/docs/referencia/LEEME_KIT_AMPLIADO.md",
+      "sha256": "20767d90d345e3ebffd4980c211f18f23738e07be0528e280fce77407950f99c",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/docs/referencia/LEEME_SEGURIDAD_ASIS.md",
+      "sha256": "b62bf4540b02df8df7f8a33efc6385c541086c3db462ff81daa13be468d37c3c",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/docs/referencia/README_PRUEBAS_ASIS.md",
+      "sha256": "76ce5fed8e1fd591e68660b5c06be57fd1363679f60815460ee40f1e481d2fb7",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/backend_carga.js",
+      "sha256": "3a75764c9c03798f95cab1d8d9890006af67d4239d24196b72b060285533868c",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/backend_estres.js",
+      "sha256": "3b1d3a6fa81f17889c973d871d4e4ae1e927a5862c8f01954a578cfd341cc23f",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/comun.js",
+      "sha256": "30c43ec2d87f2c8716a0578df4183bb99e8eda02402a949ae43c18cd9ccaf158",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/frontend_carga.js",
+      "sha256": "7c5f3a302123b95285f7969f892fe4e880002969b3e6bcb56dfb7c02ba5b27b4",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/frontend_estres.js",
+      "sha256": "3a2c3bd86f01b1352333fcd0245285ec96d75de294f5d8bef36bf70b07700c84",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/k6/sistema_mixto.js",
+      "sha256": "18bc66c0c7101bca25cb4d5946c9bfd5fa66f0880621fe682fe80e77241e4a94",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/backend_locust.py",
+      "sha256": "75ec7823338df4f0d6bd966ac60c6bb39b6073f92ff623d4b2d3ea4c2b303b2d",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/comun.py",
+      "sha256": "b03f56b55d1bdac9b0e0d732d7529be5411dc48a0ab621b18a121b6e1dc2523c",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/frontend_locust.py",
+      "sha256": "e1b8648e40b0562d095b6a8d2cc76e7289cc79b57b865b799dd9e51be2f24579",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/mixto_locust.py",
+      "sha256": "7a3b46e5b2d5f6a028a119f920ae8724be3d4dfa81d7a0a7755f36d3a01b9b4b",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/requirements-locust.txt",
+      "sha256": "aa7ebb51e536551dbfac84ecdf7a6040d8d8782954d3088e8245543df992c76e",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/stress_shape.py",
+      "sha256": "839e58e623040794b209693717f7718df483fc3c1b8f7161041119ea183ce4ca",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/locust/umbrales.py",
+      "sha256": "bfd4e048339be329ab7708f51d86019fb3cb88746e9bccfdfde4f680aaa5ebe2",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/ejecutar_asis_qa.ps1",
+      "sha256": "2fd6e020c1f74b411d4901a5384f73484fa58ec2e7201da073b72989f22d42f8",
+      "origen": "nuevo"
+    },
+    {
+      "ruta": "qa/scripts/ejecutar_asis_qa.sh",
+      "sha256": "dcd209c78e3f15351d21e3938bb15f598461875f5a6de3de08c6633620da1a96",
+      "origen": "nuevo"
+    },
+    {
+      "ruta": "qa/scripts/locust_carga.ps1",
+      "sha256": "5e31bb5d00f3dbeca5c28e8e397c643080f502e72a9876f0051f31d9fe16393c",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/locust_carga.sh",
+      "sha256": "e12548911340dc295eac77b9514a06a7a6c1362d2695779550340aff0ba1265f",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/locust_estres.ps1",
+      "sha256": "0e9ef958c972c0da328b28e069cbd755d376e88455ef50f6bf33a457eff40418",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/locust_estres.sh",
+      "sha256": "0d296fc1737cc5d2ba0502a8ee427884461caf927170f29b0805c4186d8dd490",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/probar_backend.sh",
+      "sha256": "3d51649a723970e555f46219dd154061df9b02967dc62ad92882918fb1c12f83",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/probar_frontend.sh",
+      "sha256": "97e027ccade9b53e9595762b0c9d27c7c0a40eaf732133ccee7650a43b50353e",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/pytest_ampliado.ps1",
+      "sha256": "4699e28dfcf801b5654d1d7b5217291ae7099f4542ad4aef8f15eb891dd7c4c0",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/pytest_ampliado.sh",
+      "sha256": "83917034b75804a84af1a23914ba046f7717666b97ec34c809adc286bbd323c2",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/verificar_postgresql.py",
+      "sha256": "99f4aa753db74e5dcca36572c6ec9edf42d14e697c8d040f3eefa3b8d0210164",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/scripts/verificar_servicios.py",
+      "sha256": "99e2afbf955364f768b932afea088f914db0d741f9029650f0e3544c783a05fd",
+      "origen": "kit ampliado"
+    },
+    {
+      "ruta": "qa/security/COMANDOS_Linux.md",
+      "sha256": "70bfdc75cc2da528f661a1981e02f59e6b8a1737e4df613cb470ea7494375020",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/security/COMANDOS_Windows_PowerShell.md",
+      "sha256": "52852ddfdda524abcc3d8e36dc737db2af18a0a620b0cbbe9853ab4a217221e2",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/security/IGNORAR_EN_GIT.txt",
+      "sha256": "2d47fdeb013250c8d88d0bfbd35424b3a4396caab5beed1355ca0b490b4bfb9b",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/security/auditoria_estatica.py",
+      "sha256": "93f495016b24991acb7d4efb5896d1c3154727b6e479d51ecad450567eaf556b",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/security/cabeceras_http.py",
+      "sha256": "223d7d2876983cb3919aaf840caadc492aa821c6cf757158c7581e66cb70925c",
+      "origen": "kit seguridad"
+    },
+    {
+      "ruta": "qa/security/requirements-security.txt",
+      "sha256": "714b103e5871d06c69d1cc4d5a6f013e148e6fbc0df16ed42636c2248cb66398",
+      "origen": "kit seguridad"
+    }
+  ]
+}
