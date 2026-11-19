@@ -7,4 +7,5 @@ export const navItemsCuentadante = [
   { to: '/cuentadante/mis-reportes', label: 'Mis Reportes', icon: '🎫' },
   { to: '/cuentadante/historial', label: 'Historial Equipos', icon: '📋' },
   { to: '/cuentadante/reportes', label: 'Reportes', icon: '📊' },
+  { to: '/cuentadante/perfil', label: 'Mi Perfil', icon: '👤' },
 ];

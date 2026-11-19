@@ -13,6 +13,7 @@ const navItems = [
   { to: '/administrador/tickets', label: 'Tickets', icon: '🎫' },
   { to: '/administrador/reportes', label: 'Reportes', icon: '📊' },
   { to: '/administrador/configuracion', label: 'Configuración', icon: '⚙️' },
+  { to: '/administrador/perfil', label: 'Mi Perfil', icon: '👤' },
 ];
 
 function AdminLayout({ title, children }) {

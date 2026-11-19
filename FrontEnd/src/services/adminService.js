@@ -393,6 +393,17 @@ export const obtenerUsuarioActual = () => {
   return userStr ? JSON.parse(userStr) : null;
 };
 
+// Perfil completo del usuario logueado (backend: GET /auth/yo).
+// Devuelve nombre, apellidos, correo, rol, documento, teléfono y fecha de registro.
+export const obtenerMiPerfil = async () => {
+  try {
+    const { data } = await api.get('/auth/yo', getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener tu perfil');
+  }
+};
+
 const MAPA_COLORES_ESTADO = {
   rojo: '#f87171',
   naranja: '#fb923c',

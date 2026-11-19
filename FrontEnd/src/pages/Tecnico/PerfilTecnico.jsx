@@ -3,18 +3,20 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import { navItemsTecnico } from './navItems.js';
-import { listarTicketsAdministrador, obtenerUsuarioActual } from '../../services/adminService.js';
+import { listarTicketsAdministrador, obtenerUsuarioActual, obtenerMiPerfil } from '../../services/adminService.js';
 
 function PerfilTecnico() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [tickets, setTickets] = useState([]);
+  const [perfil, setPerfil] = useState(null);
   const usuario = obtenerUsuarioActual();
 
   useEffect(() => {
     async function cargar() {
       try {
         setTickets(await listarTicketsAdministrador());
+        setPerfil(await obtenerMiPerfil());
       } catch (err) {
         setError(err.message);
       } finally {
@@ -25,6 +27,7 @@ function PerfilTecnico() {
   }, []);
 
   const nombreCompleto = usuario ? `${usuario.nombre} ${usuario.apellidos}` : '';
+  const correo = perfil?.correo ?? usuario?.correo;
   const misTickets = tickets.filter((t) => t.tecnico === nombreCompleto);
   const resueltos = misTickets.filter((t) => t.atendido);
   const iniciales = `${usuario?.nombre?.[0] ?? ''}${usuario?.apellidos?.[0] ?? ''}`.toUpperCase();
@@ -53,7 +56,7 @@ function PerfilTecnico() {
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontWeight: 600, fontSize: 16, margin: 0, fontFamily: "'DM Sans', sans-serif" }}>{nombreCompleto}</p>
               <p style={{ fontSize: 13, color: '#45B3BF', margin: '2px 0 0' }}>Técnico</p>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{usuario?.correo}</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{correo}</p>
             </div>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(2,40,89,0.6)' }}>
@@ -62,7 +65,7 @@ function PerfilTecnico() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(2,40,89,0.6)' }}>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Correo</span>
-                <span className="pa-table-mono" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{usuario?.correo}</span>
+                <span className="pa-table-mono" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{correo}</span>
               </div>
             </div>
           </div>

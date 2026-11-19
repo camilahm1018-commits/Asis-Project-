@@ -159,7 +159,9 @@ GRANT UPDATE (contrasena_u, activo)
 ON TABLE public.usuarios
 TO asis_app_auth;
 
-
+-- El perfil (/auth/yo) muestra el tipo de documento del usuario
+GRANT SELECT ON TABLE public.tipo_identificacion
+TO asis_app_auth;
 -- =====================================================
 -- FIN DE CONFIGURACION INICIAL
 -- =====================================================

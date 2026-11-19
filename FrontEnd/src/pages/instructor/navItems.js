@@ -4,4 +4,5 @@ export const navItemsInstructor = [
   { to: '/instructor/reportar', label: 'Reportar Falla', icon: '📝' },
   { to: '/instructor/mis-reportes', label: 'Mis Reportes', icon: '🎫' },
   { to: '/instructor/equipos', label: 'Equipos', icon: '💻' },
+  { to: '/instructor/perfil', label: 'Mi Perfil', icon: '👤' },
 ];

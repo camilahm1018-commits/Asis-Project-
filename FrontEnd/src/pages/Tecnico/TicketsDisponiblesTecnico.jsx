@@ -21,7 +21,7 @@ function TicketsDisponiblesTecnico() {
   const [tickets, setTickets] = useState([]);
   const [tomando, setTomando] = useState(null);
   const [viendoDetalle, setViendoDetalle] = useState(null);
-  const usuario = obtenerUsuarioActual();
+
 
   async function cargar() {
     try {

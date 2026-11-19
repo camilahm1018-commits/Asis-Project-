@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from conexion_db import motor_auth
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
+from Modelos.tipo_documento import Tipo_identificacion
 from seguridad import (
     verificar_contrasena, crear_token, verificar_token,
     encriptar_contrasena, crear_token_proposito, verificar_token_proposito
@@ -117,13 +118,18 @@ async def mi_perfil(
             )
 
         rol = sesion.get(Rol,usuario.id_rol)
+        tipo_id = sesion.get(Tipo_identificacion,usuario.id_tipo_identificacion)
 
         return {
             "id_usuario": usuario.id_usuario,
             "nombre": usuario.nombre_u,
             "apellidos": usuario.apellidos_u,
             "correo": usuario.correo_u,
-            "rol": rol.nombre_rol if rol else None
+            "rol": rol.nombre_rol if rol else None,
+            "numero_documento": usuario.numero_documento,
+            "tipo_documento": tipo_id.iniciales if tipo_id else None,
+            "telefono": usuario.telefono_u,
+            "creado_en": usuario.creado_en.isoformat() if usuario.creado_en else None
         }
 
 
