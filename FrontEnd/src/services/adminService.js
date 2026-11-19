@@ -404,6 +404,28 @@ export const obtenerMiPerfil = async () => {
   }
 };
 
+// Edita los datos de contacto del usuario logueado (backend: PUT /auth/yo).
+// Solo acepta { nombre, apellidos, telefono }; devuelve el perfil ya actualizado.
+export const actualizarMiPerfil = async (datos) => {
+  try {
+    const { data } = await api.put('/auth/yo', datos, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo actualizar tu perfil');
+  }
+};
+
+// Envía al correo del usuario logueado el enlace para cambiar su contraseña
+// (backend: POST /auth/solicitar-cambio-contrasena). El enlace abre /restablecer-contrasena.
+export const solicitarCambioContrasena = async () => {
+  try {
+    const { data } = await api.post('/auth/solicitar-cambio-contrasena', null, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo enviar el correo para cambiar la contraseña');
+  }
+};
+
 const MAPA_COLORES_ESTADO = {
   rojo: '#f87171',
   naranja: '#fb923c',

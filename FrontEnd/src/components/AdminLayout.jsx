@@ -38,6 +38,17 @@ function AdminLayout({ title, children }) {
     setUsuario(userData);
   }, [navigate]);
 
+  // Cuando se edita "Mi Perfil" se guarda el usuario y se avisa con este evento,
+  // así el nombre y las iniciales de la barra superior cambian sin recargar.
+  useEffect(() => {
+    const refrescar = () => {
+      const userStr = localStorage.getItem('usuario');
+      if (userStr) setUsuario(JSON.parse(userStr));
+    };
+    window.addEventListener('usuario-actualizado', refrescar);
+    return () => window.removeEventListener('usuario-actualizado', refrescar);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('usuario');

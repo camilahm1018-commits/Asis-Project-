@@ -400,3 +400,56 @@ def correo_alerta_intento_no_valido(destinatario_admin: str, datos_intento: dict
     </html>
     """
     enviar_correo(destinatario_admin, "Alerta ASIS: intento de activación no válido", cuerpo_html)
+
+
+def correo_cambio_contrasena(destinatario: str, nombre: str, token: str) -> None:
+    # Mismo link que la recuperación (RF-018), pero el correo aclara que
+    # fue el propio usuario quien lo pidió desde "Mi Perfil".
+    link = f"{FRONTEND_URL}/restablecer-contrasena?token={token}"
+
+    cuerpo_html = f"""
+    <html>
+      <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0;">
+        <div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+          <!-- Encabezado Azul -->
+          <div style="background-color: #0D47A1; color: #ffffff; padding: 24px; text-align: center;">
+            <h2 style="margin: 0; font-size: 24px; font-weight: 600;">Cambio de Contraseña</h2>
+            <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">Sistema ASIS</p>
+          </div>
+
+          <!-- Cuerpo del mensaje -->
+          <div style="padding: 32px 24px; color: #333333;">
+            <p style="font-size: 16px; margin-bottom: 20px;">Hola <strong>{nombre}</strong>,</p>
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Solicitaste cambiar la contraseña de tu cuenta desde <strong>Mi Perfil</strong> en el sistema <strong>ASIS</strong>.
+              Haz clic en el botón de abajo para crear tu nueva contraseña. El enlace vence en 30 minutos.
+            </p>
+
+            <!-- Botón de Acción -->
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="{link}" style="background-color: #0D47A1; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(13, 71, 161, 0.3);">
+                Cambiar mi contraseña
+              </a>
+            </div>
+
+            <p style="font-size: 14px; color: #666666; line-height: 1.5; margin-top: 32px; text-align: center;">
+              Si el botón no funciona, puedes copiar y pegar el siguiente enlace en tu navegador:<br>
+              <a href="{link}" style="color: #0D47A1; word-break: break-all; text-decoration: underline;">{link}</a>
+            </p>
+
+            <p style="font-size: 13px; color: #888888; line-height: 1.5; margin-top: 24px; text-align: center;">
+              Si tú no pediste este cambio, ignora este mensaje: tu contraseña actual seguirá funcionando.
+            </p>
+          </div>
+
+          <!-- Pie de página -->
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+            <p style="margin: 0; font-size: 13px; color: #888888;">Sistema ASIS - SENA</p>
+            <p style="margin: 6px 0 0 0; font-size: 12px; color: #aaaaaa;">Este es un correo automático, por favor no respondas a este mensaje.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    """
+    enviar_correo(destinatario, "Cambia tu contraseña en ASIS", cuerpo_html)
