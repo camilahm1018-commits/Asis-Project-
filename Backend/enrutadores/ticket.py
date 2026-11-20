@@ -10,6 +10,7 @@ from Modelos.roles import Rol
 from Modelos.estados_ticket import estados_ticket
 from Modelos.asig_tec import Asig_tec
 from Modelos.His_tickets import His_ticket
+from Modelos.mobiliario import Mobiliario, TipoMobiliario
 from enrutadores.asig_tec import (
     registrar_asignacion,
     _enviar_notificacion_asignacion
@@ -54,7 +55,7 @@ async def listar_tickets_id(
 
 
 # ==========================================
-# 🎫 CREAR TICKET → Con soporte para imagen y notificaciones
+#  CREAR TICKET → Con soporte para imagen y notificaciones
 # ==========================================
 
 @asis.post("/", response_model=tickets)
@@ -62,8 +63,9 @@ async def crear_ticket(
     session: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     motivo: str = Form(...),
-    id_equipo: int = Form(...),
     tipo_salida: str = Form(...),
+    id_equipo: Optional[int] = Form(default=None),
+    id_mobiliario: Optional[int] = Form(default=None),
     id_motivo_novedad: Optional[int] = Form(default=None),
     id_estado: Optional[int] = Form(default=None),
     atendido: bool = Form(False),
@@ -77,13 +79,26 @@ async def crear_ticket(
         raise HTTPException(status_code=403, detail="No puedes crear tickets")
     if tipo_salida not in ("dano", "traslado", "prestamo"):
         raise HTTPException(status_code=422, detail="Tipo de salida no válido")
-    equipo = session.get(Equipo, id_equipo)
-    if equipo is None:
-        raise HTTPException(status_code=404, detail="Equipo no encontrado")
-    if rol == "cuentadante":
-        ambiente = session.get(Ambiente, equipo.id_ambiente)
-        if ambiente is None or ambiente.id_cuentadante != id_usuario:
-            raise HTTPException(status_code=403, detail="Equipo fuera de tus ambientes")
+
+    # Debe llegar un equipo o un mobiliario, nunca los dos ni ninguno.
+    if (id_equipo is None) == (id_mobiliario is None):
+        raise HTTPException(status_code=422,
+                            detail="Indica un equipo o un mobiliario, pero no ambos")
+
+    mobiliario = None
+    equipo = None
+    if id_equipo is not None:
+        equipo = session.get(Equipo, id_equipo)
+        if equipo is None:
+            raise HTTPException(status_code=404, detail="Equipo no encontrado")
+        id_ambiente_item = equipo.id_ambiente
+    else:
+        mobiliario = session.get(Mobiliario, id_mobiliario)
+        if mobiliario is None:
+            raise HTTPException(status_code=404, detail="Mobiliario no encontrado")
+        id_ambiente_item = mobiliario.id_ambiente
+
+    
 
     # Solo el administrador puede decidir libremente el estado inicial.
     if rol != "administrador":
@@ -107,11 +122,22 @@ async def crear_ticket(
             raise HTTPException(status_code=413, detail="La imagen supera 5 MB")
 
     nuevo = tickets(
-        motivo=motivo, id_equipo=id_equipo, tipo_salida=tipo_salida,
-        id_motivo_novedad=id_motivo_novedad, id_estado=id_estado,
-        creado_por=id_usuario, atendido=atendido, fecha_salida=fecha_salida or datetime.now()
+        motivo=motivo, id_equipo=id_equipo, id_mobiliario=id_mobiliario,
+        tipo_salida=tipo_salida, id_motivo_novedad=id_motivo_novedad,
+        id_estado=id_estado, creado_por=id_usuario, atendido=atendido,
+        fecha_salida=fecha_salida or datetime.now()
     )
     session.add(nuevo)
+
+        # El elemento queda dañado en el mismo commit que crea el ticket
+    if tipo_salida == "dano":
+        if equipo is not None:
+            equipo.estado = "dañado"
+            session.add(equipo)
+        if mobiliario is not None:
+            mobiliario.estado = "Dañado"
+            session.add(mobiliario)
+
     session.commit()
     session.refresh(nuevo)
 
@@ -135,7 +161,7 @@ async def crear_ticket(
     return nuevo
 
 # ==========================================
-# 🔄 EDITAR TICKET → Si cambia el estado, notifica
+#  EDITAR TICKET → Si cambia el estado, notifica
 # ==========================================
 @asis.put("/{id}", response_model=tickets)
 async def editar_ticket(
@@ -251,7 +277,7 @@ async def editar_ticket(
     
     return tik_bd
 # ==========================================
-# 🎯 ASIGNAR TÉCNICO (Tickets nuevos)
+#  ASIGNAR TÉCNICO (Tickets nuevos)
 # ==========================================
 @asis.put("/{id}/asignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def asignar_tecnico(
@@ -269,7 +295,7 @@ async def asignar_tecnico(
     return session.get(tickets, id)
 
 # ==========================================
-# 🔄 REASIGNAR TÉCNICO (Cambiar de técnico)
+#  REASIGNAR TÉCNICO (Cambiar de técnico)
 # ==========================================
 @asis.put("/{id}/reasignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def reasignar_tecnico(
@@ -307,7 +333,7 @@ async def reasignar_tecnico(
     return session.get(tickets, id)
 
 # ==========================================
-# 🚫 DESASIGNAR TÉCNICO (Devolver a la cola)
+#  DESASIGNAR TÉCNICO (Devolver a la cola)
 # ==========================================
 @asis.put("/{id}/desasignar", response_model=tickets, dependencies=[Depends(solo_gestion_tickets)])
 async def desasignar_tecnico(
@@ -339,8 +365,7 @@ class RegistroEntrada(BaseModel):
     id_usuario_actual: int | None = None  # compatibilidad; el servidor usa el JWT
 
 
-@asis.put("/{id}/registrar-entrada", response_model=tickets,
-          dependencies=[Depends(solo_gestion_tickets)])
+@asis.put("/{id}/registrar-entrada", response_model=tickets,dependencies=[Depends(solo_gestion_tickets)])
 async def registrar_entrada(
     id: int,
     datos: RegistroEntrada,
@@ -390,36 +415,52 @@ async def eliminar_ticket(id: int, session: Sesion_por_rol):
     session.commit()
     return tik_bd
 
+def _item_y_ambiente(sesion, ticket):
+    """Devuelve (nombre del elemento, ambiente) para un equipo o un mobiliario."""
+    if ticket.id_equipo is not None:
+        equipo = sesion.get(Equipo, ticket.id_equipo)
+        if not equipo:
+            print(f" No se encontró el equipo {ticket.id_equipo}")
+            return None, None
+        nombre = f"{equipo.nombre} ({equipo.marca})" if equipo.marca else equipo.nombre
+        return nombre, sesion.get(Ambiente, equipo.id_ambiente)
+
+    if ticket.id_mobiliario is not None:
+        mob = sesion.get(Mobiliario, ticket.id_mobiliario)
+        if not mob:
+            print(f" No se encontró el mobiliario {ticket.id_mobiliario}")
+            return None, None
+        tipo = sesion.get(TipoMobiliario, mob.id_tipo_mob)
+        nombre = f"{tipo.nombre_tm if tipo else 'Mobiliario'} ({mob.serial or mob.codigo})"
+        return nombre, sesion.get(Ambiente, mob.id_ambiente)
+
+    print(f" El ticket {ticket.id_ticket} no tiene equipo ni mobiliario")
+    return None, None
 
 # ==========================================
-# 📧 FUNCIÓN: NOTIFICAR CREACIÓN DE TICKET
+#  FUNCIÓN: NOTIFICAR CREACIÓN DE TICKET
 # ==========================================
 def _enviar_notificacion_creacion(id_ticket: int):
     try:
         with Session(motor_admin) as sesion:
             ticket = sesion.get(tickets, id_ticket)
             if not ticket:
-                print(f"❌ No se encontró el ticket {id_ticket}")
+                print(f" No se encontró el ticket {id_ticket}")
                 return
-            
-            equipo = sesion.get(Equipo, ticket.id_equipo)
-            if not equipo:
-                print(f"❌ No se encontró el equipo {ticket.id_equipo}")
+
+            nombre_equipo, ambiente = _item_y_ambiente(sesion, ticket)
+            if ambiente is None:
+                print(f" No se pudo determinar el ambiente del ticket {id_ticket}")
                 return
-            
-            ambiente = sesion.get(Ambiente, equipo.id_ambiente)
-            if not ambiente:
-                print(f"❌ No se encontró el ambiente {equipo.id_ambiente}")
-                return
-            
+
             creador = sesion.get(Usuario, ticket.creado_por)
             destinatarios = []
-            
+
             if ambiente.id_cuentadante:
                 cuentadante = sesion.get(Usuario, ambiente.id_cuentadante)
                 if cuentadante and cuentadante.correo_u:
                     destinatarios.append(cuentadante.correo_u)
-            
+
             admins = sesion.exec(
                 select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
                 .where(Rol.nombre_rol == "administrador_mesa_ayuda")
@@ -427,26 +468,24 @@ def _enviar_notificacion_creacion(id_ticket: int):
             for admin in admins:
                 if admin.correo_u:
                     destinatarios.append(admin.correo_u)
-            
-            
+
             if ticket.asignado_a:
                 tec_asignado = sesion.get(Usuario, ticket.asignado_a)
                 if tec_asignado and tec_asignado.correo_u:
                     destinatarios.append(tec_asignado.correo_u)
-            
+
             destinatarios = list(set(destinatarios))
-            
+
             if creador and creador.correo_u in destinatarios:
                 destinatarios.remove(creador.correo_u)
-            
+
             if not destinatarios:
-                print(f"⚠️ No hay correos válidos para el ticket {id_ticket}")
+                print(f" No hay correos válidos para el ticket {id_ticket}")
                 return
-            
+
             nombre_creador = f"{creador.nombre_u} {creador.apellidos_u}" if creador else "Desconocido"
-            nombre_equipo = f"{equipo.nombre} ({equipo.marca})" if equipo.marca else equipo.nombre
             nombre_ambiente = f"{ambiente.nombre_a} - {ambiente.ubicacion}"
-            
+
             datos_email = {
                 "id_ticket": ticket.id_ticket,
                 "equipo": nombre_equipo,
@@ -455,62 +494,56 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 "creado_por": nombre_creador,
                 "fecha_salida": str(ticket.fecha_salida) if ticket.fecha_salida else "N/A"
             }
-            
-            asunto = f"🚨 Nuevo Ticket #{ticket.id_ticket} - {nombre_equipo}"
+
+            asunto = f" Nuevo Ticket #{ticket.id_ticket} - {nombre_equipo}"
             enviar_correo_notificacion(destinatarios, asunto, datos_email)
-            
+
     except Exception as e:
-        print(f"❌ Error en notificación de creación: {e}")
+        print(f" Error en notificación de creación: {e}")
 
 
 # ==========================================
-# 📧 FUNCIÓN: NOTIFICAR CAMBIO DE ESTADO
+#  FUNCIÓN: NOTIFICAR CAMBIO DE ESTADO
 # ==========================================
 def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, estado_nuevo: int):
     try:
         with Session(motor_admin) as sesion:
             ticket = sesion.get(tickets, id_ticket)
             if not ticket:
-                print(f"❌ No se encontró el ticket {id_ticket}")
+                print(f" No se encontró el ticket {id_ticket}")
                 return
-            
-            equipo = sesion.get(Equipo, ticket.id_equipo)
-            if not equipo:
-                print(f"❌ No se encontró el equipo {ticket.id_equipo}")
+
+            nombre_equipo, ambiente = _item_y_ambiente(sesion, ticket)
+            if ambiente is None:
+                print(f" No se pudo determinar el ambiente del ticket {id_ticket}")
                 return
-            
-            ambiente = sesion.get(Ambiente, equipo.id_ambiente)
-            if not ambiente:
-                print(f"❌ No se encontró el ambiente {equipo.id_ambiente}")
-                return
-            
+
             estado_ant = sesion.get(estados_ticket, estado_anterior)
             estado_nue = sesion.get(estados_ticket, estado_nuevo)
-            
+
             nombre_estado_anterior = estado_ant.nombre_e if estado_ant else "Desconocido"
             nombre_estado_nuevo = estado_nue.nombre_e if estado_nue else "Desconocido"
             color_estado_nuevo = estado_nue.color if estado_nue else "#333"
-            
+
             creador = sesion.get(Usuario, ticket.creado_por)
             destinatarios = []
-            
+
             if ambiente.id_cuentadante:
                 cuentadante = sesion.get(Usuario, ambiente.id_cuentadante)
                 if cuentadante and cuentadante.correo_u:
                     destinatarios.append(cuentadante.correo_u)
-            
+
             if creador and creador.correo_u:
                 destinatarios.append(creador.correo_u)
-            
+
             destinatarios = list(set(destinatarios))
-            
+
             if not destinatarios:
-                print(f"⚠️ No hay correos válidos para notificar cambio de estado del ticket {id_ticket}")
+                print(f" No hay correos válidos para notificar cambio de estado del ticket {id_ticket}")
                 return
-            
-            nombre_equipo = f"{equipo.nombre} ({equipo.marca})" if equipo.marca else equipo.nombre
+
             nombre_ambiente = f"{ambiente.nombre_a} - {ambiente.ubicacion}"
-            
+
             datos_email = {
                 "id_ticket": ticket.id_ticket,
                 "equipo": nombre_equipo,
@@ -520,9 +553,9 @@ def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, est
                 "color_estado": color_estado_nuevo,
                 "motivo": ticket.motivo
             }
-            
-            asunto = f"🔄 Ticket #{ticket.id_ticket} - Estado cambiado a '{nombre_estado_nuevo}'"
+
+            asunto = f" Ticket #{ticket.id_ticket} - Estado cambiado a '{nombre_estado_nuevo}'"
             enviar_correo_cambio_estado(destinatarios, asunto, datos_email)
-            
+
     except Exception as e:
-        print(f"❌ Error en notificación de cambio de estado: {e}")
+        print(f" Error en notificación de cambio de estado: {e}")

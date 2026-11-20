@@ -171,6 +171,19 @@ export const eliminarEquipo = async (idEquipo) => {
 };
 
 // ==========================================
+// MOBILIARIO  (backend: prefix "/mobiliario")
+// ==========================================
+
+export const listarMobiliario = async () => {
+  try {
+    const { data } = await api.get('/mobiliario/', getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener la lista de mobiliario');
+  }
+};
+
+// ==========================================
 // TIPOS DE EQUIPO  (backend: prefix "/tipo_equipo")
 // ==========================================
 
@@ -416,22 +429,35 @@ export const resolverColorEstado = (nombreColor) =>
 // contenido de esta función por una sola llamada a ese endpoint.
 
 export const listarTicketsAdministrador = async () => {
-  const [tickets, equipos, usuarios, ambientes, estados] = await Promise.all([
+  const [tickets, equipos, mobiliario, usuarios, ambientes, estados] = await Promise.all([
     listarTicketsCrudos(),
     listarEquipos(),
+    listarMobiliario(),
     listarUsuariosResumen(),
     listarAmbientes(),
     listarEstadosTicket(),
   ]);
 
   const mapaEquipos = Object.fromEntries((equipos || []).map((e) => [e.id_equipo, e]));
+  const mapaMobiliario = Object.fromEntries((mobiliario || []).map((m) => [m.id_mobiliario, m]));
   const mapaUsuarios = Object.fromEntries((usuarios || []).map((u) => [u.id_usuario, u]));
   const mapaAmbientes = Object.fromEntries((ambientes || []).map((a) => [a.id_ambiente, a]));
   const mapaEstados = Object.fromEntries((estados || []).map((es) => [es.id_estado, es]));
 
   return (tickets || []).map((t) => {
-    const equipo = mapaEquipos[t.id_equipo];
-    const ambiente = equipo ? mapaAmbientes[equipo.id_ambiente] : null;
+    const equipo = t.id_equipo != null ? mapaEquipos[t.id_equipo] : null;
+    const silla = t.id_mobiliario != null ? mapaMobiliario[t.id_mobiliario] : null;
+
+    // El ambiente sale del equipo o del mobiliario, según cuál tenga el ticket
+    const idAmbienteItem = equipo ? equipo.id_ambiente : (silla ? silla.id_ambiente : null);
+    const ambiente = idAmbienteItem != null ? mapaAmbientes[idAmbienteItem] : null;
+
+    let nombreItem;
+    if (equipo) nombreItem = equipo.nombre;
+    else if (silla) nombreItem = `${silla.nombre_tm} (${silla.serial || silla.codigo})`;
+    else if (t.id_mobiliario != null) nombreItem = `Mobiliario #${t.id_mobiliario}`;
+    else nombreItem = `Equipo #${t.id_equipo}`;
+
     const creadoPor = mapaUsuarios[t.creado_por];
     const asignadoA = t.asignado_a ? mapaUsuarios[t.asignado_a] : null;
     const estado = mapaEstados[t.id_estado];
@@ -439,12 +465,14 @@ export const listarTicketsAdministrador = async () => {
     return {
       id: t.id_ticket,
       titulo: t.motivo,
-      equipo: equipo ? equipo.nombre : `Equipo #${t.id_equipo}`,
+      equipo: nombreItem,
       idEquipo: t.id_equipo,
+      idMobiliario: t.id_mobiliario,
+      tipoElemento: t.id_mobiliario != null ? 'mobiliario' : 'equipo',
       ambiente: ambiente ? ambiente.nombre_a : 'Sin ambiente',
       idTipoEquipo: equipo ? equipo.id_tipo : null,
       creadoPor: creadoPor ? `${creadoPor.nombre_u} ${creadoPor.apellidos_u}` : 'Desconocido',
-      idCreadoPor: t.creado_por, // ⚠️ ESTA ES LA LÍNEA CLAVE QUE FALTABA
+      idCreadoPor: t.creado_por,
       tecnico: asignadoA ? `${asignadoA.nombre_u} ${asignadoA.apellidos_u}` : 'Sin asignar',
       idTecnico: t.asignado_a,
       estado: estado ? estado.nombre_e : 'Sin estado',

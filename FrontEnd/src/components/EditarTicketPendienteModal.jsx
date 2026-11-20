@@ -3,27 +3,30 @@
 // Solo dejo editar el motivo y el equipo mientras el ticket sigue en
 // "Pendiente" — una vez un técnico empieza a trabajarlo ya no tiene
 // sentido que el que lo creó lo cambie (RF-009).
-import { useState } from 'react'
+// Si el ticket es de mobiliario solo se edita la descripción.
+import { useEffect, useState } from 'react'
 import { editarTicket, listarEquipos } from '../services/adminService.js'
-import { useEffect } from 'react'
 
 function EditarTicketPendienteModal({ ticket, onClose, onGuardado }) {
+  const esMobiliario = ticket.idMobiliario != null
   const [equipos, setEquipos] = useState([])
   const [motivo, setMotivo] = useState(ticket.motivo || ticket.titulo || '')
-  const [equipoId, setEquipoId] = useState(ticket.idEquipo)
+  const [equipoId, setEquipoId] = useState(ticket.idEquipo ?? '')
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    listarEquipos().then((e) => setEquipos(e || []))
-  }, [])
+    if (!esMobiliario) listarEquipos().then((e) => setEquipos(e || []))
+  }, [esMobiliario])
 
   async function handleGuardar(e) {
     e.preventDefault()
     setGuardando(true)
     setError('')
     try {
-      await editarTicket(ticket.id, { motivo, id_equipo: Number(equipoId) })
+      const cambios = { motivo }
+      if (!esMobiliario) cambios.id_equipo = Number(equipoId)
+      await editarTicket(ticket.id, cambios)
       onGuardado()
     } catch (err) {
       setError(err.message)
@@ -42,14 +45,23 @@ function EditarTicketPendienteModal({ ticket, onClose, onGuardado }) {
         <form onSubmit={handleGuardar}>
           <div className="pa-modal__body">
             {error && <p className="pa-error" style={{ padding: 0, textAlign: 'left' }}>{error}</p>}
-            <div className="pa-form-field">
-              <label>Equipo</label>
-              <select className="pa-select" value={equipoId} onChange={(e) => setEquipoId(e.target.value)} required>
-                {equipos.map((eq) => (
-                  <option key={eq.id_equipo} value={eq.id_equipo}>{eq.nombre} — {eq.codigo}</option>
-                ))}
-              </select>
-            </div>
+
+            {esMobiliario ? (
+              <div className="pa-form-field">
+                <label>Mobiliario</label>
+                <p style={{ fontSize: 13, margin: 0 }}>{ticket.equipo}</p>
+              </div>
+            ) : (
+              <div className="pa-form-field">
+                <label>Equipo</label>
+                <select className="pa-select" value={equipoId} onChange={(e) => setEquipoId(e.target.value)} required>
+                  {equipos.map((eq) => (
+                    <option key={eq.id_equipo} value={eq.id_equipo}>{eq.nombre} — {eq.codigo}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="pa-form-field">
               <label>Descripción del problema</label>
               <textarea className="pa-textarea" rows={4} value={motivo} onChange={(e) => setMotivo(e.target.value)} required />

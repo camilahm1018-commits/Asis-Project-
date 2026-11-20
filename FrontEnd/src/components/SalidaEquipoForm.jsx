@@ -6,8 +6,8 @@
 // equipo como dañado de una vez.
 import { useEffect, useState } from 'react'
 import {
-  listarAmbientes, listarEquipos, listarEstadosTicket, listarMotivosNovedad,
-  crearTicket, editarEquipo, obtenerUsuarioActual,
+  listarAmbientes, listarEquipos,listarMobiliario, listarEstadosTicket, listarMotivosNovedad,
+  crearTicket, obtenerUsuarioActual,
 } from '../services/adminService.js'
 
 const TIPOS_SALIDA = [
@@ -23,7 +23,9 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   const [equipos, setEquipos] = useState([])
   const [motivosNovedad, setMotivosNovedad] = useState([])
   const [estados, setEstados] = useState([])
-
+  const [mobiliario, setMobiliario] = useState([])
+  const [tipoItem, setTipoItem] = useState('')       // 'equipo' | 'mobiliario'
+  const [mobiliarioId, setMobiliarioId] = useState('')
   const [ambienteId, setAmbienteId] = useState('')
   const [equipoId, setEquipoId] = useState('')
   const [tipoSalida, setTipoSalida] = useState('')
@@ -38,11 +40,12 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   useEffect(() => {
     async function cargar() {
       try {
-        const [a, e, mn, es] = await Promise.all([
-          listarAmbientes(), listarEquipos(), listarMotivosNovedad(), listarEstadosTicket(),
+        const [a, e, mob, mn, es] = await Promise.all([
+          listarAmbientes(), listarEquipos(), listarMobiliario(), listarMotivosNovedad(), listarEstadosTicket(),
         ])
         setAmbientes(ambientesPermitidos ? a.filter((amb) => ambientesPermitidos.includes(amb.id_ambiente)) : a)
         setEquipos(e || [])
+        setMobiliario(mob || [])
         setMotivosNovedad(mn || [])
         setEstados(es || [])
       } catch (err) {
@@ -56,6 +59,9 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
   const equiposDelAmbiente = equipos.filter((e) => String(e.id_ambiente) === ambienteId)
   const equipoElegido = equipos.find((e) => String(e.id_equipo) === equipoId)
+  const mobiliarioDelAmbiente = mobiliario.filter((m) => String(m.id_ambiente) === ambienteId)
+  const mobiliarioElegido = mobiliario.find((m) => String(m.id_mobiliario) === mobiliarioId)
+  const itemElegido = tipoItem === 'equipo' ? equipoId : mobiliarioId
 
   function buscarIdEstado(nombreBuscado) {
     const encontrado = estados.find((es) => es.nombre_e.toLowerCase() === nombreBuscado.toLowerCase())
@@ -64,7 +70,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
   async function handleEnviar(e) {
     e.preventDefault()
-    if (!ambienteId || !equipoId || !tipoSalida || !motivo) return
+    if (!ambienteId || !itemElegido || !tipoSalida || !motivo) return
 
     setEnviando(true)
     setErrorEnvio('')
@@ -78,21 +84,19 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
       await crearTicket({
         motivo,
-        id_equipo: Number(equipoId),
+        id_equipo: tipoItem === 'equipo' ? Number(equipoId) : null,
+        id_mobiliario: tipoItem === 'mobiliario' ? Number(mobiliarioId) : null,
         tipo_salida: tipoSalida,
         id_motivo_novedad: idMotivoNovedad ? Number(idMotivoNovedad) : null,
         id_estado: idEstado,
         creado_por: usuarioActual?.id_usuario,
         atendido: false,
         fecha_salida: new Date().toISOString(),
-      },imagen)
+      }, imagen)
 
-      if (tipoSalida === 'dano') {
-        await editarEquipo(Number(equipoId), { estado: 'dañado' })
-      }
-
-      setEnviado(true)
-      setAmbienteId(''); setEquipoId(''); setTipoSalida(''); setIdMotivoNovedad(''); setMotivo(''); setImagen(null)
+            setEnviado(true)
+      setAmbienteId(''); setTipoItem(''); setEquipoId(''); setMobiliarioId('')
+      setTipoSalida(''); setIdMotivoNovedad(''); setMotivo(''); setImagen(null)
       setTimeout(() => setEnviado(false), 4000)
     } catch (err) {
       setErrorEnvio(err.message)
@@ -123,23 +127,62 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
           <div className="pa-form-field">
             <label>1. Ambiente</label>
-            <select className="pa-select" value={ambienteId} onChange={(e) => { setAmbienteId(e.target.value); setEquipoId('') }} required>
+            <select className="pa-select" value={ambienteId} onChange={(e) => { setAmbienteId(e.target.value); setEquipoId(''); setMobiliarioId('') }} required>
               <option value="">Seleccionar ambiente...</option>
               {ambientes.map((a) => <option key={a.id_ambiente} value={a.id_ambiente}>{a.nombre_a}</option>)}
             </select>
           </div>
 
           <div className="pa-form-field">
-            <label>2. Equipo</label>
-            <select className="pa-select" value={equipoId} onChange={(e) => setEquipoId(e.target.value)} required disabled={!ambienteId}>
-              <option value="">{ambienteId ? 'Seleccionar equipo...' : 'Primero elige un ambiente'}</option>
-              {equiposDelAmbiente.map((eq) => (
-                <option key={eq.id_equipo} value={eq.id_equipo}>{eq.nombre} — {eq.codigo}</option>
+            <label>2. ¿Qué sale?</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+              {[
+                { valor: 'equipo', label: 'Equipo', icono: '💻' },
+                { valor: 'mobiliario', label: 'Mobiliario', icono: '🪑' },
+              ].map((t) => (
+                <button
+                  type="button"
+                  key={t.valor}
+                  disabled={!ambienteId}
+                  onClick={() => { setTipoItem(t.valor); setEquipoId(''); setMobiliarioId('') }}
+                  className={`pa-select-card${tipoItem === t.valor ? ' selected' : ''}`}
+                  style={{ textAlign: 'center', opacity: ambienteId ? 1 : 0.5 }}
+                >
+                  <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icono}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{t.label}</div>
+                </button>
               ))}
-            </select>
+            </div>
+            {!ambienteId && (
+              <p style={{ fontSize: 12, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>Primero elige un ambiente</p>
+            )}
           </div>
 
-          {equipoElegido && (
+          {tipoItem === 'equipo' && (
+            <div className="pa-form-field">
+              <label>3. Equipo</label>
+              <select className="pa-select" value={equipoId} onChange={(e) => setEquipoId(e.target.value)} required>
+                <option value="">Seleccionar equipo...</option>
+                {equiposDelAmbiente.map((eq) => (
+                  <option key={eq.id_equipo} value={eq.id_equipo}>{eq.nombre} — {eq.codigo}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {tipoItem === 'mobiliario' && (
+            <div className="pa-form-field">
+              <label>3. Mobiliario</label>
+              <select className="pa-select" value={mobiliarioId} onChange={(e) => setMobiliarioId(e.target.value)} required>
+                <option value="">Seleccionar mobiliario...</option>
+                {mobiliarioDelAmbiente.map((m) => (
+                  <option key={m.id_mobiliario} value={m.id_mobiliario}>{m.nombre_tm} — {m.serial || m.codigo}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {tipoItem === 'equipo' && equipoElegido && (
             <div className="pa-detail-block" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <span style={{ color: '#45B3BF' }}>💻</span>
               <div>
@@ -149,8 +192,18 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             </div>
           )}
 
+          {tipoItem === 'mobiliario' && mobiliarioElegido && (
+            <div className="pa-detail-block" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <span style={{ color: '#45B3BF' }}>🪑</span>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 500, margin: 0, color: 'rgba(255,255,255,0.8)' }}>{mobiliarioElegido.nombre_tm}</p>
+                <p style={{ fontSize: 11, margin: 0, color: 'rgba(255,255,255,0.4)' }}>S/N {mobiliarioElegido.serial || '—'}</p>
+              </div>
+            </div>
+          )}
+
           <div className="pa-form-field">
-            <label>3. Motivo de la salida</label>
+            <label>4. Motivo de la salida</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               {TIPOS_SALIDA.map((t) => (
                 <button
@@ -217,7 +270,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             </div>
           )}
 
-          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !equipoId || !tipoSalida || !motivo || enviando}>
+          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !itemElegido || !tipoSalida || !motivo || enviando}>
             {enviando ? 'Registrando...' : 'Registrar Salida'}
           </button>
         </div>

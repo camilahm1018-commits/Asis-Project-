@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from conexion_db import lifespan
 from fastapi.staticfiles import StaticFiles
 import os
-from enrutadores import roles, asig_tec, ticket, estados_ticket, His_tickets, Usuarios,ER_ambientes,ER_equipos,motivo_novedad,notificaciones,tipo_equipo,tipo_documento,dashboard,auth,contactanos 
+from enrutadores import roles, asig_tec, ticket, estados_ticket, His_tickets, Usuarios,ER_ambientes,ER_equipos,motivo_novedad,notificaciones,tipo_equipo,tipo_documento,dashboard,auth,contactanos, mobiliario 
 from fastapi.middleware.cors import CORSMiddleware
 
 asis = FastAPI(lifespan=lifespan, title="ASIS API")
@@ -51,3 +51,4 @@ asis.include_router(tipo_documento.asis)
 asis.include_router(dashboard.asis)
 asis.include_router(auth.asis)
 asis.include_router(contactanos.asis)
+asis.include_router(mobiliario.asis)
