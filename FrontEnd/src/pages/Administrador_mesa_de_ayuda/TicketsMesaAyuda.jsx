@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
+import RegistrarEntradaBoton from '../../components/RegistrarEntradaBoton.jsx';
 import { navItemsMesaAyuda } from './navItems.js';
 import {
   listarTicketsAdministrador, listarEstadosTicket, editarTicket,
-  registrarEntradaEquipo, obtenerUsuarioActual,
 } from '../../services/adminService.js';
 import ImagenTicket from '../../components/ImagenTicket.jsx';
 
@@ -49,22 +49,6 @@ function TicketsMesaAyuda() {
     setProcesando(ticket.id);
     try {
       await editarTicket(ticket.id, { id_estado: buscarIdEstado('Pendiente'), atendido: false });
-      await cargar();
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setProcesando(null);
-    }
-  }
-
-  async function handleRegistrarEntrada(ticket) {
-    setProcesando(ticket.id);
-    try {
-      const usuarioActual = obtenerUsuarioActual();
-      await registrarEntradaEquipo(ticket.id, {
-        id_estado_entregado: buscarIdEstado('Entregado en ambiente'),
-        id_usuario_actual: usuarioActual?.id_usuario,
-      });
       await cargar();
     } catch (err) {
       alert(err.message);
@@ -223,25 +207,7 @@ function TicketsMesaAyuda() {
                         {procesando === t.id ? '...' : 'Revertir'}
                       </button>
                     )}
-                    {t.estado !== 'Dado de baja' && !t.atendido && t.tecnico !== 'Sin asignar' && (
-                      <button 
-                        className="pa-btn-primary" 
-                        style={{ 
-                          padding: '6px 14px', 
-                          fontSize: '12px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: '#45B3BF',
-                          color: '#fff',
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }} 
-                        disabled={procesando === t.id} 
-                        onClick={() => handleRegistrarEntrada(t)}
-                      >
-                        {procesando === t.id ? '...' : 'Registrar entrada'}
-                      </button>
-                    )}
+                    <RegistrarEntradaBoton ticket={t} onRegistrada={cargar} disabled={procesando === t.id} />
                   </td>
                 </tr>
               ))}

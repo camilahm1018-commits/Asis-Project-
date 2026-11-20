@@ -15,10 +15,14 @@ function RecuperarContrasena() {
     e.preventDefault()
     setMensaje('')
     setError('')
+    if (!correo.trim()) {
+      setError('Ingresa tu correo.')
+      return
+    }
     setEnviando(true)
 
     try {
-      const data = await solicitarRecuperacion(correo)
+      const data = await solicitarRecuperacion(correo.trim())
       setMensaje(data.mensaje)
       setCorreo('') // Limpiar el campo tras el envío exitoso
     } catch (err) {

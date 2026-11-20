@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
+import RegistrarEntradaBoton from '../../components/RegistrarEntradaBoton.jsx';
 import EditarTicketPendienteModal from '../../components/EditarTicketPendienteModal.jsx';
 import { navItemsCuentadante } from './navItems.js';
 import { listarTicketsAdministrador, obtenerUsuarioActual } from '../../services/adminService.js';
@@ -32,7 +33,11 @@ function MisTicketsCuentadante() {
     cargar();
   }, []);
 
-  const misTickets = tickets.filter((t) => t.idCreadoPor === usuario?.id_usuario);
+  const idUsuario = usuario?.id_usuario;
+  const misTickets = tickets.filter((t) => t.idCreadoPor === idUsuario || (
+    ['prestamo', 'préstamo'].includes(t.tipoSalida?.trim().toLowerCase())
+    && t.idCuentadante === idUsuario
+  ));
   const estadosDisponibles = ['Todos', ...new Set(misTickets.map((t) => t.estado))];
   const filtered = filtro === 'Todos' ? misTickets : misTickets.filter((t) => t.estado === filtro);
 
@@ -50,7 +55,7 @@ function MisTicketsCuentadante() {
       <div className="pa-section-header">
         <div>
           <h1 className="pa-section-header__title">Mis Reportes</h1>
-          <p className="pa-section-header__subtitle">Salidas de equipo que has registrado — clic para ver el detalle</p>
+          <p className="pa-section-header__subtitle">Tus salidas y los préstamos de tus ambientes</p>
         </div>
       </div>
 
@@ -88,6 +93,7 @@ function MisTicketsCuentadante() {
                       Técnico: <span style={{ color: t.tecnico === 'Sin asignar' ? '#f87171' : '#45B3BF' }}>{t.tecnico}</span>
                     </span>
                   </div>
+                  <RegistrarEntradaBoton ticket={t} onRegistrada={cargar} />
                   {t.estado === 'Pendiente' && (
                     <button
                       type="button"

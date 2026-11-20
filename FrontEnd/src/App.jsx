@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 // Auth
 import Login from './pages/Login.jsx'
 import Registrarse from './pages/Registrarse.jsx'
+import ActivarCuenta from './pages/ActivarCuenta.jsx'
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx'
 import RestablecerContrasena from './pages/RestablecerContrasena.jsx'
 
@@ -63,6 +64,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrarse" element={<Registrarse />} />
+        <Route path="/activar-cuenta" element={<ActivarCuenta />} />
         <Route path="/recuperar" element={<RecuperarContrasena />} />
         <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
 

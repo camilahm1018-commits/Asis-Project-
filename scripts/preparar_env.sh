@@ -17,7 +17,7 @@ else:
     existing=p.read_text()
     add=[]
     for k in ('ASIS_JWT_SECRET','ASIS_INITIAL_ADMIN_PASSWORD'):
-        if not any(line.startswith(k+'=') for line in existing.splitlines()):
+        if not any(line.split('=', 1)[0].strip() == k for line in existing.splitlines() if '=' in line):
             add.append(k+'='+secrets.token_hex(24))
     if add:
         with p.open('a') as f: f.write('\n'+'\n'.join(add)+'\n')

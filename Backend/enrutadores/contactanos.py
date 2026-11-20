@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from Modelos.validacion import TextoObligatorio
 from datetime import datetime
 import os
 import re
@@ -10,10 +11,10 @@ from email.mime.multipart import MIMEMultipart
 asis = APIRouter(prefix="/contacto", tags=["Contacto"])
 
 class MensajeContacto(BaseModel):
-    nombre: str
-    correo: str
-    categoria: str
-    mensaje: str
+    nombre: TextoObligatorio
+    correo: TextoObligatorio
+    categoria: TextoObligatorio
+    mensaje: TextoObligatorio
 
 @asis.post("/")
 async def recibir_mensaje_contacto(data: MensajeContacto):

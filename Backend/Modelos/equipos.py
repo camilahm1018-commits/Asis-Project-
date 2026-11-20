@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING
+from pydantic import Field as Regla, StringConstraints, field_validator
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
@@ -35,7 +36,15 @@ class Equipo(EquipoBase, table=True):
 
 
 class EquipoCrear(EquipoBase):
-    pass
+    codigo: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=25)]
+    nombre: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+    id_ambiente: Annotated[int, Regla(gt=0)]
+    id_tipo: Annotated[int, Regla(gt=0)]
+
+    @field_validator("serial", "marca", "descripcion")
+    @classmethod
+    def normalizar_opcional(cls, valor):
+        return (valor or "").strip() or None
 
 
 class EquipoEditar(SQLModel):

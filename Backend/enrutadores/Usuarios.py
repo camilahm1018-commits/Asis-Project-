@@ -2,10 +2,13 @@ from Modelos.Usuarios import (UsuarioCrear, UsuarioEditar, Usuario, UsuarioLeer,
 from fastapi import APIRouter, status, HTTPException, Depends
 from conexion_db import Sesion_admin
 from sesiones_roles import Sesion_por_rol
+from sqlalchemy import delete, func
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 from seguridad import encriptar_contrasena, crear_token_proposito, verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import correo_activacion
 from Modelos.roles import Rol
+from Modelos.tipo_documento import Tipo_identificacion
 import secrets
 
 asis = APIRouter(prefix="/usuarios", tags=["Usuarios"], dependencies=[Depends(verificar_token)])
@@ -16,7 +19,7 @@ def validar_datos_duplicados(sesion, correo=None, documento=None, id_excluir=Non
 
     if correo:
         consulta_correo = select(Usuario.id_usuario).where(
-            Usuario.correo_u.ilike(correo.strip())
+            func.lower(Usuario.correo_u) == correo.strip().lower()
         )
 
         if id_excluir is not None:
@@ -51,6 +54,24 @@ def validar_datos_duplicados(sesion, correo=None, documento=None, id_excluir=Non
         status_code=status.HTTP_409_CONFLICT,
         detail=mensaje
     )
+
+
+def validar_catalogos(sesion, campos):
+    if "id_rol" in campos and sesion.get(Rol, campos["id_rol"]) is None:
+        raise HTTPException(status_code=422, detail="Selecciona un rol válido")
+    if ("id_tipo_identificacion" in campos
+            and sesion.get(Tipo_identificacion, campos["id_tipo_identificacion"]) is None):
+        raise HTTPException(status_code=422, detail="Selecciona un tipo de documento válido")
+
+
+def guardar_usuario(sesion, usuario):
+    try:
+        sesion.add(usuario)
+        sesion.commit()
+    except IntegrityError:
+        sesion.rollback()
+        raise HTTPException(status_code=409, detail="No se pudo guardar el usuario. Revisa si el correo o el documento ya existen.")
+    sesion.refresh(usuario)
 
 
 # ==========================================
@@ -125,6 +146,7 @@ async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_admin):
     )
 
     datos = datos_usuario.model_dump()
+    validar_catalogos(mi_sesion, datos)
 
     # ENCRIPTAR CONTRASEÑA
     datos["contrasena_u"] = encriptar_contrasena(datos["contrasena_u"])
@@ -132,9 +154,7 @@ async def crear_usuario(datos_usuario: UsuarioCrear, mi_sesion: Sesion_admin):
     # CREAR USUARIO
     nuevo_usuario = Usuario.model_validate(datos)
 
-    mi_sesion.add(nuevo_usuario)
-    mi_sesion.commit()
-    mi_sesion.refresh(nuevo_usuario)
+    guardar_usuario(mi_sesion, nuevo_usuario)
     return nuevo_usuario
 
 
@@ -149,6 +169,7 @@ async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_adm
         datos.correo_u,
         datos.numero_documento
     )
+    validar_catalogos(mi_sesion, datos.model_dump())
     contrasena_temporal = encriptar_contrasena(secrets.token_urlsafe(24))
 
     nuevo_usuario = Usuario(
@@ -157,9 +178,7 @@ async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_adm
         activo=False
     )
 
-    mi_sesion.add(nuevo_usuario)
-    mi_sesion.commit()
-    mi_sesion.refresh(nuevo_usuario)
+    guardar_usuario(mi_sesion, nuevo_usuario)
 
     token = crear_token_proposito(nuevo_usuario.id_usuario, "activacion", minutos=60 * 24)
     correo_activacion(nuevo_usuario.correo_u, nuevo_usuario.nombre_u, token)
@@ -171,7 +190,8 @@ async def pre_registrar_usuario(datos: UsuarioPreRegistro, mi_sesion: Sesion_adm
 # 6. EDITAR USUARIO
 # ==========================================
 @asis.put("/{id_usuario}", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
-async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesion: Sesion_admin):
+async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesion: Sesion_admin,
+                         admin: dict = Depends(solo_admin)):
     usuario = mi_sesion.get(Usuario, id_usuario)
 
     if not usuario:
@@ -181,6 +201,9 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesio
         )
 
     usuario_dict = datos_usuario.model_dump(exclude_unset=True)
+    if id_usuario == admin["id_usuario"] and usuario_dict.get("id_rol", usuario.id_rol) != usuario.id_rol:
+        raise HTTPException(status_code=409, detail="No puedes cambiar el rol de tu propia cuenta")
+    validar_catalogos(mi_sesion, usuario_dict)
 
     validar_datos_duplicados(
         mi_sesion,
@@ -194,9 +217,7 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesio
         usuario_dict["contrasena_u"] = encriptar_contrasena(usuario_dict["contrasena_u"])
 
     usuario.sqlmodel_update(usuario_dict)
-    mi_sesion.add(usuario)
-    mi_sesion.commit()
-    mi_sesion.refresh(usuario)
+    guardar_usuario(mi_sesion, usuario)
     return usuario
 
 
@@ -204,7 +225,10 @@ async def editar_usuario(id_usuario: int, datos_usuario: UsuarioEditar, mi_sesio
 # 7. ELIMINAR USUARIO
 # ==========================================
 @asis.delete("/{id_usuario}", response_model=UsuarioLeer, dependencies=[Depends(solo_admin)])
-async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_admin):
+async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_admin,
+                           admin: dict = Depends(solo_admin)):
+    if id_usuario == admin["id_usuario"]:
+        raise HTTPException(status_code=409, detail="No puedes eliminar tu propia cuenta")
     usuario = mi_sesion.get(Usuario, id_usuario)
 
     if not usuario:
@@ -214,6 +238,11 @@ async def eliminar_usuario(id_usuario: int, mi_sesion: Sesion_admin):
         )
 
     usuario_eliminado = UsuarioLeer.model_validate(usuario)
-    mi_sesion.delete(usuario)
-    mi_sesion.commit()
+    try:
+        # Ejecutar DELETE directamente para que los vínculos no se desvinculen por el ORM.
+        mi_sesion.exec(delete(Usuario).where(Usuario.id_usuario == id_usuario))
+        mi_sesion.commit()
+    except IntegrityError:
+        mi_sesion.rollback()
+        raise HTTPException(status_code=409, detail="No se puede eliminar el usuario porque tiene tickets, ambientes u otros registros vinculados.")
     return usuario_eliminado

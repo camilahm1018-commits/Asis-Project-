@@ -22,7 +22,7 @@ services:
       - ./base_de_datos/asis_permisos_roles.sql:/docker-entrypoint-initdb.d/03_permisos.sql:ro
       - ./base_de_datos/actualizar_claves_roles.sql:/opt/asis/actualizar_claves_roles.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d asisdb"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d asisdb"]
       interval: 5s
       timeout: 5s
       retries: 20

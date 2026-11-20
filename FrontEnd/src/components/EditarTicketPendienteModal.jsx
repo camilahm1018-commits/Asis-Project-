@@ -20,10 +20,14 @@ function EditarTicketPendienteModal({ ticket, onClose, onGuardado }) {
 
   async function handleGuardar(e) {
     e.preventDefault()
+    if (!equipoId || !motivo.trim()) {
+      setError('Selecciona un equipo y escribe el motivo.')
+      return
+    }
     setGuardando(true)
     setError('')
     try {
-      await editarTicket(ticket.id, { motivo, id_equipo: Number(equipoId) })
+      await editarTicket(ticket.id, { motivo: motivo.trim(), id_equipo: Number(equipoId) })
       onGuardado()
     } catch (err) {
       setError(err.message)

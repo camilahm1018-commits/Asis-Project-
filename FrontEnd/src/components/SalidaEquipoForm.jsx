@@ -64,7 +64,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
   async function handleEnviar(e) {
     e.preventDefault()
-    if (!ambienteId || !equipoId || !tipoSalida || !motivo) return
+    if (!ambienteId || !equipoId || !tipoSalida || !motivo.trim()) return
 
     setEnviando(true)
     setErrorEnvio('')
@@ -77,7 +77,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
         : buscarIdEstado('Trasladado')
 
       await crearTicket({
-        motivo,
+        motivo: motivo.trim(),
         id_equipo: Number(equipoId),
         tipo_salida: tipoSalida,
         id_motivo_novedad: idMotivoNovedad ? Number(idMotivoNovedad) : null,
@@ -217,7 +217,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             </div>
           )}
 
-          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !equipoId || !tipoSalida || !motivo || enviando}>
+          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !equipoId || !tipoSalida || !motivo.trim() || enviando}>
             {enviando ? 'Registrando...' : 'Registrar Salida'}
           </button>
         </div>

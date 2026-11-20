@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme.js';
-import useAutoLogout from '../hooks/useAutoLogout.js';
 import { useNotificaciones } from '../hooks/useNotificaciones.js';
 import '../styles/panelAdmin.css';
 
@@ -39,7 +38,6 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
     return () => window.removeEventListener('usuario-actualizado', refrescar);
   }, []);
 
-  // 👉 USAR EL HOOK DE NOTIFICACIONES
   const { notificaciones, noLeidasCount, marcarComoLeida } = useNotificaciones(usuario?.id_usuario);
 
   const handleLogout = () => {
@@ -77,11 +75,12 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
         <header className="panel-admin__topbar">
           <p className="panel-admin__topbar-title">{title}</p>
           <div className="panel-admin__topbar-user">
-            
-            {/* 🔔 CAMPANITA DE NOTIFICACIONES */}
             <div className="notification-container">
               <button 
-                className="notification-bell-btn" 
+                className="notification-bell-btn"
+                type="button"
+                aria-label="Ver notificaciones"
+                aria-expanded={mostrarNotificaciones}
                 onClick={() => setMostrarNotificaciones(!mostrarNotificaciones)}
                 title="Ver notificaciones"
               >
@@ -105,17 +104,18 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
                     {notificaciones.length === 0 ? (
                       <p className="no-notifications">No tienes notificaciones</p>
                     ) : (
-                      notificaciones.slice(0, 5).map((notif) => ( // Muestra max 5
-                        <div 
+                      notificaciones.map((notif) => (
+                        <button
+                          type="button"
                           key={notif.id_notificacion} 
                           className={`notification-item ${!notif.enviada ? 'unread' : ''}`}
-                          onClick={() => marcarComoLeida(notif.id_notificacion)}
+                          onClick={() => !notif.enviada && marcarComoLeida(notif.id_notificacion)}
                         >
-                          <p className="notif-message">{notif.mensaje}</p>
+                          <span className="notif-message">{notif.mensaje}</span>
                           <span className="notif-date">
                             {new Date(notif.fecha_envio).toLocaleString()}
                           </span>
-                        </div>
+                        </button>
                       ))
                     )}
                   </div>

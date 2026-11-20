@@ -68,10 +68,14 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMensajeError('')
+    if (!correo.trim() || !contrasena.trim()) {
+      setMensajeError('Ingresa tu correo y contraseña.')
+      return
+    }
     setCargando(true)
 
     try {
-      const data = await login(correo, contrasena)
+      const data = await login(correo.trim(), contrasena)
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('usuario', JSON.stringify(data))
 

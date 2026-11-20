@@ -6,11 +6,13 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlmodel import Session, select
 from conexion_db import motor_auth
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
 from Modelos.tipo_documento import Tipo_identificacion
+from Modelos.validacion import TextoObligatorio
 from seguridad import (
     verificar_contrasena, crear_token, verificar_token,
     encriptar_contrasena, crear_token_proposito, verificar_token_proposito
@@ -30,7 +32,7 @@ async def login(
 
     with Session(motor_auth) as sesion:
 
-        usuario = sesion.exec(select(Usuario).where(Usuario.correo_u == form_data.username)).first()
+        usuario = sesion.exec(select(Usuario).where(func.lower(Usuario.correo_u) == form_data.username.strip().lower())).first()
 
         if not usuario:
 
@@ -218,10 +220,10 @@ async def actualizar_mi_perfil(
 # el link para que cree su contraseña.
 
 class ConfirmarDatosBody(BaseModel):
-    numero_documento: str
-    nombres: str
-    apellidos: str
-    correo: str
+    numero_documento: TextoObligatorio
+    nombres: TextoObligatorio
+    apellidos: TextoObligatorio
+    correo: TextoObligatorio
 
 
 MENSAJE_CONFIRMACION_GENERICO = (
@@ -270,24 +272,25 @@ async def confirmar_datos(datos: ConfirmarDatosBody):
 
 
 class ActivarCuentaBody(BaseModel):
-    token: str
+    token: TextoObligatorio
     nueva_contrasena: str
 
 
 @asis.post("/activar-cuenta")
 async def activar_cuenta(datos: ActivarCuentaBody):
 
-    if len(datos.nueva_contrasena) < 12:
+    if len(datos.nueva_contrasena.strip()) < 12:
         raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
 
     id_usuario = verificar_token_proposito(datos.token, "activacion")
 
     with Session(motor_auth) as sesion:
 
-        usuario = sesion.get(Usuario, id_usuario)
-
-        if not usuario:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario no encontrado")
+        usuario = sesion.exec(
+            select(Usuario).where(Usuario.id_usuario == id_usuario).with_for_update()
+        ).first()
+        if not usuario or usuario.activo:
+            raise HTTPException(status_code=400, detail="El enlace ya se utilizó o la cuenta no está disponible")
 
         usuario.contrasena_u = encriptar_contrasena(datos.nueva_contrasena)
         usuario.activo = True
@@ -303,7 +306,7 @@ async def activar_cuenta(datos: ActivarCuentaBody):
 # ==========================================
 
 class SolicitarRecuperacionBody(BaseModel):
-    correo: str
+    correo: TextoObligatorio
 
 
 @asis.post("/solicitar-recuperacion")
@@ -312,7 +315,7 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
     with Session(motor_auth) as sesion:
 
         usuario = sesion.exec(
-            select(Usuario).where(Usuario.correo_u == datos.correo)
+            select(Usuario).where(func.lower(Usuario.correo_u) == datos.correo.lower())
         ).first()
 
         if usuario and usuario.activo:
@@ -329,14 +332,14 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
 
 
 class RestablecerContrasenaBody(BaseModel):
-    token: str
+    token: TextoObligatorio
     nueva_contrasena: str
 
 
 @asis.post("/restablecer-contrasena")
 async def restablecer_contrasena(datos: RestablecerContrasenaBody):
 
-    if len(datos.nueva_contrasena) < 12:
+    if len(datos.nueva_contrasena.strip()) < 12:
         raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
 
     id_usuario = verificar_token_proposito(datos.token, "recuperacion")

@@ -7,7 +7,7 @@ const Contactanos = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
-    categoria: 'Problemas de acceso', // Valor por defecto
+    categoria: '', // Valor por defecto
     mensaje: ''
   });
 
@@ -21,14 +21,19 @@ const Contactanos = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const datos = Object.fromEntries(Object.entries(formData).map(([campo, valor]) => [campo, valor.trim()]));
+    if (Object.values(datos).some((valor) => !valor)) {
+      setError('Completa el nombre, correo, categoría y mensaje.');
+      return;
+    }
     setCargando(true);
     setError('');
     setEnviado(false);
 
     try {
-      await api.post('/contacto/', formData);
+      await api.post('/contacto/', datos);
       setEnviado(true);
-      setFormData({ nombre: '', correo: '', categoria: 'Problemas de acceso', mensaje: '' });
+      setFormData({ nombre: '', correo: '', categoria: '', mensaje: '' });
       setTimeout(() => setEnviado(false), 3000);
     } catch (err) {
       setError(err.response?.data?.detail || 'Error al enviar el mensaje.');
@@ -82,6 +87,7 @@ const Contactanos = () => {
             <div className="input-wrapper">
               <span className="input-icon">📌</span>
               <select id="categoria" value={formData.categoria} onChange={handleChange} required disabled={cargando}>
+                <option value="">Selecciona una categoría</option>
                 <option value="Problemas de acceso">🔑 Problemas de acceso</option>
                 <option value="Dudas sobre la aplicación">❓ Dudas sobre la aplicación</option>
                 <option value="Reportar un error">🐛 Reportar un error</option>
