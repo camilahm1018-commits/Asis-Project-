@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlmodel import text
 from sesiones_roles import Sesion_por_rol
 from seguridad import verificar_token, solo_gestion_tickets, solo_admin
@@ -102,7 +102,47 @@ async def historial_equipo(
         for r in resultado
     ]
 
+@asis.get("/historial-equipos")
+async def historial_equipos(
+    sesion: Sesion_por_rol,
+    buscar: str | None = None,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    usuario_actual: dict = Depends(verificar_token)
+):
+    rol = usuario_actual["rol"]
+    ver_responsable = rol in ("administrador", "administrador_mesa_ayuda")
+    patron = f"%{buscar.strip()}%" if buscar and buscar.strip() else None
 
+    resultado = sesion.exec(
+        text("""
+            SELECT serial, equipo, codigo, motivo, fecha,
+            accion, observacion, estado_resultante, realizado_por
+            FROM vista_historial_equipo
+            WHERE (:patron IS NULL
+                   OR serial ILIKE :patron
+                   OR equipo ILIKE :patron
+                   OR codigo ILIKE :patron)
+            ORDER BY fecha DESC
+            LIMIT :limit OFFSET :offset
+        """),
+        params={"patron": patron, "limit": limit, "offset": offset}
+    ).all()
+
+    return [
+        {
+            "serial": r[0],
+            "equipo": r[1],
+            "codigo": r[2],
+            "motivo": r[3],
+            "fecha": str(r[4]),
+            "accion": r[5],
+            "observacion": r[6],
+            "estado_resultante": r[7],
+            "realizado_por": r[8] if ver_responsable else None,
+        }
+        for r in resultado
+    ]
 @asis.get("/historial-usuario/{id_usuario}", dependencies=[Depends(solo_admin)])
 async def historial_usuario(id_usuario: int, sesion: Sesion_por_rol):
     resultado = sesion.exec(

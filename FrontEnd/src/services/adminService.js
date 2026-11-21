@@ -292,6 +292,22 @@ export const obtenerHistorialEquipoPorSerial = async (serial) => {
     lanzarError(error, 'No se pudo obtener el historial de ese equipo');
   }
 };
+export async function obtenerHistorialGeneral({ buscar = '', limit = 50, offset = 0 } = {}) {
+  try {
+    const { data } = await api.get(`/dashboard/historial-equipos`, {
+      ...getAuthHeaders(),
+      params: {
+        buscar: buscar || undefined,
+        limit,
+        offset
+      }
+    });
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener el historial general');
+  }
+};
+
 
 export const crearTicket = async (datosTicket, imagen = null) => {
   try {

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
-
+import HistorialGeneralEquipos from './pages/HistorialGeneralEquipos.jsx'
+import { navItemsCuentadante } from './pages/Cuentadante/navItems.js'
 // Auth
 import Login from './pages/Login.jsx'
 import Registrarse from './pages/Registrarse.jsx'
@@ -49,6 +50,7 @@ import PanelCuentadante from './pages/Cuentadante/PanelCuentadante.jsx'
 import InventarioCuentadante from './pages/Cuentadante/InventarioCuentadante.jsx'
 import AmbientesCuentadante from './pages/Cuentadante/AmbientesCuentadante.jsx'
 import HistorialEquiposCuentadante from './pages/Cuentadante/HistorialEquiposCuentadante.jsx'
+
 import ReportesCuentadante from './pages/Cuentadante/ReportesCuentadante.jsx'
 import RegistrarSalidaCuentadante from './pages/Cuentadante/RegistrarSalidaCuentadante.jsx'
 import RegistrarSalidaAdministrador from './pages/Administrador/RegistrarSalidaAdministrador.jsx'
@@ -113,6 +115,7 @@ function App() {
         <Route path="/cuentadante/ambientes" element={<ProtectedRoute roles={['cuentadante']}><AmbientesCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/salida" element={<ProtectedRoute roles={['cuentadante']}><RegistrarSalidaCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/mis-reportes" element={<ProtectedRoute roles={['cuentadante']}><MisTicketsCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/historial-general" element={<ProtectedRoute roles={['cuentadante']}><HistorialGeneralEquipos rol="cuentadante" sidebarLabel="Cuentadante" navItems={navItemsCuentadante} /></ProtectedRoute>} />
         <Route path="/cuentadante/historial" element={<ProtectedRoute roles={['cuentadante']}><HistorialEquiposCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/reportes" element={<ProtectedRoute roles={['cuentadante']}><ReportesCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/perfil" element={<ProtectedRoute roles={['cuentadante']}><PerfilCuentadante /></ProtectedRoute>} />
