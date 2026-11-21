@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime, date
 from typing import Optional
+from pydantic import field_validator
+from Modelos.validacion import TextoObligatorio
 
 
 class TicketsBase(SQLModel):
@@ -33,7 +35,15 @@ class TicketsCrear(TicketsBase):
     pass
 
 class TicketsEditar(SQLModel):
-    motivo: Optional[str] = None
+    motivo: TextoObligatorio | None = None
+
+    @field_validator("motivo")
+    @classmethod
+    def validar_motivo(cls, valor):
+        if valor is None:
+            raise ValueError("El motivo es obligatorio")
+        return valor
+
     fecha_salida: Optional[datetime] = None
     fecha_retorno: Optional[datetime] = None
     atendido: Optional[bool] = None
@@ -47,3 +57,4 @@ class TicketsEditar(SQLModel):
 
 class TicketsLeer(TicketsBase):
     id_ticket: int
+    puede_registrar_entrada: bool = False

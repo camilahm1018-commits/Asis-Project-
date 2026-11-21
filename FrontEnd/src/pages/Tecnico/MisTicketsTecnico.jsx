@@ -3,16 +3,22 @@ import { API_BASE_URL } from '../../services/api.js';
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
+import RegistrarEntradaBoton from '../../components/RegistrarEntradaBoton.jsx';
+import RegistrarEntradaModal from '../../components/RegistrarEntradaModal.jsx';
 import { navItemsTecnico } from './navItems.js';
 import {
   listarTicketsAdministrador, listarEstadosTicket, listarTiposEquipo,
-  actualizarEstadoTicketConHistorial, editarTicket, crearNotificacion, obtenerUsuarioActual,
+  actualizarEstadoTicketConHistorial, obtenerUsuarioActual,
 } from '../../services/adminService.js';
 
 const accionesSugeridas = [
   'Diagnóstico inicial', 'Reparación de hardware', 'Reinstalación de software',
   'Configuración de red', 'Reemplazo de componente', 'Mantenimiento preventivo', 'Ticket resuelto',
 ];
+
+function esEstadoEntregado(nombre) {
+  return nombre?.trim().toLowerCase() === 'entregado en ambiente';
+}
 
 function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
   const [idEstado, setIdEstado] = useState('');
@@ -21,12 +27,24 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
   const [marcarAtendido, setMarcarAtendido] = useState(ticket.atendido);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
+  const [registrarEntrada, setRegistrarEntrada] = useState(false);
+  const estadoElegido = estados.find((es) => String(es.id_estado) === idEstado);
 
-    async function handleGuardar(e) {
+  function seleccionarEstado(e) {
+    const valor = e.target.value;
+    const seleccionado = estados.find((es) => String(es.id_estado) === valor);
+    if (esEstadoEntregado(seleccionado?.nombre_e)) {
+      if (ticket.puedeRegistrarEntrada && !guardando) setRegistrarEntrada(true);
+      return;
+    }
+    setIdEstado(valor);
+  }
+
+  async function handleGuardar(e) {
     e.preventDefault();
     
     // 1. Validación estricta: asegurar que se haya seleccionado un estado
-    if (!idEstado || !accion) {
+    if (!estadoElegido || !accion) {
       setError('Selecciona el nuevo estado y la acción realizada.');
       return;
     }
@@ -36,16 +54,9 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
     try {
       const usuarioActual = obtenerUsuarioActual();
       
-      // Buscar el estado seleccionado para obtener su nombre
-      const estadoElegido = estados.find((es) => String(es.id_estado) === String(idEstado));
-
-      if (!estadoElegido) {
-        throw new Error("Estado no válido seleccionado.");
-      }
-
       // 2. Actualizar estado e historial (enviando números explícitos)
       await actualizarEstadoTicketConHistorial(ticket.id, {
-        idEstado: Number(idEstado), 
+        idEstado: estadoElegido.id_estado,
         atendido: marcarAtendido,
         accion: accion,
         observacion: observacion || '',
@@ -53,24 +64,6 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
         idUsuario: usuarioActual?.id_usuario,
       });
 
-      // 3. Si se marca como atendido, registrar fecha de retorno y notificar
-      if (marcarAtendido) {
-        await editarTicket(ticket.id, { fecha_retorno: new Date().toISOString() });
-      try {  
-          await crearNotificacion({
-          canal: 'app',
-          mensaje: `Tu ticket #${ticket.id} fue atendido y quedó en estado "${estadoElegido.nombre_e}".`,
-          enviada: false,
-          id_ticket: ticket.id,
-          notificado_para: ticket.idCreadoPor,
-          notificado_por: usuarioActual?.id_usuario,
-        });
-        } catch (notifError) {
-        console.warn("⚠️ Notificación no enviada:", notifError);
-        }
-      }
-
-    
       onGuardado();
     } catch (err) {
       console.error("Error al actualizar:", err);
@@ -78,6 +71,16 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
     } finally {
       setGuardando(false);
     }
+  }
+
+  if (registrarEntrada) {
+    return (
+      <RegistrarEntradaModal
+        ticket={ticket}
+        onCancelar={() => setRegistrarEntrada(false)}
+        onRegistrada={onGuardado}
+      />
+    );
   }
 
   return (
@@ -96,13 +99,18 @@ function ModalActualizarTicket({ ticket, estados, onClose, onGuardado }) {
             {error && <p className="pa-error" style={{ padding: 0, textAlign: 'left', marginBottom: 16 }}>{error}</p>}
             
             <div className="pa-form-field">
-              <label>Nuevo Estado</label>
-              <select className="pa-select" value={idEstado} onChange={(e) => setIdEstado(e.target.value)} required>
+              <label htmlFor="tecnico-nuevo-estado">Nuevo Estado</label>
+              <select id="tecnico-nuevo-estado" className="pa-select" value={idEstado} onChange={seleccionarEstado} disabled={guardando} required>
                 <option value="">Seleccionar...</option>
                 {estados.map((es) => (
-                  <option key={es.id_estado} value={es.id_estado}>{es.nombre_e}</option>
+                  <option key={es.id_estado} value={es.id_estado} disabled={esEstadoEntregado(es.nombre_e) && !ticket.puedeRegistrarEntrada}>
+                    {es.nombre_e}
+                  </option>
                 ))}
               </select>
+              {!ticket.puedeRegistrarEntrada && (
+                <small>La opción «Entregado en ambiente» se habilita cuando la reparación está lista para devolver.</small>
+              )}
             </div>
             
             <div className="pa-form-field">
@@ -304,19 +312,21 @@ function MisTicketsTecnico() {
               </div>
             )}
               
-              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(27,112,166,0.15)', paddingTop: 12 }}>
-                <button
-                  type="button"
-                  className="pa-btn-primary"
-                  style={{ padding: '8px 16px', fontSize: 13, borderRadius: '8px' }}
-                  onClick={(e) => { 
-                    e.stopPropagation();
-                    setActualizando(t); 
-                  }}
-                >
-                  ⚙️ Actualizar estado
-                </button>
-              </div>
+              {!esEstadoEntregado(t.estado) && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 8, borderTop: '1px solid rgba(27,112,166,0.15)', paddingTop: 12 }}>
+                  <button
+                    type="button"
+                    className="pa-btn-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActualizando(t);
+                    }}
+                  >
+                    ⚙️ Actualizar estado
+                  </button>
+                  <RegistrarEntradaBoton ticket={t} onRegistrada={cargar} />
+                </div>
+              )}
             </div>
           ))}
           

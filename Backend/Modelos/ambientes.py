@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING
+from pydantic import Field as Regla, StringConstraints, field_validator
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
@@ -6,10 +7,13 @@ if TYPE_CHECKING:
     from Modelos.Usuarios import Usuario
 
 
+NombreAmbiente = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+
+
 class AmbienteBase(SQLModel):
 
-    nombre_a: str
-    ubicacion: str
+    nombre_a: NombreAmbiente
+    ubicacion: NombreAmbiente
     capacidad_equipos: int | None = None
     estado: str = "activo"
     descripcion: str | None = None
@@ -40,10 +44,20 @@ class Ambiente(AmbienteBase, table=True):
 
 class AmbienteCrear(AmbienteBase):
 
-    id_ambiente: int
+    id_ambiente: Annotated[int, Regla(ge=1)]
+    capacidad_equipos: Annotated[int, Regla(ge=0)] | None = None
 
 class AmbienteEditar(AmbienteBase):
-    pass
+    nombre_a: NombreAmbiente | None = None
+    ubicacion: NombreAmbiente | None = None
+    capacidad_equipos: Annotated[int, Regla(ge=0)] | None = None
+
+    @field_validator("nombre_a", "ubicacion")
+    @classmethod
+    def no_admitir_nulos(cls, valor):
+        if valor is None:
+            raise ValueError("El campo no puede quedar vacío")
+        return valor
 
 class AmbienteLeer(AmbienteBase):
 

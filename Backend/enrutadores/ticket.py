@@ -1,7 +1,7 @@
 import os
 import shutil
 from fastapi import APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form, Depends
-from Modelos.tickets import tickets, TicketsEditar
+from Modelos.tickets import tickets, TicketsEditar, TicketsLeer
 from Modelos.esquemas_asignacion import AsignacionSchema
 from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
@@ -12,6 +12,10 @@ from Modelos.asig_tec import Asig_tec
 from Modelos.His_tickets import His_ticket
 from Modelos.mobiliario import Mobiliario, TipoMobiliario 
 from datetime import datetime, date
+from Modelos.notificaciones import Notificacion
+from Modelos.validacion import TextoObligatorio
+from sqlalchemy import delete, func
+from sqlalchemy.exc import IntegrityError
 from enrutadores.asig_tec import (
     registrar_asignacion,
     _enviar_notificacion_asignacion
@@ -21,11 +25,16 @@ from sqlmodel import Session, select
 from seguridad import verificar_token, solo_admin, solo_gestion_tickets
 from servicios.correo import enviar_correo_notificacion, enviar_correo_cambio_estado
 from servicios.validaciones_roles import validar_tecnico_activo
-from servicios.acceso_tickets import consulta_tickets_permitidos
+from servicios.notificaciones_ticket import avisar_evento_ticket
+from servicios.acceso_tickets import (
+    ESTADO_ENTREGADO,
+    consulta_tickets_permitidos,
+    equipos_del_cuentadante,
+    nombre_normalizado,
+    restringir_entrada,
+)
 from sesiones_roles import Sesion_por_rol
-from typing import Optional
-from pydantic import BaseModel
-from datetime import datetime
+from typing import Annotated, Optional
 
 asis = APIRouter(
     prefix="/tickets",
@@ -33,12 +42,26 @@ asis = APIRouter(
     dependencies=[Depends(verificar_token)]
 )
 
-@asis.get("/", response_model=list[tickets])
+@asis.get("/", response_model=list[TicketsLeer])
 async def listar_tickets(
     session: Sesion_por_rol,
     usuario_actual: dict = Depends(verificar_token)
 ):
-    return session.exec(consulta_tickets_permitidos(usuario_actual)).all()
+    visibles = session.exec(consulta_tickets_permitidos(usuario_actual)).all()
+    if not visibles:
+        return []
+    estados = dict(session.exec(select(estados_ticket.id_estado, estados_ticket.nombre_e)).all())
+    propios = set()
+    if usuario_actual["rol"] == "cuentadante":
+        propios = set(session.exec(equipos_del_cuentadante(usuario_actual["id_usuario"])).all())
+    return [
+        TicketsLeer.model_validate(ticket, update={
+            "puede_registrar_entrada": restringir_entrada(
+                ticket, estados.get(ticket.id_estado, ""), usuario_actual, ticket.id_equipo in propios
+            ) is None
+        })
+        for ticket in visibles
+    ]
 
 
 @asis.get("/{id}", response_model=tickets)
@@ -63,9 +86,9 @@ async def listar_tickets_id(
 async def crear_ticket(
     session: Sesion_por_rol,
     background_tasks: BackgroundTasks,
-    motivo: str = Form(...),
-    tipo_salida: str = Form(...),
+    motivo: Annotated[TextoObligatorio, Form()],
     id_equipo: Optional[int] = Form(default=None),
+    tipo_salida: str = Form(...),
     id_mobiliario: Optional[int] = Form(default=None),
     id_motivo_novedad: Optional[int] = Form(default=None),
     id_estado: Optional[int] = Form(default=None),
@@ -157,8 +180,12 @@ async def crear_ticket(
             raise HTTPException(status_code=500, detail="Estado inicial no configurado")
         id_estado = estado.id_estado
         atendido = False
-    elif id_estado is None or session.get(estados_ticket, id_estado) is None:
-        raise HTTPException(status_code=422, detail="Selecciona un estado válido")
+    else:
+        estado = session.get(estados_ticket, id_estado) if id_estado is not None else None
+        if estado is None:
+            raise HTTPException(status_code=422, detail="Selecciona un estado válido")
+        if nombre_normalizado(estado.nombre_e) == nombre_normalizado(ESTADO_ENTREGADO):
+            raise HTTPException(status_code=409, detail="Primero registra la salida y luego confirma la entrada")
 
     extension = None
     if imagen and imagen.filename:
@@ -232,7 +259,9 @@ async def editar_ticket(
     background_tasks: BackgroundTasks,
     usuario_actual: dict = Depends(verificar_token)
 ):
-    tik_bd = session.get(tickets, id)
+    tik_bd = session.exec(
+        select(tickets).where(tickets.id_ticket == id).with_for_update()
+    ).first()
     if not tik_bd:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -240,6 +269,7 @@ async def editar_ticket(
         )
     
     estado_anterior = tik_bd.id_estado
+    atendido_antes = tik_bd.atendido
     
     tik_dict = datos_tik.model_dump(exclude_unset=True)
 
@@ -271,11 +301,7 @@ async def editar_ticket(
                 detail="Este ticket no está asignado a ti"
             )
 
-        campos_permitidos = {
-            "id_estado",
-            "atendido",
-            "fecha_retorno"
-        }
+        campos_permitidos = {"id_estado", "atendido"}
 
     # Instructor: solamente puede editar un reporte
     # propio que todavía esté pendiente y sin técnico.
@@ -321,6 +347,19 @@ async def editar_ticket(
             )
         )
 
+    if {"id_estado", "atendido", "fecha_retorno"} & tik_dict.keys():
+        estado_actual = session.get(estados_ticket, tik_bd.id_estado)
+        entregado = nombre_normalizado(ESTADO_ENTREGADO)
+        if estado_actual and nombre_normalizado(estado_actual.nombre_e) == entregado:
+            raise HTTPException(status_code=409, detail="La entrada de este ticket ya está registrada")
+        if "id_estado" in tik_dict:
+            id_estado = tik_dict["id_estado"]
+            estado_destino = session.get(estados_ticket, id_estado) if id_estado is not None else None
+            if estado_destino is None:
+                raise HTTPException(status_code=422, detail="Selecciona un estado válido")
+            if nombre_normalizado(estado_destino.nombre_e) == entregado:
+                raise HTTPException(status_code=409, detail="Usa Registrar entrada para confirmar la devolución")
+
     # Aplicar únicamente las modificaciones autorizadas.
     tik_bd.sqlmodel_update(tik_dict)
     session.add(tik_bd)
@@ -328,12 +367,15 @@ async def editar_ticket(
     session.refresh(tik_bd)
     
     estado_nuevo = tik_bd.id_estado
-    if estado_nuevo != estado_anterior:
+    se_atendio = tik_bd.atendido and not atendido_antes
+    if estado_nuevo != estado_anterior or se_atendio:
         background_tasks.add_task(
             _enviar_notificacion_cambio_estado,
             tik_bd.id_ticket,
             estado_anterior,
-            estado_nuevo
+            estado_nuevo,
+            id_usuario,
+            se_atendio,
         )
     
     return tik_bd
@@ -421,30 +463,44 @@ async def desasignar_tecnico(
 
 # Devolución de un equipo al ambiente (RF-007 / RF-010).
 
-class RegistroEntrada(BaseModel):
-    id_estado_entregado: int
-    id_usuario_actual: int | None = None  # compatibilidad; el servidor usa el JWT
-
-
 @asis.put("/{id}/registrar-entrada", response_model=tickets,dependencies=[Depends(solo_gestion_tickets)])
 async def registrar_entrada(
     id: int,
-    datos: RegistroEntrada,
     session: Sesion_por_rol,
     background_tasks: BackgroundTasks,
     usuario_actual: dict = Depends(verificar_token)
 ):
     with session.begin():
         ticket = session.exec(
-            select(tickets).where(tickets.id_ticket == id).with_for_update()
+            consulta_tickets_permitidos(usuario_actual)
+            .where(tickets.id_ticket == id)
+            .with_for_update(of=tickets)
         ).first()
         if ticket is None:
             raise HTTPException(status_code=404, detail="Ticket no encontrado")
-        estado = session.get(estados_ticket, datos.id_estado_entregado)
-        if estado is None or estado.nombre_e.strip().lower() != "entregado en ambiente":
-            raise HTTPException(status_code=422, detail="Estado de entrega no válido")
+
+        ambiente_propio = False
+        if usuario_actual["rol"] == "cuentadante":
+            ambiente_propio = session.exec(
+                equipos_del_cuentadante(usuario_actual["id_usuario"])
+                .where(Equipo.id_equipo == ticket.id_equipo)
+            ).first() is not None
+        estado_actual = session.get(estados_ticket, ticket.id_estado)
+        restriccion = restringir_entrada(
+            ticket, estado_actual.nombre_e if estado_actual else "", usuario_actual, ambiente_propio
+        )
+        if restriccion:
+            raise HTTPException(status_code=restriccion[0], detail=restriccion[1])
+
+        estado_entregado = session.exec(
+            select(estados_ticket).where(
+                func.lower(func.trim(estados_ticket.nombre_e)) == ESTADO_ENTREGADO.lower()
+            ).order_by(estados_ticket.id_estado)
+        ).first()
+        if estado_entregado is None:
+            raise HTTPException(status_code=500, detail="Configura el estado Entregado en ambiente")
         estado_anterior = ticket.id_estado
-        ticket.id_estado = datos.id_estado_entregado
+        ticket.id_estado = estado_entregado.id_estado
         ticket.atendido = True
         ticket.fecha_retorno = datetime.now()
         session.add(ticket)
@@ -453,13 +509,13 @@ async def registrar_entrada(
             id_usuario=usuario_actual["id_usuario"],
             accion="Registrar entrada de equipo",
             observacion="Equipo devuelto al ambiente",
-            estado_resultante="Entregado en ambiente"
+            estado_resultante=ESTADO_ENTREGADO,
         ))
     session.refresh(ticket)
-    if estado_anterior != ticket.id_estado:
-        background_tasks.add_task(
-            _enviar_notificacion_cambio_estado, id, estado_anterior, ticket.id_estado
-        )
+    background_tasks.add_task(
+        _enviar_notificacion_cambio_estado, id, estado_anterior, ticket.id_estado,
+        usuario_actual["id_usuario"],
+    )
     return ticket
 
 
@@ -472,8 +528,13 @@ async def eliminar_ticket(id: int, session: Sesion_por_rol):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El ticket con ID {id} no existe."
         )
-    session.delete(tik_bd)
-    session.commit()
+    try:
+        session.exec(delete(Notificacion).where(Notificacion.id_ticket == id))
+        session.delete(tik_bd)
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="El ticket tiene historial o asignaciones vinculadas.")
     return tik_bd
 
 def _item_y_ambiente(sesion, ticket):
@@ -525,42 +586,108 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 return
 
             creador = sesion.get(Usuario, ticket.creado_por)
-            destinatarios = []
+            responsables = sesion.exec(
+                select(Usuario, Rol.nombre_rol)
+                .join(Rol, Usuario.id_rol == Rol.id_rol)
+                .where(
+                    Rol.nombre_rol.in_(
+                        ("administrador", "administrador_mesa_ayuda")
+                    )
+                )
+            ).all()
 
-            # Cuentadante del ambiente de origen y, si es traslado, también el del destino
+            # Cuentadantes del ambiente de origen y del destino
+            cuentadantes = []
+
             for amb in (ambiente_origen, ambiente_destino):
                 if amb is not None and amb.id_cuentadante:
-                    cuentadante = sesion.get(Usuario, amb.id_cuentadante)
-                    if cuentadante and cuentadante.correo_u:
-                        destinatarios.append(cuentadante.correo_u)
+                    c = sesion.get(Usuario, amb.id_cuentadante)
 
-            admins = sesion.exec(
-                select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
-                .where(Rol.nombre_rol == "administrador_mesa_ayuda")
-            ).all()
-            for admin in admins:
-                if admin.correo_u:
-                    destinatarios.append(admin.correo_u)
+                    if (
+                        c is not None
+                        and all(
+                            c.id_usuario != x.id_usuario
+                            for x in cuentadantes
+                        )
+                    ):
+                        cuentadantes.append(c)
 
-            if ticket.asignado_a:
-                tec_asignado = sesion.get(Usuario, ticket.asignado_a)
-                if tec_asignado and tec_asignado.correo_u:
-                    destinatarios.append(tec_asignado.correo_u)
-                    
-            # Préstamo: se avisa también al instructor que recibe el elemento
-            nombre_prestatario = None
-            if ticket.id_instructor_prestamo:
-                prestatario = sesion.get(Usuario, ticket.id_instructor_prestamo)
-                if prestatario:
-                    nombre_prestatario = f"{prestatario.nombre_u} {prestatario.apellidos_u}"
-                    if prestatario.correo_u:
-                        destinatarios.append(prestatario.correo_u)
+            # Técnico asignado
+            tecnico = (
+                sesion.get(Usuario, ticket.asignado_a)
+                if ticket.asignado_a else None
+            )
 
-            destinatarios = list(set(destinatarios))
+            # Instructor que recibe el préstamo
+            prestatario = (
+                sesion.get(Usuario, ticket.id_instructor_prestamo)
+                if ticket.id_instructor_prestamo else None
+            )
 
-            if creador and creador.correo_u in destinatarios:
-                destinatarios.remove(creador.correo_u)
+            nombre_prestatario = (
+                f"{prestatario.nombre_u} {prestatario.apellidos_u}"
+                if prestatario else None
+            )
 
+            # Notificación interna de ASIS
+            mensaje_app = (
+                f"ASIS: se registró el ticket #{id_ticket}. "
+                "Consulta el detalle en ASIS."
+            )
+
+            if ambiente_destino is not None:
+                mensaje_app = (
+                    f"ASIS: traslado en el ticket #{id_ticket}: "
+                    f"{ambiente_origen.nombre_a} → "
+                    f"{ambiente_destino.nombre_a}. "
+                    "Consulta el detalle en ASIS."
+                )
+            elif nombre_prestatario:
+                mensaje_app = (
+                    f"ASIS: préstamo registrado en el ticket #{id_ticket}. "
+                    "Consulta el detalle en ASIS."
+                )
+
+            # Evitar usuarios repetidos en las notificaciones
+            usuarios_aviso = {}
+
+            usuarios_notificacion = (
+                [u for u, _ in responsables]
+                + cuentadantes
+                + [tecnico, prestatario]
+            )
+
+            for usuario in usuarios_notificacion:
+                if (
+                    usuario is not None
+                    and usuario.id_usuario != ticket.creado_por
+                ):
+                    usuarios_aviso[usuario.id_usuario] = usuario
+
+            avisar_evento_ticket(
+                sesion,
+                id_ticket,
+                ticket.creado_por,
+                list(usuarios_aviso.values()),
+                mensaje_app,
+            )
+
+            # Correos: mesa de ayuda, cuentadantes, técnico y prestatario
+            mesa = [
+                u
+                for u, nombre_rol in responsables
+                if nombre_rol == "administrador_mesa_ayuda"
+            ]
+
+            destinatarios = list({
+                u.correo_u
+                for u in mesa + cuentadantes + [tecnico, prestatario]
+                if (
+                    u is not None
+                    and u.correo_u
+                    and u.id_usuario != ticket.creado_por
+                )
+            })
             if not destinatarios:
                 print(f"No hay correos válidos para el ticket {id_ticket}")
                 return
@@ -597,7 +724,10 @@ def _enviar_notificacion_creacion(id_ticket: int):
 # ==========================================
 #  FUNCIÓN: NOTIFICAR CAMBIO DE ESTADO
 # ==========================================
-def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, estado_nuevo: int):
+def _enviar_notificacion_cambio_estado(
+    id_ticket: int, estado_anterior: int, estado_nuevo: int, id_autor: int,
+    se_atendio: bool = False,
+):
     try:
         with Session(motor_admin) as sesion:
             ticket = sesion.get(tickets, id_ticket)
@@ -618,18 +748,16 @@ def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, est
             color_estado_nuevo = estado_nue.color if estado_nue else "#333"
 
             creador = sesion.get(Usuario, ticket.creado_por)
-            destinatarios = []
 
-            if ambiente.id_cuentadante:
-                cuentadante = sesion.get(Usuario, ambiente.id_cuentadante)
-                if cuentadante and cuentadante.correo_u:
-                    destinatarios.append(cuentadante.correo_u)
-
-            if creador and creador.correo_u:
-                destinatarios.append(creador.correo_u)
-
-            destinatarios = list(set(destinatarios))
-
+            cuentadante = sesion.get(Usuario, ambiente.id_cuentadante) if ambiente.id_cuentadante else None
+            mensaje = (
+                f"ASIS: el ticket #{id_ticket} fue atendido."
+                if se_atendio
+                else f"ASIS: el ticket #{id_ticket} cambió de estado."
+            )
+            avisar_evento_ticket(sesion, id_ticket, id_autor, [creador, cuentadante], mensaje)
+            destinatarios = list({u.correo_u for u in (creador, cuentadante)  if u is not None and u.correo_u})
+            
             if not destinatarios:
                 print(f" No hay correos válidos para notificar cambio de estado del ticket {id_ticket}")
                 return

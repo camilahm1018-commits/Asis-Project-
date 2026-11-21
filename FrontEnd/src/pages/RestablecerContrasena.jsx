@@ -16,10 +16,10 @@ function RestablecerContrasena() {
   async function handleRestablecer(e) {e.preventDefault();setError('');setExito(false);
 
     // Validaciones
-    if (!token) {setError('El token es requerido');
+    if (!token.trim()) {setError('El token es requerido');
       return;
     }
-    if (nuevaContrasena.length < 6) {setError('La contraseña debe tener al menos 6 caracteres');
+    if (nuevaContrasena.trim().length < 12) {setError('La contraseña debe tener al menos 12 caracteres');
       return;
     }
     if (nuevaContrasena !== confirmarContrasena) {setError('Las contraseñas no coinciden');
@@ -32,7 +32,7 @@ function RestablecerContrasena() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',},
-        body: JSON.stringify({token: token,nueva_contrasena: nuevaContrasena,
+        body: JSON.stringify({token: token.trim(),nueva_contrasena: nuevaContrasena,
         }),
       });
 
@@ -165,6 +165,7 @@ function RestablecerContrasena() {
             </label>
             <input
               type="password"
+              minLength={12}
               value={nuevaContrasena}
               onChange={(e) => setNuevaContrasena(e.target.value)}
               placeholder="••••••••"
@@ -196,6 +197,7 @@ function RestablecerContrasena() {
             </label>
             <input
               type="password"
+              minLength={12}
               value={confirmarContrasena}
               onChange={(e) => setConfirmarContrasena(e.target.value)}
               placeholder="••••••••"

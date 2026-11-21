@@ -159,7 +159,15 @@ GRANT UPDATE (contrasena_u, activo)
 ON TABLE public.usuarios
 TO asis_app_auth;
 
+-- "Mi Perfil" (PUT /auth/yo): el usuario edita solo sus datos de contacto.
+-- El correo, el documento y el rol NO se pueden cambiar desde acá.
+GRANT UPDATE (nombre_u, apellidos_u, telefono_u)
+ON TABLE public.usuarios
+TO asis_app_auth;
 
+-- El perfil (/auth/yo) muestra el tipo de documento del usuario
+GRANT SELECT ON TABLE public.tipo_identificacion
+TO asis_app_auth;
 -- =====================================================
 -- FIN DE CONFIGURACION INICIAL
 -- =====================================================

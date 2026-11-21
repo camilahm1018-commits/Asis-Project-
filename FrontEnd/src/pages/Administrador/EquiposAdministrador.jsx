@@ -62,14 +62,18 @@ function EquiposAdministrador() {
 
   async function handleRegistrar(e) {
     e.preventDefault();
+    if (!codigo.trim() || !nombre.trim() || !ambienteId || !tipoId) {
+      setErrorModal('Completa el código, nombre, ambiente y tipo del equipo.');
+      return;
+    }
     setErrorModal('');
     setGuardando(true);
     try {
       await crearEquipo({
-        codigo,
-        nombre,
-        marca,
-        serial,
+        codigo: codigo.trim(),
+        nombre: nombre.trim(),
+        marca: marca.trim() || null,
+        serial: serial.trim() || null,
         descripcion: '',
         estado: 'activo',
         id_ambiente: Number(ambienteId),
@@ -100,20 +104,20 @@ function EquiposAdministrador() {
                 <div className="pa-modal__row">
                   <div className="pa-form-field">
                     <label>Código</label>
-                    <input className="pa-input" value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="PC-L1-001" required />
+                    <input className="pa-input" maxLength={25} value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="PC-L1-001" required />
                   </div>
                   <div className="pa-form-field">
                     <label>Serial</label>
-                    <input className="pa-input" value={serial} onChange={(e) => setSerial(e.target.value)} placeholder="SN1234567" />
+                    <input className="pa-input" maxLength={100} value={serial} onChange={(e) => setSerial(e.target.value)} placeholder="SN1234567" />
                   </div>
                 </div>
                 <div className="pa-form-field">
                   <label>Nombre / Modelo</label>
-                  <input className="pa-input" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="PC Dell OptiPlex 3090" required />
+                  <input className="pa-input" maxLength={100} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="PC Dell OptiPlex 3090" required />
                 </div>
                 <div className="pa-form-field">
                   <label>Marca</label>
-                  <input className="pa-input" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Dell" />
+                  <input className="pa-input" maxLength={100} value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Dell" />
                 </div>
                 <div className="pa-form-field">
                   <label>Ambiente</label>

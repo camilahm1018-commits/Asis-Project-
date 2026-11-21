@@ -21,7 +21,7 @@ function RestablecerContrasena() {
     e.preventDefault()
     setError('')
 
-    if (!token) {
+    if (!token.trim()) {
       setError('Este link no trae un token válido. Solicita uno nuevo.')
       return
     }
@@ -67,7 +67,7 @@ function RestablecerContrasena() {
                     type="password"
                     id="contrasena"
                     required
-                    minLength={6}
+                    minLength={12}
                     value={contrasena}
                     onChange={(e) => setContrasena(e.target.value)}
                   />
@@ -79,7 +79,7 @@ function RestablecerContrasena() {
                     type="password"
                     id="confirmar"
                     required
-                    minLength={6}
+                    minLength={12}
                     value={confirmar}
                     onChange={(e) => setConfirmar(e.target.value)}
                   />

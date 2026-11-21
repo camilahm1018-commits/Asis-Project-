@@ -16,8 +16,9 @@ def test_tickets_rechaza_id_inyectado(cliente_qa, valor):
     cliente, _ = cliente_qa
     ruta = '/tickets/' + quote(valor, safe='')
     respuesta = cliente.get(ruta)
-    # FastAPI valida id: int, antes de acceder a PostgreSQL.
-    assert respuesta.status_code == 422, (
+    # Las barras decodificadas crean segmentos adicionales y la ruta no coincide.
+    esperado = 404 if "/" in valor else 422
+    assert respuesta.status_code == esperado, (
         f'ID no entero aceptado o falla interna: {ruta}: {respuesta.status_code}'
     )
     assert 'Traceback' not in respuesta.text

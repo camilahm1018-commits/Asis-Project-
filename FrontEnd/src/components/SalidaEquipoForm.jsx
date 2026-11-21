@@ -367,7 +367,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             </div>
           )}
 
-          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !itemElegido || !tipoSalida || !motivo || faltanDatosSalida || enviando}>
+          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }}  disabled={!ambienteId || !itemElegido || !tipoSalida || !motivo.trim() || faltanDatosSalida || enviando}>
             {enviando ? 'Registrando...' : 'Registrar Salida'}
           </button>
         </div>

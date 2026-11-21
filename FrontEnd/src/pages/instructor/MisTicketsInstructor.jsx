@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import TicketDetailPanel from '../../components/TicketDetailPanel.jsx';
+import RegistrarEntradaBoton from '../../components/RegistrarEntradaBoton.jsx';
 import EditarTicketPendienteModal from '../../components/EditarTicketPendienteModal.jsx';
 import { navItemsInstructor } from './navItems.js';
 import { listarTicketsAdministrador, obtenerUsuarioActual } from '../../services/adminService.js';
@@ -109,6 +110,7 @@ function MisTicketsInstructor() {
                       Técnico: <span style={{ color: t.tecnico === 'Sin asignar' ? '#f87171' : '#45B3BF' }}>{t.tecnico || 'Sin asignar'}</span>
                     </span>
                   </div>
+                  <RegistrarEntradaBoton ticket={t} onRegistrada={cargar} />
                   {t.estado === 'Pendiente' && (
                     <button
                       type="button"

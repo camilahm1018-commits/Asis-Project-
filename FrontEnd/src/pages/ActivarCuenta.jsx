@@ -26,6 +26,11 @@ function ActivarCuenta() {
       return
     }
 
+    if (contrasena.trim().length < 12) {
+      setError('Usa una contraseña de al menos 12 caracteres.')
+      return
+    }
+
     if (contrasena !== confirmar) {
       setError('Las contraseñas no coinciden.')
       return
@@ -67,7 +72,7 @@ function ActivarCuenta() {
                     type="password"
                     id="contrasena"
                     required
-                    minLength={6}
+                    minLength={12}
                     value={contrasena}
                     onChange={(e) => setContrasena(e.target.value)}
                   />
@@ -79,7 +84,7 @@ function ActivarCuenta() {
                     type="password"
                     id="confirmar"
                     required
-                    minLength={6}
+                    minLength={12}
                     value={confirmar}
                     onChange={(e) => setConfirmar(e.target.value)}
                   />

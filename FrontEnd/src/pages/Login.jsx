@@ -15,6 +15,7 @@ function Login() {
   const [cargando, setCargando] = useState(false)
 //msotrar contraseña visualizar boton
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [mostrarPolitica, setMostrarPolitica] = useState(false);
 
   useEffect(() => {
     document.body.classList.add('page-login')
@@ -67,10 +68,14 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMensajeError('')
+    if (!correo.trim() || !contrasena.trim()) {
+      setMensajeError('Ingresa tu correo y contraseña.')
+      return
+    }
     setCargando(true)
 
     try {
-      const data = await login(correo, contrasena)
+      const data = await login(correo.trim(), contrasena)
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('usuario', JSON.stringify(data))
 
@@ -156,6 +161,7 @@ function Login() {
                 disabled={cargando}
               />
 
+
               <button
                 type="button"
                 onClick={() => setMostrarContrasena(!mostrarContrasena)}
@@ -164,8 +170,11 @@ function Login() {
                 title={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
                 className="btnMostrarContrasena"
               >
-                {mostrarContrasena ? "🙈" : "👁️"}
+                <span className="material-symbols-rounded">
+                  {mostrarContrasena ? "visibility_off" : "visibility"}
+                </span>
               </button>
+
             </div>
 
 
@@ -211,8 +220,123 @@ function Login() {
           <p className="textoSecundario">
             <Link to="/recuperar">¿Olvidaste tu contraseña?</Link>
           </p>
+          <p className="textoSecundario">
+              <button
+                type="button"
+                className="enlacePolitica"
+                onClick={() => setMostrarPolitica(true)}
+              >
+                Política de Seguridad
+              </button>
+          </p>
         </div>
       </div>
+
+        {mostrarPolitica && (
+          <div
+            className="politica-overlay"
+            onClick={() => setMostrarPolitica(false)}
+          >
+            <section
+              className="politica-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="politica-titulo"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="politica-cerrar"
+                onClick={() => setMostrarPolitica(false)}
+                aria-label="Cerrar política"
+              >
+                ×
+              </button>
+
+              <h2 id="politica-titulo">
+                Política de Seguridad de ASIS
+              </h2>
+
+              <p>
+                La aplicación ASIS establece esta política para orientar
+                el uso seguro y responsable de la información y de las
+                funcionalidades disponibles en el sistema.
+              </p>
+
+              <h3>1. Objetivo</h3>
+              <p>
+                Proteger la información gestionada en ASIS y promover
+                el uso adecuado de la aplicación por parte de sus usuarios.
+              </p>
+
+              <h3>2. Alcance</h3>
+              <p>
+                Esta política aplica a todos los usuarios autorizados
+                que ingresan a ASIS, independientemente del rol que tengan
+                asignado.
+              </p>
+
+              <h3>3. Acceso y credenciales</h3>
+              <ul>
+                <li>Las credenciales de acceso son personales e intransferibles.</li>
+                <li>No se deben compartir contraseñas con otras personas.</li>
+                <li>Se recomienda utilizar contraseñas seguras.</li>
+                <li>Si sospecha que alguien conoce sus credenciales, debe reportarlo.</li>
+              </ul>
+
+              <h3>4. Uso de permisos y roles</h3>
+              <p>
+                Cada usuario debe utilizar únicamente las opciones y
+                funcionalidades autorizadas para su rol dentro del sistema.
+                No debe intentar acceder a información o funciones restringidas.
+              </p>
+
+              <h3>5. Protección de la información</h3>
+              <ul>
+                <li>La información consultada debe manejarse de forma responsable.</li>
+                <li>No se debe divulgar información institucional sin autorización.</li>
+                <li>No se deben modificar ni eliminar registros sin contar con los permisos correspondientes.</li>
+              </ul>
+
+              <h3>6. Uso responsable del sistema</h3>
+              <p>
+                ASIS debe utilizarse para las actividades relacionadas con
+                la gestión y seguimiento de tickets de mantenimiento.
+                No está permitido utilizar la aplicación para actividades
+                no autorizadas.
+              </p>
+
+              <h3>7. Seguridad de las sesiones</h3>
+              <p>
+                Los usuarios deben cerrar su sesión al terminar de utilizar
+                ASIS, especialmente cuando accedan desde equipos compartidos.
+              </p>
+
+              <h3>8. Reporte de incidentes</h3>
+              <p>
+                Cualquier acceso sospechoso, uso indebido de credenciales
+                o comportamiento inusual del sistema debe ser informado
+                al administrador o al responsable autorizado.
+              </p>
+
+              <h3>9. Cumplimiento y actualización</h3>
+              <p>
+                Los usuarios deben cumplir esta política y las disposiciones
+                institucionales aplicables. Su contenido deberá ser revisado
+                y validado por los responsables correspondientes.
+              </p>
+
+              <button
+                type="button"
+                className="politica-boton"
+                onClick={() => setMostrarPolitica(false)}
+              >
+                Entendido
+              </button>
+            </section>
+          </div>
+        )}
+
     </>
   )
 }

@@ -1,18 +1,23 @@
 import os
+import re
 import httpx
 import traceback  
+from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlmodel import Session, select
 from conexion_db import motor_auth
 from Modelos.Usuarios import Usuario
 from Modelos.roles import Rol
+from Modelos.tipo_documento import Tipo_identificacion
+from Modelos.validacion import TextoObligatorio
 from seguridad import (
     verificar_contrasena, crear_token, verificar_token,
     encriptar_contrasena, crear_token_proposito, verificar_token_proposito
 )
-from servicios.correo import correo_activacion, correo_recuperacion, correo_alerta_intento_no_valido
+from servicios.correo import correo_activacion, correo_recuperacion, correo_alerta_intento_no_valido, correo_cambio_contrasena
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
@@ -27,7 +32,7 @@ async def login(
 
     with Session(motor_auth) as sesion:
 
-        usuario = sesion.exec(select(Usuario).where(Usuario.correo_u == form_data.username)).first()
+        usuario = sesion.exec(select(Usuario).where(func.lower(Usuario.correo_u) == form_data.username.strip().lower())).first()
 
         if not usuario:
 
@@ -117,14 +122,93 @@ async def mi_perfil(
             )
 
         rol = sesion.get(Rol,usuario.id_rol)
+        tipo_id = sesion.get(Tipo_identificacion,usuario.id_tipo_identificacion)
 
         return {
             "id_usuario": usuario.id_usuario,
             "nombre": usuario.nombre_u,
             "apellidos": usuario.apellidos_u,
             "correo": usuario.correo_u,
-            "rol": rol.nombre_rol if rol else None
+            "rol": rol.nombre_rol if rol else None,
+            "numero_documento": usuario.numero_documento,
+            "tipo_documento": tipo_id.iniciales if tipo_id else None,
+            "telefono": usuario.telefono_u,
+            "creado_en": usuario.creado_en.isoformat() if usuario.creado_en else None
         }
+
+
+# ==========================================
+# EDITAR MI PERFIL
+# ==========================================
+# El usuario solo puede cambiar sus datos de contacto (nombre, apellidos
+# y teléfono). El correo, el documento y el rol no se tocan acá: el correo
+# es el que usa para iniciar sesión y recuperar la contraseña, y esos
+# datos los gestiona el administrador desde /usuarios.
+
+class ActualizarPerfilBody(BaseModel):
+    nombre: Optional[str] = None
+    apellidos: Optional[str] = None
+    telefono: Optional[str] = None
+
+
+@asis.put("/yo")
+async def actualizar_mi_perfil(
+    datos: ActualizarPerfilBody,
+    usuario_actual=Depends(verificar_token)):
+
+    cambios = datos.model_dump(exclude_unset=True)
+
+    # ----------------------------------
+    # VALIDACIONES (largos según la tabla usuarios)
+    # ----------------------------------
+
+    if "nombre" in cambios:
+        cambios["nombre"] = (cambios["nombre"] or "").strip()
+        if not cambios["nombre"]:
+            raise HTTPException(status_code=400, detail="El nombre es obligatorio")
+        if len(cambios["nombre"]) > 50:
+            raise HTTPException(status_code=400, detail="El nombre no puede tener más de 50 caracteres")
+
+    if "apellidos" in cambios:
+        cambios["apellidos"] = (cambios["apellidos"] or "").strip()
+        if not cambios["apellidos"]:
+            raise HTTPException(status_code=400, detail="Los apellidos son obligatorios")
+        if len(cambios["apellidos"]) > 100:
+            raise HTTPException(status_code=400, detail="Los apellidos no pueden tener más de 100 caracteres")
+
+    if "telefono" in cambios:
+        telefono = re.sub(r"[\s-]", "", cambios["telefono"] or "")
+        if telefono and not re.fullmatch(r"\+?\d{7,15}", telefono):
+            raise HTTPException(
+                status_code=400,
+                detail="El teléfono debe tener entre 7 y 15 dígitos"
+            )
+        # vacío = el usuario quiere borrar el teléfono
+        cambios["telefono"] = telefono or None
+
+    with Session(motor_auth) as sesion:
+
+        usuario = sesion.get(Usuario, usuario_actual["id_usuario"])
+
+        if not usuario:
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+
+        if "nombre" in cambios:
+            usuario.nombre_u = cambios["nombre"]
+        if "apellidos" in cambios:
+            usuario.apellidos_u = cambios["apellidos"]
+        if "telefono" in cambios:
+            usuario.telefono_u = cambios["telefono"]
+
+        sesion.add(usuario)
+        sesion.commit()
+
+    # devuelvo el perfil ya actualizado, con la misma forma que GET /auth/yo
+    return await mi_perfil(usuario_actual)
 
 
 # ==========================================
@@ -136,10 +220,10 @@ async def mi_perfil(
 # el link para que cree su contraseña.
 
 class ConfirmarDatosBody(BaseModel):
-    numero_documento: str
-    nombres: str
-    apellidos: str
-    correo: str
+    numero_documento: TextoObligatorio
+    nombres: TextoObligatorio
+    apellidos: TextoObligatorio
+    correo: TextoObligatorio
 
 
 MENSAJE_CONFIRMACION_GENERICO = (
@@ -188,24 +272,25 @@ async def confirmar_datos(datos: ConfirmarDatosBody):
 
 
 class ActivarCuentaBody(BaseModel):
-    token: str
+    token: TextoObligatorio
     nueva_contrasena: str
 
 
 @asis.post("/activar-cuenta")
 async def activar_cuenta(datos: ActivarCuentaBody):
 
-    if len(datos.nueva_contrasena) < 12:
+    if len(datos.nueva_contrasena.strip()) < 12:
         raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
 
     id_usuario = verificar_token_proposito(datos.token, "activacion")
 
     with Session(motor_auth) as sesion:
 
-        usuario = sesion.get(Usuario, id_usuario)
-
-        if not usuario:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario no encontrado")
+        usuario = sesion.exec(
+            select(Usuario).where(Usuario.id_usuario == id_usuario).with_for_update()
+        ).first()
+        if not usuario or usuario.activo:
+            raise HTTPException(status_code=400, detail="El enlace ya se utilizó o la cuenta no está disponible")
 
         usuario.contrasena_u = encriptar_contrasena(datos.nueva_contrasena)
         usuario.activo = True
@@ -221,7 +306,7 @@ async def activar_cuenta(datos: ActivarCuentaBody):
 # ==========================================
 
 class SolicitarRecuperacionBody(BaseModel):
-    correo: str
+    correo: TextoObligatorio
 
 
 @asis.post("/solicitar-recuperacion")
@@ -230,7 +315,7 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
     with Session(motor_auth) as sesion:
 
         usuario = sesion.exec(
-            select(Usuario).where(Usuario.correo_u == datos.correo)
+            select(Usuario).where(func.lower(Usuario.correo_u) == datos.correo.lower())
         ).first()
 
         if usuario and usuario.activo:
@@ -247,14 +332,14 @@ async def solicitar_recuperacion(datos: SolicitarRecuperacionBody):
 
 
 class RestablecerContrasenaBody(BaseModel):
-    token: str
+    token: TextoObligatorio
     nueva_contrasena: str
 
 
 @asis.post("/restablecer-contrasena")
 async def restablecer_contrasena(datos: RestablecerContrasenaBody):
 
-    if len(datos.nueva_contrasena) < 12:
+    if len(datos.nueva_contrasena.strip()) < 12:
         raise HTTPException(status_code=400, detail="Usa una contraseña de al menos 12 caracteres")
 
     id_usuario = verificar_token_proposito(datos.token, "recuperacion")
@@ -273,6 +358,47 @@ async def restablecer_contrasena(datos: RestablecerContrasenaBody):
 
         return {"mensaje": "Contraseña actualizada. Ya puedes iniciar sesión."}
     
+# ==========================================
+# CAMBIAR CONTRASEÑA DESDE MI PERFIL (con envío al correo)
+# ==========================================
+# El usuario ya inició sesión, así que no le pido el correo: le mando el
+# link al correo de su cuenta. El link lleva a la misma pantalla de
+# /restablecer-contrasena que usa RF-018, con el mismo token de propósito.
+
+def _enmascarar_correo(correo: str) -> str:
+    usuario, _, dominio = correo.partition("@")
+    return f"{usuario[:2]}{'*' * max(len(usuario) - 2, 1)}@{dominio}"
+
+
+@asis.post("/solicitar-cambio-contrasena")
+async def solicitar_cambio_contrasena(usuario_actual=Depends(verificar_token)):
+
+    with Session(motor_auth) as sesion:
+
+        usuario = sesion.get(Usuario, usuario_actual["id_usuario"])
+
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+
+        token = crear_token_proposito(usuario.id_usuario, "recuperacion", minutos=30)
+
+        try:
+            correo_cambio_contrasena(usuario.correo_u, usuario.nombre_u, token)
+        except Exception as e:
+            print(f"⚠️ No se pudo enviar el correo de cambio de contraseña: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="No se pudo enviar el correo. Inténtalo de nuevo en unos minutos."
+            )
+
+        return {
+            "mensaje": (
+                f"Te enviamos un correo a {_enmascarar_correo(usuario.correo_u)} con el enlace "
+                "para cambiar tu contraseña. El enlace vence en 30 minutos."
+            )
+        }
+
+
 # ==========================================
 # iniciar sesion con Goggle
 # ==========================================

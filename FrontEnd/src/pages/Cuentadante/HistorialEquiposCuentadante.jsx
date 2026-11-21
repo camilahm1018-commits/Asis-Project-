@@ -48,6 +48,8 @@ function HistorialEquiposCuentadante() {
       <form onSubmit={handleBuscar} style={{ display: 'flex', gap: 10, marginBottom: 24, maxWidth: 480 }}>
         <input
           className="pa-input"
+          aria-label="Serial del equipo"
+          required
           value={serial}
           onChange={(e) => setSerial(e.target.value)}
           placeholder="Buscar por serial del equipo..."

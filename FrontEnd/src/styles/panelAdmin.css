@@ -99,7 +99,17 @@
 }
 
 .panel-admin__nav-icon {
-  font-size: 16px;
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
   flex-shrink: 0;
 }
 
@@ -585,6 +595,26 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 4px;
+}
+
+.pa-ambiente-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pa-ambiente-form > .pa-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pa-ambiente-form > .pa-modal__actions {
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  margin-top: 0;
+  padding: 12px 24px;
+  border-top: 1px solid var(--pa-border);
 }
 
 /* ---------------- FORM FIELDS ---------------- */
@@ -1188,6 +1218,12 @@ body.light-mode .pa-avatar {
 }
 
 .notification-item {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font: inherit;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-color, #f3f4f6);
   cursor: pointer;
@@ -1204,6 +1240,7 @@ body.light-mode .pa-avatar {
 }
 
 .notif-message {
+  display: block;
   margin: 0 0 4px 0;
   font-size: 13px;
   color: var(--text-color, #111827);
@@ -1220,4 +1257,23 @@ body.light-mode .pa-avatar {
   text-align: center;
   color: var(--muted-text, #6b7280);
   font-size: 13px;
+}
+
+.pa-table-wrap.pa-usuarios-tabla {
+  overflow-x: auto;
+}
+
+.pa-usuarios-tabla .pa-usuarios-correo {
+  overflow-wrap: anywhere;
+}
+
+.pa-usuarios-acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.pa-usuarios-acciones .pa-btn-secondary {
+  padding: 6px 12px;
 }

@@ -14,7 +14,10 @@ import api, { getAuthHeaders } from './api';
 function lanzarError(error, mensajePorDefecto) {
   if (error.response && error.response.data) {
     const mensajeBackend = error.response.data.detail || mensajePorDefecto;
-    throw new Error(mensajeBackend);
+    const mensaje = Array.isArray(mensajeBackend)
+      ? mensajeBackend.map(({ loc, msg }) => `${loc.at(-1)}: ${msg}`).join(' · ')
+      : mensajeBackend;
+    throw new Error(mensaje);
   }
   throw new Error('No se pudo conectar con el servidor');
 }
@@ -29,6 +32,15 @@ export const listarUsuarios = async () => {
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo obtener la lista de usuarios');
+  }
+};
+
+export const listarTiposIdentificacion = async () => {
+  try {
+    const { data } = await api.get('/Tipo_identificacion/');
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener la lista de tipos de documento');
   }
 };
 
@@ -414,6 +426,39 @@ export const obtenerUsuarioActual = () => {
   return userStr ? JSON.parse(userStr) : null;
 };
 
+// Perfil completo del usuario logueado (backend: GET /auth/yo).
+// Devuelve nombre, apellidos, correo, rol, documento, teléfono y fecha de registro.
+export const obtenerMiPerfil = async () => {
+  try {
+    const { data } = await api.get('/auth/yo', getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener tu perfil');
+  }
+};
+
+// Edita los datos de contacto del usuario logueado (backend: PUT /auth/yo).
+// Solo acepta { nombre, apellidos, telefono }; devuelve el perfil ya actualizado.
+export const actualizarMiPerfil = async (datos) => {
+  try {
+    const { data } = await api.put('/auth/yo', datos, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo actualizar tu perfil');
+  }
+};
+
+// Envía al correo del usuario logueado el enlace para cambiar su contraseña
+// (backend: POST /auth/solicitar-cambio-contrasena). El enlace abre /restablecer-contrasena.
+export const solicitarCambioContrasena = async () => {
+  try {
+    const { data } = await api.post('/auth/solicitar-cambio-contrasena', null, getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo enviar el correo para cambiar la contraseña');
+  }
+};
+
 const MAPA_COLORES_ESTADO = {
   rojo: '#f87171',
   naranja: '#fb923c',
@@ -478,6 +523,7 @@ export const listarTicketsAdministrador = async () => {
       idMobiliario: t.id_mobiliario,
       tipoElemento: t.id_mobiliario != null ? 'mobiliario' : 'equipo',
       ambiente: ambiente ? ambiente.nombre_a : 'Sin ambiente',
+      idCuentadante: ambiente?.id_cuentadante ?? null,
       idTipoEquipo: equipo ? equipo.id_tipo : null,
       creadoPor: creadoPor ? `${creadoPor.nombre_u} ${creadoPor.apellidos_u}` : 'Desconocido',
       idCreadoPor: t.creado_por,
@@ -490,6 +536,7 @@ export const listarTicketsAdministrador = async () => {
       fecha: t.creado_en,
       fechaSalida: t.fecha_salida,
       fechaRetorno: t.fecha_retorno,
+      puedeRegistrarEntrada: t.puede_registrar_entrada === true,
       atendido: t.atendido,
       imagen: t.imagen,
     };
@@ -520,6 +567,24 @@ export const listarEquiposPorAmbiente = async (idAmbiente) => {
 // ==========================================
 // RECUPERACIÓN DE CONTRASEÑA (RF-018)
 // ==========================================
+
+export async function confirmarDatosActivacion(datos) {
+  try {
+    const { data } = await api.post('/auth/confirmar-datos', datos);
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo solicitar el enlace de activación');
+  }
+}
+
+export async function activarCuenta(token, nueva_contrasena) {
+  try {
+    const { data } = await api.post('/auth/activar-cuenta', { token, nueva_contrasena });
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo activar la cuenta');
+  }
+}
 
 export async function solicitarRecuperacion(correo) {
   try {
@@ -568,11 +633,9 @@ export const obtenerHistorialDeTicket = async (idTicket) => {
 // ==========================================
 // REGISTRAR ENTRADA DE EQUIPO (RF-007 / RF-010)
 // ==========================================
-export const registrarEntradaEquipo = async (idTicket, datos) => {
+export const registrarEntradaEquipo = async (idTicket) => {
   try {
-    // Nota: Ajusta la URL si tu backend usa una ruta ligeramente diferente 
-    // (por ejemplo: /tickets/${idTicket}/entrada o similar)
-    const { data } = await api.put(`/tickets/${idTicket}/registrar-entrada`, datos, getAuthHeaders());
+    const { data } = await api.put(`/tickets/${idTicket}/registrar-entrada`, null, getAuthHeaders());
     return data;
   } catch (error) {
     lanzarError(error, 'No se pudo registrar la entrada del equipo');

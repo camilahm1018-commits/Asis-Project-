@@ -11,3 +11,14 @@ npm-debug.log*
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+# Configuración privada y archivos generados
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.venv*/
+dist/
+qa-reportes/
+playwright-report/
+test-results/

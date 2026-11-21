@@ -29,6 +29,7 @@ function AmbientesAdministrador() {
 
   async function cargar() {
     try {
+      setError('');
       setCargando(true);
       const [a, e, u, r] = await Promise.all([listarAmbientes(), listarEquipos(), listarUsuarios(), listarRoles()]);
       const idRolCuentadante = (r || []).find((rol) => rol.nombre_rol === 'cuentadante')?.id_rol;
@@ -51,6 +52,7 @@ function AmbientesAdministrador() {
   function abrirCrear() {
     setForm(formularioVacio);
     setModoEdicion(false);
+    setShowReasignar(false);
     setErrorModal('');
     setShowModal(true);
   }
@@ -65,6 +67,7 @@ function AmbientesAdministrador() {
       id_cuentadante: a.id_cuentadante ?? '',
     });
     setModoEdicion(true);
+    setShowReasignar(false);
     setErrorModal('');
     setShowModal(true);
   }
@@ -75,15 +78,18 @@ function AmbientesAdministrador() {
 
   async function handleGuardar(e) {
     e.preventDefault();
+    if (!form.nombre_a.trim() || !form.ubicacion.trim() || !Number(form.id_ambiente)) {
+      setErrorModal('Completa el número, nombre y ubicación del ambiente.');
+      return;
+    }
     setErrorModal('');
     setGuardando(true);
 
     const datos = {
-      nombre_a: form.nombre_a,
-      ubicacion: form.ubicacion,
-      capacidad_equipos: form.capacidad_equipos ? Number(form.capacidad_equipos) : null,
-      estado: 'activo',
-      descripcion: form.descripcion,
+      nombre_a: form.nombre_a.trim(),
+      ubicacion: form.ubicacion.trim(),
+      capacidad_equipos: form.capacidad_equipos === '' ? null : Number(form.capacidad_equipos),
+      descripcion: form.descripcion.trim() || null,
       id_cuentadante: form.id_cuentadante ? Number(form.id_cuentadante) : null,
     };
 
@@ -106,34 +112,21 @@ function AmbientesAdministrador() {
   }
 
   async function handleDesasignar(ambiente) {
-  const nombreAmbiente = ambiente?.nombre_a || `ID ${ambiente?.id_ambiente}`;
-  
-  if (!window.confirm(`¿Estás seguro de desasignar al cuentadante del ambiente "${nombreAmbiente}"?\n\nEl ambiente quedará sin responsable asignado.`)) {
-    return;
-  }
+    const nombreAmbiente = ambiente.nombre_a;
+    if (!window.confirm(`¿Desasignar al cuentadante del ambiente "${nombreAmbiente}"?`)) return;
 
-  setDesasignando(true);
-  try {
-    // ✅ Enviar TODOS los datos del ambiente, no solo id_cuentadante
-    await editarAmbiente(ambiente.id_ambiente, {
-      nombre_a: ambiente.nombre_a,
-      ubicacion: ambiente.ubicacion,
-      capacidad_equipos: ambiente.capacidad_equipos,
-      descripcion: ambiente.descripcion,
-      estado: ambiente.estado || 'activo',
-      id_cuentadante: null, // Solo quitamos el cuentadante
-    });
-    
-    setMensaje(`Cuentadante desasignado del ambiente "${nombreAmbiente}"`);
-    setTimeout(() => setMensaje(''), 3000);
-    cargar();
-  } catch (err) {
-    console.error("Error al desasignar:", err);
-    alert(`Error: ${err.message || 'No se pudo desasignar el cuentadante'}`);
-  } finally {
-    setDesasignando(false);
+    setDesasignando(true);
+    try {
+      await editarAmbiente(ambiente.id_ambiente, { id_cuentadante: null });
+      setMensaje(`Cuentadante desasignado del ambiente "${nombreAmbiente}"`);
+      setTimeout(() => setMensaje(''), 3000);
+      cargar();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDesasignando(false);
+    }
   }
-}
 
   async function handleEliminar(a) {
     if (!window.confirm(`¿Eliminar el ambiente "${a.nombre_a}"? Esta acción no se puede deshacer.`)) return;
@@ -154,7 +147,7 @@ function AmbientesAdministrador() {
               <h2 className="pa-modal__title">{modoEdicion ? 'Editar Ambiente' : 'Registrar Ambiente'}</h2>
               <button className="pa-modal__close" onClick={() => setShowModal(false)} type="button">✕</button>
             </div>
-            <form onSubmit={handleGuardar}>
+            <form className="pa-ambiente-form" onSubmit={handleGuardar}>
               <div className="pa-modal__body">
                 {errorModal && <p className="pa-error" style={{ padding: 0, textAlign: 'left' }}>{errorModal}</p>}
                 
@@ -163,6 +156,7 @@ function AmbientesAdministrador() {
                   <input
                     className="pa-input"
                     type="number"
+                    min={1}
                     value={form.id_ambiente}
                     onChange={(e) => handleChange('id_ambiente', e.target.value)}
                     placeholder="205"
@@ -173,17 +167,17 @@ function AmbientesAdministrador() {
                 
                 <div className="pa-form-field">
                   <label>Nombre del Ambiente</label>
-                  <input className="pa-input" value={form.nombre_a} onChange={(e) => handleChange('nombre_a', e.target.value)} placeholder="Laboratorio 3" required />
+                  <input className="pa-input" maxLength={100} value={form.nombre_a} onChange={(e) => handleChange('nombre_a', e.target.value)} placeholder="Laboratorio 3" required />
                 </div>
                 
                 <div className="pa-form-field">
                   <label>Ubicación</label>
-                  <input className="pa-input" value={form.ubicacion} onChange={(e) => handleChange('ubicacion', e.target.value)} placeholder="Bloque A - Piso 1" required />
+                  <input className="pa-input" maxLength={100} value={form.ubicacion} onChange={(e) => handleChange('ubicacion', e.target.value)} placeholder="Bloque A - Piso 1" required />
                 </div>
                 
                 <div className="pa-form-field">
                   <label>Capacidad de Equipos</label>
-                  <input className="pa-input" type="number" value={form.capacidad_equipos} onChange={(e) => handleChange('capacidad_equipos', e.target.value)} placeholder="30" />
+                  <input className="pa-input" type="number" min={0} value={form.capacidad_equipos} onChange={(e) => handleChange('capacidad_equipos', e.target.value)} placeholder="30" />
                 </div>
 
                 {/* ✅ SECCIÓN DE CUENTADANTE - CON BOTÓN REASIGNAR */}
@@ -283,13 +277,13 @@ function AmbientesAdministrador() {
                   <label>Descripción</label>
                   <textarea className="pa-textarea" rows={3} value={form.descripcion} onChange={(e) => handleChange('descripcion', e.target.value)} placeholder="Descripción del ambiente..." />
                 </div>
-                
-                <div className="pa-modal__actions">
-                  <button type="button" className="pa-btn-secondary" onClick={() => { setShowModal(false); setShowReasignar(false); }}>Cancelar</button>
-                  <button type="submit" className="pa-btn-primary" disabled={guardando}>
-                    {guardando ? 'Guardando...' : modoEdicion ? 'Guardar Cambios' : 'Registrar'}
-                  </button>
-                </div>
+              </div>
+
+              <div className="pa-modal__actions">
+                <button type="button" className="pa-btn-secondary" onClick={() => { setShowModal(false); setShowReasignar(false); }}>Cancelar</button>
+                <button type="submit" className="pa-btn-primary" disabled={guardando}>
+                  {guardando ? 'Guardando...' : modoEdicion ? 'Guardar Cambios' : 'Registrar'}
+                </button>
               </div>
             </form>
           </div>
@@ -314,7 +308,7 @@ function AmbientesAdministrador() {
       {cargando && <p className="pa-loading">Cargando ambientes...</p>}
       {error && <p className="pa-error">{error}</p>}
 
-      {!cargando && !error && (
+      {!cargando && (
         <div className="pa-ambiente-grid">
           {ambientes.map((a) => {
             const eqAmbiente = equipos.filter((e) => e.id_ambiente === a.id_ambiente);

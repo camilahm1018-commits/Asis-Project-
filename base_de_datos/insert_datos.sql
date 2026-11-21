@@ -388,7 +388,7 @@ ORDER BY h.fecha DESC;
 -- 1. Este archivo corresponde a DATOS SEMILLA; las tablas y vistas deben
 --    estar creadas previamente por el script de estructura de ASIS.
 -- 2. Ejecutar una sola vez sobre tablas vacías.
--- 3. Los nombres, documentos, teléfonos y correos son FICTICIOS.
+-- 3. Los nombres, documentos y correos son FICTICIOS. Los teléfonos quedan vacíos.
 -- 4. La contraseña de todos los usuarios será: AsisDemo2026*
 --    Se almacena como hash bcrypt mediante pgcrypto (costo 12).
 -- 5. No volver a ejecutar sobre una base que ya tenga estos registros.

@@ -12,6 +12,7 @@ from Modelos.equipos import Equipo
 from Modelos.ambientes import Ambiente
 from servicios.correo import enviar_correo_asignacion
 from servicios.validaciones_roles import validar_tecnico_activo
+from servicios.notificaciones_ticket import avisar_evento_ticket
 from sesiones_roles import Sesion_por_rol
 
 asis = APIRouter(
@@ -177,6 +178,10 @@ def _enviar_notificacion_asignacion(id_asignacion: int):
 
             # 5. Obtener el técnico al que se le asignó
             tecnico = sesion.get(Usuario, asignacion.id_tecnico)
+            avisar_evento_ticket(
+                sesion, ticket.id_ticket, asignacion.asignado_por, [tecnico],
+                f"ASIS: tienes asignado el ticket #{ticket.id_ticket}. Consulta el detalle en ASIS.",
+            )
             if not tecnico or not tecnico.correo_u:
                 print(f"El tecnico {asignacion.id_tecnico} no tiene correo")
                 return

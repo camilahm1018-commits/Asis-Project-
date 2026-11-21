@@ -44,9 +44,9 @@ TO tecnico, administrador_mesa_ayuda;
 GRANT SELECT ON TABLE public.tickets
 TO instructor, tecnico, administrador_mesa_ayuda, cuentadante;
 
--- INSTRUCTOR: crear reportes y editar ciertos campos de sus reportes.
+-- INSTRUCTOR: crear reportes, editar pendientes y confirmar devoluciones de préstamos propios.
 GRANT INSERT ON TABLE public.tickets TO instructor;
-GRANT UPDATE (motivo, id_equipo, imagen)
+GRANT UPDATE (motivo, id_equipo, imagen, id_estado, atendido, fecha_retorno)
 ON TABLE public.tickets TO instructor;
 GRANT USAGE ON SEQUENCE public.tickets_id_ticket_seq TO instructor;
 
@@ -67,15 +67,7 @@ TO administrador_mesa_ayuda;
 GRANT USAGE ON SEQUENCE public.asignacion_tecnico_id_asignacion_seq
 TO administrador_mesa_ayuda;
 
-GRANT SELECT (id_usuario, nombre_u, apellidos_u, correo_u, activo, id_rol)
-ON TABLE public.usuarios
-TO administrador_mesa_ayuda;
-
-GRANT SELECT ON TABLE public.notificaciones
-TO administrador_mesa_ayuda;
-
--- CUENTADANTE: gestionar inventario, ambientes y salidas de equipo.
-GRANT INSERT, UPDATE ON TABLE public.ambientes TO cuentadante;
+-- CUENTADANTE: gestionar inventario y salidas de equipo.
 GRANT INSERT, UPDATE ON TABLE public.equipos TO cuentadante;
 GRANT USAGE ON SEQUENCE public.equipos_id_equipo_seq TO cuentadante;
 GRANT INSERT ON TABLE public.tickets TO cuentadante;
@@ -89,9 +81,9 @@ GRANT USAGE ON SEQUENCE public.tickets_id_ticket_seq TO cuentadante;
 GRANT SELECT ON TABLE public.historial_tickets
 TO instructor, tecnico, administrador_mesa_ayuda, cuentadante;
 GRANT INSERT ON TABLE public.historial_tickets
-TO tecnico, administrador_mesa_ayuda;
+TO instructor, tecnico, administrador_mesa_ayuda, cuentadante;
 GRANT USAGE ON SEQUENCE public.historial_tickets_id_historial_seq
-TO tecnico, administrador_mesa_ayuda;
+TO instructor, tecnico, administrador_mesa_ayuda, cuentadante;
 
 -- Vistas de reportes agregados; revisar visibilidad por usuario en FastAPI.
 GRANT SELECT ON TABLE
@@ -108,10 +100,7 @@ GRANT SELECT ON TABLE
     public.vista_historial_equipo
 TO cuentadante;
 
--- NOTA: no se conceden aun permisos en notificaciones ni acceso
--- completo a usuarios. Primero deben corregirse los filtros por usuario
--- y el uso ambiguo de 'enviada' como indicador de lectura.
--- Tampoco se concede DELETE a ninguno de los cuatro roles.
+-- Los perfiles operativos no tienen permisos de borrado.
 
 -- Ajustes de integración FastAPI / React.
 -- Mesa: lista de técnicos con correo de contacto, no hash/documento.

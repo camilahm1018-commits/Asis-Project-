@@ -1,6 +1,118 @@
-Contraseña Administrador apiswagger: admin@sena.edu.co - 1234567890123
-
 # ASIS — Asistencia Integral SENA
+
+## Actualización de ASIS
+
+### Iniciar en Windows o Linux
+
+Si ya usas ASIS, copia tus archivos de configuración privados (.env en la raíz,
+Backend y FrontEnd) a esta versión o aplica estos cambios sobre tu carpeta del
+proyecto. Conserva el nombre del proyecto de Docker Compose y los valores de
+PostgreSQL para que Docker siga usando tu volumen actual. Si cambiaste el
+nombre de la carpeta, usa `docker compose -p NOMBRE_DEL_PROYECTO` en los comandos,
+con el mismo nombre que muestra `docker compose ls` para la instalación anterior.
+
+Para una instalación nueva, prepara los archivos de configuración desde la raíz.
+
+| Sistema | Comando |
+| --- | --- |
+| Windows PowerShell | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\preparar_env.ps1` |
+| Linux (Bash, con Python 3) | `bash scripts/preparar_env.sh` |
+
+Luego ejecuta `docker compose up -d --build`. En Linux, agrega `sudo` delante
+de `docker` si así lo usas normalmente. El frontend está en
+[localhost:5173](http://localhost:5173) y la API en
+[localhost:8000/docs](http://localhost:8000/docs). Para una base nueva, la
+cuenta inicial se configura con `ASIS_INITIAL_ADMIN_EMAIL` y
+`ASIS_INITIAL_ADMIN_PASSWORD` en el .env de la raíz. Si la cuenta ya existe,
+se conserva su contraseña.
+
+### Actualizar los permisos de una base que ya tiene datos
+
+En Windows y Linux, con la base iniciada, ejecuta desde la raíz:
+
+```bash
+docker compose exec -T db psql -U postgres -d asisdb -v ON_ERROR_STOP=1 -1 -f /docker-entrypoint-initdb.d/03_permisos.sql
+```
+
+El script reaplica los permisos de los roles operativos de ASIS y conserva
+las tablas y sus datos. Docker aplica el mismo script automáticamente al
+inicializar un volumen nuevo. En ambos casos, solo el administrador puede
+crear, modificar o eliminar ambientes. Cuentadante conserva la consulta de
+sus ambientes, la gestión de sus equipos y los reportes de salidas.
+
+### Gestión de usuarios
+
+En **Administrador → Usuarios**, puedes pre-registrar, consultar, editar y
+eliminar cuentas. La eliminación se bloquea si la cuenta tiene tickets,
+ambientes u otros registros relacionados. Si necesitas cambiar un responsable,
+actualízalo desde el módulo correspondiente. Un administrador conserva el rol
+de su propia cuenta y puede editar sus demás datos.
+
+El usuario recibe un enlace para definir su contraseña y activar la cuenta.
+Desde la página pública **Registrarse**, también puede confirmar documento,
+nombres, apellidos y correo para solicitar el enlace otra vez. El rol lo
+define el administrador. El teléfono queda opcional.
+
+### Campanita y SMS
+
+Los cinco roles pueden abrir la campanita. Al seleccionar una notificación
+propia, se marca como leída. Los avisos se generan automáticamente al crear un
+ticket, asignarlo o cambiar su estado. Al registrar el ticket se avisa al
+administrador, a Mesa de Ayuda y al cuentadante responsable, excluyendo a quien
+creó el reporte. La asignación avisa al técnico y el cambio de estado o atención
+avisa a quien reportó y al cuentadante responsable.
+
+El SMS está desactivado de forma predeterminada. Para habilitarlo, crea una
+cuenta de Twilio con un número emisor habilitado para SMS y una clave de API.
+Agrega estas variables a `Backend/.env` en el equipo que ejecuta Docker.
+
+```dotenv
+ASIS_SMS_ENABLED=true
+TWILIO_ACCOUNT_SID=
+TWILIO_API_KEY=
+TWILIO_API_SECRET=
+TWILIO_FROM_NUMBER=
+ASIS_SMS_ALLOWED_NUMBERS=
+```
+
+`TWILIO_API_KEY` es el SID de la clave que empieza por SK y
+`TWILIO_API_SECRET` es su secreto. `TWILIO_FROM_NUMBER` lleva el número
+internacional de Twilio. En pruebas de Twilio, verifica el número destinatario.
+Usa el formato `+573001234567` para un celular colombiano. ASIS también
+reconoce los celulares colombianos de diez dígitos que empiezan por 3.
+Para pruebas con una base de demostración, especifica en
+`ASIS_SMS_ALLOWED_NUMBERS` solo tus números verificados, separados por comas.
+Si se deja vacío, se consideran todos los destinatarios activos con un
+teléfono válido. Los usuarios de demostración de una instalación nueva
+tienen el teléfono vacío.
+Guarda estos valores en el backend y aplica la configuración.
+
+```bash
+docker compose up -d --force-recreate backend
+```
+
+Para verificar el envío, asigna un ticket a un técnico activo con teléfono
+configurado. Revisa la campanita y el registro de mensajes en Twilio. Si el
+proveedor no acepta el SMS, el ticket y el aviso en la app siguen disponibles.
+Consulta el [inicio rápido de Twilio](https://www.twilio.com/docs/messaging/quickstart).
+
+### Campos obligatorios
+
+| Formulario | Campos requeridos |
+| --- | --- |
+| Confirmación de pre-registro | Número de documento, nombres, apellidos y correo registrado |
+| Login, recuperación y activación | Correo y contraseña para iniciar sesión, correo para solicitar recuperación, y enlace o token más contraseña y confirmación al activarla o restablecerla |
+| Pre-registro y edición de usuarios | Nombres, apellidos, correo, tipo y número de documento, y rol |
+| Ambientes y equipos | Número, nombre y ubicación del ambiente al crearlo. Código, nombre, tipo y ambiente del equipo |
+| Tickets y salidas | Ambiente, equipo, tipo de salida y motivo al registrar. Equipo y motivo al editar un reporte pendiente. Estado y acción al actualizar un ticket técnico |
+| Perfil, contacto y búsqueda de historial | Nombres y apellidos en el perfil. Nombre, correo, categoría y mensaje en contacto. Serial al consultar historial por equipo |
+
+En los formularios correspondientes, teléfono, observación, imagen,
+motivo de novedad, capacidad y descripción siguen siendo opcionales.
+
+---
+
+
 
 Sistema web para la **gestión de tickets de equipos tecnológicos** (daños, traslados y préstamos) del Centro de Gestión de Mercados, Logística y Tecnologías de la Información (CGMLTI) del SENA. Permite reportar una falla, asignar un técnico, seguir el estado de cada equipo, mantener su historial y generar reportes, con un panel distinto para cada rol.
 
@@ -38,7 +150,7 @@ Sistema web para la **gestión de tickets de equipos tecnológicos** (daños, tr
 - **Cinco paneles por rol:** Administrador, Mesa de Ayuda, Técnico, Instructor y Cuentadante.
 - **Tickets** con tipo de salida (`daño`, `traslado`, `préstamo`), imagen adjunta (JPG/PNG), estados con color e historial completo.
 - **Asignación, reasignación y desasignación** de técnicos.
-- **Notificaciones** por correo (creación, cambio de estado, asignación) y notificaciones internas con campana y sonido (polling cada 10 s).
+- **Notificaciones** de tickets por correo, SMS opcional y campanita en los cinco paneles.
 - **CRUD** de usuarios, ambientes, equipos y catálogos (roles, estados, tipos de equipo, motivos de novedad, tipos de documento).
 - **Dashboard y reportes**: gráficas con Recharts y **12 reportes exportables a PDF y Excel**.
 - **Historial de un equipo por serial** y de un usuario.
@@ -142,7 +254,7 @@ Asis-Project-/
 | **Docker / Docker Compose** | compose `3.8` | Levanta base de datos, backend y frontend con un solo comando. |
 | **PostgreSQL** | 15 (`postgres:15-alpine`) | Base de datos relacional. Contenedor `asis_db`, puerto host `5433`. |
 | **Python** | 3.12 (`python:3.12-slim`) | Runtime del backend en Docker. |
-| **Node.js** | 18 (`node:18-alpine`) | Runtime del frontend en Docker. |
+| **Node.js** | 22 (`node:22-alpine`) | Runtime del frontend en Docker. |
 
 ### 4.2 Backend (Python) — `Backend/requierements_def.txt`
 
@@ -354,7 +466,7 @@ Documentación interactiva automática en **`http://localhost:8000/docs`**.
 
 | Zona | Rutas |
 |---|---|
-| **Públicas** | `/` (→ `/login`), `/login`, `/registrarse`, `/recuperar`, `/restablecer-contrasena`, `/nosotros`, `/contactanos` |
+| **Públicas** | `/` (→ `/login`), `/login`, `/registrarse`, `/activar-cuenta`, `/recuperar`, `/restablecer-contrasena`, `/nosotros`, `/contactanos` |
 | **Administrador** | `/administrador`, `/administrador/usuarios`, `/ambientes`, `/equipos`, `/tickets`, `/reportes`, `/configuracion` |
 | **Mesa de Ayuda** | `/mesa-ayuda/panel`, `/tickets`, `/historial`, `/asignar`, `/tecnicos`, `/reportes` |
 | **Técnico** | `/tecnico`, `/tecnico/disponibles`, `/tickets`, `/historial`, `/perfil` |
@@ -367,7 +479,7 @@ Documentación interactiva automática en **`http://localhost:8000/docs`**.
 | Componente | Función |
 |---|---|
 | `PanelLayout.jsx` | Layout genérico por rol: sidebar con `navItems`, barra superior, campanita de notificaciones, cambio de tema, cierre de sesión. Verifica que el rol guardado coincida con el de la sección. |
-| `AdminLayout.jsx` | Layout propio del Administrador (menú fijo) con `useAutoLogout`. |
+| `AdminLayout.jsx` | Configura el menú del administrador sobre `PanelLayout` y activa `useAutoLogout`. |
 | `Header.jsx` | Encabezado público (logo, Nosotros, Contáctanos, tema, enlace de acceso). |
 | `BarraSuperior.jsx` | Barra superior heredada de las pantallas originales. |
 | `SalidaEquipoForm.jsx` | Formulario de salida de equipo (RF-006): ambiente → equipo → tipo (`dano`/`traslado`/`prestamo`) → motivo → imagen. Asigna el estado inicial según el tipo y marca el equipo como `dañado` si es daño. |
@@ -619,10 +731,6 @@ Detectadas al revisar el código; conviene corregirlas para que el sistema sea c
 
 | # | Hallazgo | Dónde | Sugerencia |
 |---|---|---|---|
-| 1 | **No existe la ruta `/activar-cuenta`** en `App.jsx`, aunque el correo de activación apunta a ella y existe `ActivarCuenta.jsx`. Además `adminService.js` no exporta `activarCuenta`, que esa página importa. | `App.jsx`, `adminService.js` | Registrar la ruta y exportar `activarCuenta` (→ `POST /auth/activar-cuenta`). |
-| 2 | `crearUsuario`, `editarUsuario` y `eliminarUsuario` llaman a `/usuarios/usuarios/...`, pero el backend expone `/usuarios/` y `/usuarios/{id}`. | `adminService.js` | Corregir las URLs. |
-| 3 | `registrarEntradaEquipo` llama a `PUT /tickets/{id}/registrar-entrada`, que **no existe** en el backend (el propio código lo marca con una nota). | `adminService.js` / `ticket.py` | Crear el endpoint o usar `PUT /tickets/{id}`. |
-| 4 | `Registrarse.jsx` hace `fetch` a `/usuarios` (sin barra final) con una URL fija. | `Registrarse.jsx` | Usar la instancia `api` y la ruta correcta. |
 | 5 | `GET /ambientes/cuentadante/{id}` no existe; el frontend cae al filtro local cuando recibe 404. | `adminService.js` | Funciona, pero se puede usar `/ambientes/mis-ambientes`. |
 | 6 | **URLs fijas** `http://localhost:8000` y `http://127.0.0.1:8000` repartidas entre `api.js`, `adminService.js` e `ImagenTicket.jsx`. | FrontEnd | Centralizar en una variable `VITE_API_URL`. |
 | 7 | `ER_equipos.py` define `GET /` **dos veces** (la segunda, con filtro por ambiente, es la que queda efectiva según el orden de registro). | `ER_equipos.py` | Dejar una sola. |

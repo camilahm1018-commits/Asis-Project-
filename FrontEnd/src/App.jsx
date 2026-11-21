@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 // Auth
 import Login from './pages/Login.jsx'
 import Registrarse from './pages/Registrarse.jsx'
+import ActivarCuenta from './pages/ActivarCuenta.jsx'
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx'
 import RestablecerContrasena from './pages/RestablecerContrasena.jsx'
 
@@ -19,6 +20,7 @@ import EquiposAdministrador from './pages/Administrador/EquiposAdministrador.jsx
 import TicketsAdministrador from './pages/Administrador/TicketsAdministrador.jsx'
 import ReportesAdministrador from './pages/Administrador/ReportesAdministrador.jsx'
 import ConfiguracionAdministrador from './pages/Administrador/ConfiguracionAdministrador.jsx'
+import PerfilAdministrador from './pages/Administrador/PerfilAdministrador.jsx'
 
 // Mesa de Ayuda
 import PanelMesaAyuda from './pages/Administrador_mesa_de_ayuda/PanelMesaAyuda.jsx'
@@ -27,6 +29,7 @@ import HistorialMesaAyuda from './pages/Administrador_mesa_de_ayuda/HistorialMes
 import AsignarTecnico from './pages/Administrador_mesa_de_ayuda/AsignarTecnico.jsx'
 import TecnicosMesaAyuda from './pages/Administrador_mesa_de_ayuda/TecnicosMesaAyuda.jsx'
 import ReportesMesaAyuda from './pages/Administrador_mesa_de_ayuda/ReportesMesaAyuda.jsx'
+import PerfilMesaAyuda from './pages/Administrador_mesa_de_ayuda/PerfilMesaAyuda.jsx'
 
 // Técnico
 import PanelTecnico from './pages/Tecnico/PanelTecnico.jsx'
@@ -39,6 +42,7 @@ import PerfilTecnico from './pages/Tecnico/PerfilTecnico.jsx'
 import PanelInstructor from './pages/instructor/PanelInstructor.jsx'
 import MisTicketsInstructor from './pages/instructor/MisTicketsInstructor.jsx'
 import MisEquiposInstructor from './pages/instructor/MisEquiposInstructor.jsx'
+import PerfilInstructor from './pages/instructor/PerfilInstructor.jsx'
 
 // Cuentadante 
 import PanelCuentadante from './pages/Cuentadante/PanelCuentadante.jsx'
@@ -49,6 +53,7 @@ import ReportesCuentadante from './pages/Cuentadante/ReportesCuentadante.jsx'
 import RegistrarSalidaCuentadante from './pages/Cuentadante/RegistrarSalidaCuentadante.jsx'
 import RegistrarSalidaAdministrador from './pages/Administrador/RegistrarSalidaAdministrador.jsx'
 import MisTicketsCuentadante from './pages/Cuentadante/MisTicketsCuentadante.jsx'
+import PerfilCuentadante from './pages/Cuentadante/PerfilCuentadante.jsx'
 
 // ✅ IMPORTACIÓN ÚNICA (Compartida por Instructor y Cuentadante)
 import RegistrarTicketSimple from './pages/RegistrarTicketSimple.jsx';
@@ -60,6 +65,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrarse" element={<Registrarse />} />
+        <Route path="/activar-cuenta" element={<ActivarCuenta />} />
         <Route path="/recuperar" element={<RecuperarContrasena />} />
         <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
 
@@ -75,6 +81,7 @@ function App() {
         <Route path="/administrador/salida" element={<ProtectedRoute roles={['administrador']}><RegistrarSalidaAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/reportes" element={<ProtectedRoute roles={['administrador']}><ReportesAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/configuracion" element={<ProtectedRoute roles={['administrador']}><ConfiguracionAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/perfil" element={<ProtectedRoute roles={['administrador']}><PerfilAdministrador /></ProtectedRoute>} />
 
         {/* Rutas de Mesa de Ayuda */}
         <Route path="/mesa-ayuda/panel" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><PanelMesaAyuda /></ProtectedRoute>} />
@@ -83,6 +90,7 @@ function App() {
         <Route path="/mesa-ayuda/asignar" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><AsignarTecnico /></ProtectedRoute>} />
         <Route path="/mesa-ayuda/tecnicos" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><TecnicosMesaAyuda /></ProtectedRoute>} />
         <Route path="/mesa-ayuda/reportes" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><ReportesMesaAyuda /></ProtectedRoute>} />
+        <Route path="/mesa-ayuda/perfil" element={<ProtectedRoute roles={['administrador_mesa_ayuda']}><PerfilMesaAyuda /></ProtectedRoute>} />
 
         {/* Rutas de Técnico */}
         <Route path="/tecnico" element={<ProtectedRoute roles={['tecnico']}><PanelTecnico /></ProtectedRoute>} />
@@ -96,6 +104,7 @@ function App() {
         <Route path="/instructor/reportar" element={<ProtectedRoute roles={['instructor']}><RegistrarTicketSimple /></ProtectedRoute>} />
         <Route path="/instructor/mis-reportes" element={<ProtectedRoute roles={['instructor']}><MisTicketsInstructor /></ProtectedRoute>} />
         <Route path="/instructor/equipos" element={<ProtectedRoute roles={['instructor']}><MisEquiposInstructor /></ProtectedRoute>} />
+        <Route path="/instructor/perfil" element={<ProtectedRoute roles={['instructor']}><PerfilInstructor /></ProtectedRoute>} />
 
 
         {/* Rutas de Cuentadante */}
@@ -106,6 +115,7 @@ function App() {
         <Route path="/cuentadante/mis-reportes" element={<ProtectedRoute roles={['cuentadante']}><MisTicketsCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/historial" element={<ProtectedRoute roles={['cuentadante']}><HistorialEquiposCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/reportes" element={<ProtectedRoute roles={['cuentadante']}><ReportesCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/perfil" element={<ProtectedRoute roles={['cuentadante']}><PerfilCuentadante /></ProtectedRoute>} />
         
         {/* Ruta comodín */}
         <Route path="*" element={<Navigate to="/login" replace />} />

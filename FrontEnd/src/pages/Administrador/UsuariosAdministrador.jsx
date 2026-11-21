@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout.jsx';
 import {
-  listarUsuarios, preRegistrarUsuario, listarRoles,
+  listarUsuarios, preRegistrarUsuario, listarRoles, listarTiposIdentificacion,
+  editarUsuario, eliminarUsuario, obtenerUsuarioActual,
 } from '../../services/adminService.js';
 
 const badgeColorPorRol = {
@@ -18,73 +19,108 @@ function iniciales(nombre, apellidos) {
   return `${nombre?.[0] ?? ''}${apellidos?.[0] ?? ''}`.toUpperCase();
 }
 
+const formularioVacio = {
+  id_tipo_identificacion: '',
+  numero_documento: '',
+  nombre_u: '',
+  apellidos_u: '',
+  correo_u: '',
+  telefono_u: '',
+  id_rol: '',
+};
+
 function UsuariosAdministrador() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [mensaje, setMensaje] = useState('');
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [tiposIdentificacion, setTiposIdentificacion] = useState([]);
   const [filtroRol, setFiltroRol] = useState('Todos');
   const [showModal, setShowModal] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [eliminando, setEliminando] = useState(null);
   const [errorModal, setErrorModal] = useState('');
   const [preRegistrado, setPreRegistrado] = useState(null);
-
-  // Estados del formulario
-  const [idTipoIdentificacion, setIdTipoIdentificacion] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [apellidos, setApellidos] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [numeroDocumento, setNumeroDocumento] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [idRol, setIdRol] = useState('');
-
-  async function cargar() {
-    try {
-      setCargando(true);
-      const [u, r] = await Promise.all([listarUsuarios(), listarRoles()]);
-      setUsuarios(u || []);
-      setRoles(r || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setCargando(false);
-    }
-  }
+  const [idEditando, setIdEditando] = useState(null);
+  const [form, setForm] = useState(formularioVacio);
+  const idActual = obtenerUsuarioActual()?.id_usuario;
+  const editando = idEditando !== null;
 
   useEffect(() => {
+    async function cargar() {
+      try {
+        const [u, r, tipos] = await Promise.all([
+          listarUsuarios(), listarRoles(), listarTiposIdentificacion(),
+        ]);
+        setUsuarios(u);
+        setRoles(r);
+        setTiposIdentificacion(tipos);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setCargando(false);
+      }
+    }
     cargar();
   }, []);
 
   const mapaRoles = Object.fromEntries(roles.map((r) => [r.id_rol, r.nombre_rol]));
   const filtered = filtroRol === 'Todos' ? usuarios : usuarios.filter((u) => mapaRoles[u.id_rol] === filtroRol);
 
-  function limpiarFormulario() {
-    setIdTipoIdentificacion(''); setNombre(''); setApellidos(''); setCorreo('');
-    setNumeroDocumento(''); setTelefono(''); setIdRol(''); setErrorModal('');
-  }
-
-  function abrirModal() {
-    limpiarFormulario();
+  function abrirModal(usuario = null) {
+    setForm(usuario ? {
+      ...formularioVacio,
+      ...Object.fromEntries(Object.keys(formularioVacio).map((campo) => [campo, usuario[campo] ?? ''])),
+    } : formularioVacio);
+    setIdEditando(usuario?.id_usuario ?? null);
+    setErrorModal('');
+    setError('');
+    setMensaje('');
     setPreRegistrado(null);
     setShowModal(true);
   }
 
-  async function handleRegistrar(e) {
+  function actualizarCampo(e) {
+    const { name, value } = e.target;
+    setForm((anterior) => ({ ...anterior, [name]: value }));
+  }
+
+  async function handleGuardar(e) {
     e.preventDefault();
+    const datos = {
+      nombre_u: form.nombre_u.trim(),
+      apellidos_u: form.apellidos_u.trim(),
+      correo_u: form.correo_u.trim().toLowerCase(),
+      numero_documento: form.numero_documento.trim(),
+      telefono_u: form.telefono_u.trim() || null,
+      id_rol: Number(form.id_rol),
+      id_tipo_identificacion: Number(form.id_tipo_identificacion),
+    };
+    if (!datos.nombre_u || !datos.apellidos_u || !datos.correo_u || !datos.numero_documento
+        || !datos.id_rol || !datos.id_tipo_identificacion) {
+      setErrorModal('Completa los campos obligatorios.');
+      return;
+    }
     setErrorModal('');
     setGuardando(true);
     try {
-      const nuevo = await preRegistrarUsuario({
-        nombre_u: nombre,
-        apellidos_u: apellidos,
-        correo_u: correo,
-        numero_documento: numeroDocumento,
-        telefono_u: telefono || null,
-        id_rol: idRol ? Number(idRol) : null,
-        id_tipo_identificacion: idTipoIdentificacion ? Number(idTipoIdentificacion) : 1,
-      });
-      setPreRegistrado(nuevo);
-      cargar(); // Recargar la tabla para mostrar el nuevo usuario pendiente
+      if (editando) {
+        const actualizado = await editarUsuario(idEditando, datos);
+        setUsuarios((anteriores) => anteriores.map((u) => u.id_usuario === idEditando ? actualizado : u));
+        if (idEditando === idActual) {
+          localStorage.setItem('usuario', JSON.stringify({
+            ...obtenerUsuarioActual(), nombre: actualizado.nombre_u, apellidos: actualizado.apellidos_u,
+          }));
+          window.dispatchEvent(new Event('usuario-actualizado'));
+        }
+        setMensaje('Usuario actualizado.');
+        setShowModal(false);
+      } else {
+        const nuevo = await preRegistrarUsuario(datos);
+        setUsuarios((anteriores) => [...anteriores, nuevo]);
+        setPreRegistrado(nuevo);
+      }
     } catch (err) {
       setErrorModal(err.message);
     } finally {
@@ -92,14 +128,30 @@ function UsuariosAdministrador() {
     }
   }
 
+  async function handleEliminar(usuario) {
+    if (!window.confirm(`¿Eliminar la cuenta de ${usuario.nombre_u} ${usuario.apellidos_u}?`)) return;
+    setEliminando(usuario.id_usuario);
+    setError('');
+    setMensaje('');
+    try {
+      await eliminarUsuario(usuario.id_usuario);
+      setUsuarios((anteriores) => anteriores.filter((u) => u.id_usuario !== usuario.id_usuario));
+      setMensaje('Usuario eliminado.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEliminando(null);
+    }
+  }
+
   return (
     <AdminLayout title="Usuarios">
       {showModal && (
-        <div className="pa-modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="pa-modal-overlay" onClick={() => !guardando && setShowModal(false)}>
           <div className="pa-modal" onClick={(e) => e.stopPropagation()}>
             <div className="pa-modal__header">
-              <h2 className="pa-modal__title">Pre-registrar Usuario</h2>
-              <button className="pa-modal__close" onClick={() => setShowModal(false)} type="button">✕</button>
+              <h2 className="pa-modal__title">{editando ? 'Editar usuario' : 'Pre-registrar usuario'}</h2>
+              <button className="pa-modal__close" onClick={() => !guardando && setShowModal(false)} type="button">✕</button>
             </div>
 
             {preRegistrado ? (
@@ -113,56 +165,56 @@ function UsuariosAdministrador() {
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 12 }}>
                   (Nota: Si no hay un servidor SMTP real configurado, el link de activación se imprime en la consola del backend).
                 </p>
-                <button className="pa-btn-primary" style={{ marginTop: 20 }} onClick={() => setShowModal(false)} type="button">Entendido</button>
+                <button className="pa-btn-primary" style={{ marginTop: 20 }} onClick={() => !guardando && setShowModal(false)} type="button">Entendido</button>
               </div>
             ) : (
-              <form onSubmit={handleRegistrar}>
+              <form onSubmit={handleGuardar}>
                 <div className="pa-modal__body">
                   {errorModal && <p className="pa-error" style={{ padding: 0, textAlign: 'left', marginBottom: 16 }}>{errorModal}</p>}
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: '0 0 16px 0' }}>
-                    El usuario recibirá un correo para confirmar sus datos y crear su propia contraseña. Acá no se define contraseña.
-                  </p>
-                  
+                  {!editando && (
+                    <p>El usuario recibirá un correo para crear su contraseña y activar la cuenta.</p>
+                  )}
+
                   <div className="pa-modal__row">
                     <div className="pa-form-field">
-                      <label>Tipo de Documento</label>
-                      <select className="pa-select" value={idTipoIdentificacion} onChange={(e) => setIdTipoIdentificacion(e.target.value)} required>
+                      <label htmlFor="usuario-tipo">Tipo de documento *</label>
+                      <select id="usuario-tipo" name="id_tipo_identificacion" className="pa-select" value={form.id_tipo_identificacion} onChange={actualizarCampo} required>
                         <option value="">Seleccione...</option>
-                        <option value="1">Cédula de Ciudadanía (CC)</option>
-                        <option value="2">Cédula de Extranjería (CE)</option>
-                        <option value="3">Tarjeta de Identidad (TI)</option>
+                        {tiposIdentificacion.map((tipo) => (
+                          <option key={tipo.id_tipo_id} value={tipo.id_tipo_id}>{tipo.nombre_tipo} ({tipo.iniciales})</option>
+                        ))}
                       </select>
                     </div>
                     <div className="pa-form-field">
-                      <label>Número de Documento</label>
-                      <input className="pa-input" value={numeroDocumento} onChange={(e) => setNumeroDocumento(e.target.value)} placeholder="1023456789" required />
+                      <label htmlFor="usuario-documento">Número de documento *</label>
+                      <input id="usuario-documento" name="numero_documento" className="pa-input" value={form.numero_documento} onChange={actualizarCampo} maxLength={20} required />
                     </div>
                   </div>
 
                   <div className="pa-modal__row">
                     <div className="pa-form-field">
-                      <label>Nombre</label>
-                      <input className="pa-input" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" required />
+                      <label htmlFor="usuario-nombre">Nombre *</label>
+                      <input id="usuario-nombre" name="nombre_u" className="pa-input" value={form.nombre_u} onChange={actualizarCampo} maxLength={50} required />
                     </div>
                     <div className="pa-form-field">
-                      <label>Apellidos</label>
-                      <input className="pa-input" value={apellidos} onChange={(e) => setApellidos(e.target.value)} placeholder="Apellidos" required />
+                      <label htmlFor="usuario-apellidos">Apellidos *</label>
+                      <input id="usuario-apellidos" name="apellidos_u" className="pa-input" value={form.apellidos_u} onChange={actualizarCampo} maxLength={100} required />
                     </div>
                   </div>
 
                   <div className="pa-form-field">
-                    <label>Correo SENA</label>
-                    <input className="pa-input" type="email" value={correo} onChange={(e) => setCorreo(e.target.value)} placeholder="usuario@sena.edu.co" required />
+                    <label htmlFor="usuario-correo">Correo *</label>
+                    <input id="usuario-correo" name="correo_u" className="pa-input" type="email" value={form.correo_u} onChange={actualizarCampo} maxLength={100} required />
                   </div>
 
                   <div className="pa-form-field">
-                    <label>Teléfono (opcional)</label>
-                    <input className="pa-input" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="3001234567" />
+                    <label htmlFor="usuario-telefono">Teléfono para SMS (opcional)</label>
+                    <input id="usuario-telefono" name="telefono_u" className="pa-input" type="tel" value={form.telefono_u} onChange={actualizarCampo} maxLength={20} placeholder="+573001234567" />
                   </div>
 
                   <div className="pa-form-field">
-                    <label>Rol en el Sistema</label>
-                    <select className="pa-select" value={idRol} onChange={(e) => setIdRol(e.target.value)} required>
+                    <label htmlFor="usuario-rol">Rol en el sistema *</label>
+                    <select id="usuario-rol" name="id_rol" className="pa-select" value={form.id_rol} onChange={actualizarCampo} required disabled={editando && idEditando === idActual}>
                       <option value="">Seleccionar rol...</option>
                       {roles.map((r) => (
                         <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
@@ -171,9 +223,9 @@ function UsuariosAdministrador() {
                   </div>
 
                   <div className="pa-modal__actions" style={{ marginTop: 24 }}>
-                    <button type="button" className="pa-btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+                    <button type="button" className="pa-btn-secondary" onClick={() => !guardando && setShowModal(false)}>Cancelar</button>
                     <button type="submit" className="pa-btn-primary" disabled={guardando}>
-                      {guardando ? 'Procesando...' : 'Pre-registrar y enviar activación'}
+                      {guardando ? 'Procesando...' : editando ? 'Guardar cambios' : 'Pre-registrar y enviar activación'}
                     </button>
                   </div>
                 </div>
@@ -188,7 +240,7 @@ function UsuariosAdministrador() {
           <h1 className="pa-section-header__title">Usuarios</h1>
           <p className="pa-section-header__subtitle">Gestión y pre-registro de usuarios del sistema</p>
         </div>
-        <button className="pa-btn-primary" onClick={abrirModal} type="button">+ Nuevo Usuario</button>
+        <button className="pa-btn-primary" onClick={() => abrirModal()} disabled={cargando || !roles.length || !tiposIdentificacion.length} type="button">+ Nuevo Usuario</button>
       </div>
 
       <div className="pa-filter-row">
@@ -206,10 +258,11 @@ function UsuariosAdministrador() {
       </div>
 
       {cargando && <p className="pa-loading">Cargando usuarios...</p>}
-      {error && <p className="pa-error">{error}</p>}
+      {error && <p className="pa-error" role="alert">{error}</p>}
+      {mensaje && <p role="status">{mensaje}</p>}
 
-      {!cargando && !error && (
-        <div className="pa-table-wrap">
+      {!cargando && (
+        <div className="pa-table-wrap pa-usuarios-tabla">
           <table className="pa-table">
             <thead>
               <tr>
@@ -219,6 +272,7 @@ function UsuariosAdministrador() {
                 <th>Rol</th>
                 <th>Estado de Cuenta</th>
                 <th>Registrado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -230,7 +284,7 @@ function UsuariosAdministrador() {
                       <span>{u.nombre_u} {u.apellidos_u}</span>
                     </div>
                   </td>
-                  <td className="pa-table-mono">{u.correo_u}</td>
+                  <td className="pa-table-mono pa-usuarios-correo">{u.correo_u}</td>
                   <td className="pa-table-mono">{u.numero_documento}</td>
                   <td>
                     <span className={`pa-badge ${badgeColorPorRol[mapaRoles[u.id_rol]] || 'pa-badge--neutral'}`}>
@@ -243,6 +297,27 @@ function UsuariosAdministrador() {
                     </span>
                   </td>
                   <td className="pa-table-mono">{new Date(u.creado_en).toLocaleDateString()}</td>
+                  <td>
+                    <div className="pa-usuarios-acciones">
+                      <button
+                        type="button"
+                        className="pa-btn-secondary"
+                        onClick={() => abrirModal(u)}
+                      >
+                        Editar
+                      </button>
+                      {u.id_usuario !== idActual && (
+                        <button
+                          type="button"
+                          className="pa-btn-secondary"
+                          disabled={eliminando !== null}
+                          onClick={() => handleEliminar(u)}
+                        >
+                          {eliminando === u.id_usuario ? 'Eliminando...' : 'Eliminar'}
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
