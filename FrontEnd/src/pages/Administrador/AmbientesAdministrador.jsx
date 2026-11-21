@@ -357,7 +357,20 @@ function AmbientesAdministrador() {
                     Eliminar
                   </button>
                 </div>
-              </div>
+                {!tieneCuentadante && (
+                    <button
+                      className="pa-btn-secondary"
+                      style={{ width: '100%', fontSize: 12, padding: '6px 10px', marginTop: 8, color: '#45B3BF' }}
+                      type="button"
+                      onClick={() => {
+                        abrirEditar(a);
+                        setShowReasignar(true);
+                      }}
+                    >
+                      Asignar
+                    </button>
+                  )}
+                </div>
             );
           })}
           {ambientes.length === 0 && (
