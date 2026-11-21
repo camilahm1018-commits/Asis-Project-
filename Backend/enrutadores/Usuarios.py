@@ -54,6 +54,20 @@ async def resumen_usuarios(sesion: Sesion_por_rol):
         for id_usuario, nombre, apellidos in filas
     ]
 
+@asis.get("/instructores")
+async def listar_instructores(sesion: Sesion_por_rol):
+    # Solo id y nombre, de instructores activos: para elegir a quién se presta un equipo.
+    filas = sesion.exec(
+        select(Usuario.id_usuario, Usuario.nombre_u, Usuario.apellidos_u)
+        .join(Rol, Usuario.id_rol == Rol.id_rol)
+        .where(Rol.nombre_rol == "instructor", Usuario.activo == True)  # noqa: E712
+        .order_by(Usuario.apellidos_u, Usuario.nombre_u)
+    ).all()
+    return [
+        {"id_usuario": i, "nombre_u": n, "apellidos_u": a}
+        for i, n, a in filas
+    ]
+
 # ==========================================
 # 3. OBTENER USUARIO POR ID
 # ==========================================

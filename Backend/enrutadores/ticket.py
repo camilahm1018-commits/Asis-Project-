@@ -10,7 +10,8 @@ from Modelos.roles import Rol
 from Modelos.estados_ticket import estados_ticket
 from Modelos.asig_tec import Asig_tec
 from Modelos.His_tickets import His_ticket
-from Modelos.mobiliario import Mobiliario, TipoMobiliario
+from Modelos.mobiliario import Mobiliario, TipoMobiliario 
+from datetime import datetime, date
 from enrutadores.asig_tec import (
     registrar_asignacion,
     _enviar_notificacion_asignacion
@@ -70,6 +71,10 @@ async def crear_ticket(
     id_estado: Optional[int] = Form(default=None),
     atendido: bool = Form(False),
     fecha_salida: Optional[datetime] = Form(default=None),
+    id_ambiente_destino: Optional[int] = Form(default=None),
+    traslado_definitivo: Optional[bool] = Form(default=None),
+    id_instructor_prestamo: Optional[int] = Form(default=None),
+    fecha_devolucion: Optional[date] = Form(default=None),
     imagen: Optional[UploadFile] = File(default=None),
     usuario_actual: dict = Depends(verificar_token)
 ):
@@ -85,8 +90,8 @@ async def crear_ticket(
         raise HTTPException(status_code=422,
                             detail="Indica un equipo o un mobiliario, pero no ambos")
 
-    mobiliario = None
     equipo = None
+    mobiliario = None
     if id_equipo is not None:
         equipo = session.get(Equipo, id_equipo)
         if equipo is None:
@@ -98,7 +103,49 @@ async def crear_ticket(
             raise HTTPException(status_code=404, detail="Mobiliario no encontrado")
         id_ambiente_item = mobiliario.id_ambiente
 
-    
+    # Datos propios de cada tipo de salida; los que no corresponden se descartan.
+    id_ambiente_origen = None
+    if tipo_salida == "traslado":
+        if id_ambiente_destino is None:
+            raise HTTPException(status_code=422, detail="Selecciona el ambiente destino")
+        if traslado_definitivo is None:
+            raise HTTPException(status_code=422,
+                                detail="Indica si el traslado es temporal o definitivo")
+        if session.get(Ambiente, id_ambiente_destino) is None:
+            raise HTTPException(status_code=404, detail="Ambiente destino no encontrado")
+        if id_ambiente_destino == id_ambiente_item:
+            raise HTTPException(status_code=422,
+                                detail="El ambiente destino debe ser distinto al actual")
+        if traslado_definitivo and rol != "administrador":
+            raise HTTPException(status_code=403,
+                                detail="Solo el administrador puede hacer traslados definitivos")
+        id_ambiente_origen = id_ambiente_item
+    else:
+        id_ambiente_destino = None
+        traslado_definitivo = None
+
+    if tipo_salida == "prestamo":
+        if id_instructor_prestamo == id_usuario:
+            raise HTTPException(status_code=422, detail="No puedes prestarte el elemento a ti mismo")
+        if id_instructor_prestamo is None:
+            raise HTTPException(status_code=422, detail="Selecciona el instructor al que se presta")
+        if fecha_devolucion is None:
+            raise HTTPException(status_code=422, detail="Indica la fecha de devolución")
+        if fecha_devolucion < date.today():
+            raise HTTPException(status_code=422,
+                                detail="La fecha de devolución no puede ser anterior a hoy")
+        instructor = session.exec(
+            select(Usuario.id_usuario)
+            .join(Rol, Usuario.id_rol == Rol.id_rol)
+            .where(Usuario.id_usuario == id_instructor_prestamo,
+                   Rol.nombre_rol == "instructor",
+                   Usuario.activo == True)  # noqa: E712
+        ).first()
+        if instructor is None:
+            raise HTTPException(status_code=422, detail="El instructor seleccionado no es válido")
+    else:
+        id_instructor_prestamo = None
+        fecha_devolucion = None
 
     # Solo el administrador puede decidir libremente el estado inicial.
     if rol != "administrador":
@@ -125,17 +172,31 @@ async def crear_ticket(
         motivo=motivo, id_equipo=id_equipo, id_mobiliario=id_mobiliario,
         tipo_salida=tipo_salida, id_motivo_novedad=id_motivo_novedad,
         id_estado=id_estado, creado_por=id_usuario, atendido=atendido,
-        fecha_salida=fecha_salida or datetime.now()
+        fecha_salida=fecha_salida or datetime.now(),
+        id_ambiente_origen=id_ambiente_origen,
+        id_ambiente_destino=id_ambiente_destino,
+        traslado_definitivo=traslado_definitivo,
+        id_instructor_prestamo=id_instructor_prestamo,
+        fecha_devolucion=fecha_devolucion,
     )
     session.add(nuevo)
 
-        # El elemento queda dañado en el mismo commit que crea el ticket
+    # El elemento queda dañado en el mismo commit que crea el ticket
     if tipo_salida == "dano":
         if equipo is not None:
             equipo.estado = "dañado"
             session.add(equipo)
         if mobiliario is not None:
             mobiliario.estado = "Dañado"
+            session.add(mobiliario)
+
+    # Traslado definitivo: el elemento cambia de ambiente en el mismo commit
+    if tipo_salida == "traslado" and traslado_definitivo:
+        if equipo is not None:
+            equipo.id_ambiente = id_ambiente_destino
+            session.add(equipo)
+        if mobiliario is not None:
+            mobiliario.id_ambiente = id_ambiente_destino
             session.add(mobiliario)
 
     session.commit()
@@ -449,17 +510,29 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 return
 
             nombre_equipo, ambiente = _item_y_ambiente(sesion, ticket)
-            if ambiente is None:
+
+            # En un traslado definitivo el elemento ya está en el destino:
+            # el ambiente de origen se lee del ticket.
+            ambiente_origen = ambiente
+            if ticket.id_ambiente_origen is not None:
+                ambiente_origen = sesion.get(Ambiente, ticket.id_ambiente_origen) or ambiente
+            ambiente_destino = None
+            if ticket.id_ambiente_destino is not None:
+                ambiente_destino = sesion.get(Ambiente, ticket.id_ambiente_destino)
+
+            if ambiente_origen is None:
                 print(f" No se pudo determinar el ambiente del ticket {id_ticket}")
                 return
 
             creador = sesion.get(Usuario, ticket.creado_por)
             destinatarios = []
 
-            if ambiente.id_cuentadante:
-                cuentadante = sesion.get(Usuario, ambiente.id_cuentadante)
-                if cuentadante and cuentadante.correo_u:
-                    destinatarios.append(cuentadante.correo_u)
+            # Cuentadante del ambiente de origen y, si es traslado, también el del destino
+            for amb in (ambiente_origen, ambiente_destino):
+                if amb is not None and amb.id_cuentadante:
+                    cuentadante = sesion.get(Usuario, amb.id_cuentadante)
+                    if cuentadante and cuentadante.correo_u:
+                        destinatarios.append(cuentadante.correo_u)
 
             admins = sesion.exec(
                 select(Usuario).join(Rol, Usuario.id_rol == Rol.id_rol)
@@ -473,6 +546,15 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 tec_asignado = sesion.get(Usuario, ticket.asignado_a)
                 if tec_asignado and tec_asignado.correo_u:
                     destinatarios.append(tec_asignado.correo_u)
+                    
+            # Préstamo: se avisa también al instructor que recibe el elemento
+            nombre_prestatario = None
+            if ticket.id_instructor_prestamo:
+                prestatario = sesion.get(Usuario, ticket.id_instructor_prestamo)
+                if prestatario:
+                    nombre_prestatario = f"{prestatario.nombre_u} {prestatario.apellidos_u}"
+                    if prestatario.correo_u:
+                        destinatarios.append(prestatario.correo_u)
 
             destinatarios = list(set(destinatarios))
 
@@ -480,27 +562,37 @@ def _enviar_notificacion_creacion(id_ticket: int):
                 destinatarios.remove(creador.correo_u)
 
             if not destinatarios:
-                print(f" No hay correos válidos para el ticket {id_ticket}")
+                print(f"No hay correos válidos para el ticket {id_ticket}")
                 return
 
             nombre_creador = f"{creador.nombre_u} {creador.apellidos_u}" if creador else "Desconocido"
-            nombre_ambiente = f"{ambiente.nombre_a} - {ambiente.ubicacion}"
+            nombre_ambiente = f"{ambiente_origen.nombre_a} - {ambiente_origen.ubicacion}"
+            asunto = f"🚨 Nuevo Ticket #{ticket.id_ticket} - {nombre_equipo}"
 
+            if ambiente_destino is not None:
+                tipo_traslado = "definitivo" if ticket.traslado_definitivo else "temporal"
+                nombre_ambiente = f"{ambiente_origen.nombre_a} → {ambiente_destino.nombre_a} (traslado {tipo_traslado})"
+                asunto = f"🚚 Traslado {tipo_traslado} - Ticket #{ticket.id_ticket} - {nombre_equipo}"
+
+            motivo_correo = ticket.motivo
+            if nombre_prestatario:
+                asunto = f"📤 Préstamo - Ticket #{ticket.id_ticket} - {nombre_equipo}"
+                devolucion = ticket.fecha_devolucion.strftime("%d/%m/%Y") if ticket.fecha_devolucion else "sin fecha"
+                motivo_correo = f"{ticket.motivo} — Prestado a {nombre_prestatario}, devolución: {devolucion}"
+                
             datos_email = {
                 "id_ticket": ticket.id_ticket,
                 "equipo": nombre_equipo,
                 "ambiente": nombre_ambiente,
-                "motivo": ticket.motivo,
+                "motivo": motivo_correo,
                 "creado_por": nombre_creador,
                 "fecha_salida": str(ticket.fecha_salida) if ticket.fecha_salida else "N/A"
             }
 
-            asunto = f" Nuevo Ticket #{ticket.id_ticket} - {nombre_equipo}"
             enviar_correo_notificacion(destinatarios, asunto, datos_email)
 
     except Exception as e:
-        print(f" Error en notificación de creación: {e}")
-
+        print(f"Error en notificación de creación: {e}")
 
 # ==========================================
 #  FUNCIÓN: NOTIFICAR CAMBIO DE ESTADO
@@ -551,7 +643,7 @@ def _enviar_notificacion_cambio_estado(id_ticket: int, estado_anterior: int, est
                 "estado_anterior": nombre_estado_anterior,
                 "estado_nuevo": nombre_estado_nuevo,
                 "color_estado": color_estado_nuevo,
-                "motivo": ticket.motivo
+                "motivo": ticket.motivo,
             }
 
             asunto = f" Ticket #{ticket.id_ticket} - Estado cambiado a '{nombre_estado_nuevo}'"

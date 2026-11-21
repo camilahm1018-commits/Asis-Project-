@@ -11,6 +11,7 @@ const navItems = [
   { to: '/administrador/ambientes', label: 'Ambientes', icon: '🏫' },
   { to: '/administrador/equipos', label: 'Equipos', icon: '💻' },
   { to: '/administrador/tickets', label: 'Tickets', icon: '🎫' },
+    { to: '/administrador/salida', label: 'Registrar salida', icon: '📤' },
   { to: '/administrador/reportes', label: 'Reportes', icon: '📊' },
   { to: '/administrador/configuracion', label: 'Configuración', icon: '⚙️' },
 ];

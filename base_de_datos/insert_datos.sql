@@ -170,6 +170,9 @@ CREATE TABLE tickets (
     id_ambiente_destino INT,
     persona_prestamo VARCHAR(100),
     fecha_devolucion DATE,
+    id_ambiente_origen INT,
+    traslado_definitivo BOOLEAN,
+    id_instructor_prestamo INT,
  
     CONSTRAINT fk_ticket_equipo
     FOREIGN KEY(id_equipo)
@@ -199,9 +202,23 @@ CREATE TABLE tickets (
         (id_equipo IS NOT NULL AND id_mobiliario IS NULL)
         OR
         (id_equipo IS NULL AND id_mobiliario IS NOT NULL)
-    )
+    ),
+    CONSTRAINT fk_ticket_ambiente_origen
+    FOREIGN KEY(id_ambiente_origen)
+    REFERENCES ambientes(id_ambiente),
+
+    CONSTRAINT fk_ticket_ambiente_destino
+    FOREIGN KEY(id_ambiente_destino)
+    REFERENCES ambientes(id_ambiente),
+
+    CONSTRAINT fk_ticket_instructor_prestamo
+    FOREIGN KEY(id_instructor_prestamo)
+    REFERENCES usuarios(id_usuario),
+
+    CONSTRAINT chk_traslado_definitivo
+    CHECK (traslado_definitivo IS NULL OR tipo_salida = 'traslado')
 );
- 
+
 -- ==========================================
 -- TABLA: asignacion_tecnico
 -- ==========================================

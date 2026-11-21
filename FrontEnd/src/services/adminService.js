@@ -183,6 +183,14 @@ export const listarMobiliario = async () => {
   }
 };
 
+export const listarInstructores = async () => {
+  try {
+    const { data } = await api.get('/usuarios/instructores', getAuthHeaders());
+    return data;
+  } catch (error) {
+    lanzarError(error, 'No se pudo obtener la lista de instructores');
+  }
+};
 // ==========================================
 // TIPOS DE EQUIPO  (backend: prefix "/tipo_equipo")
 // ==========================================

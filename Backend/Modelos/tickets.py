@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 
@@ -18,12 +18,16 @@ class TicketsBase(SQLModel):
     asignado_a: Optional[int] = Field(default=None, foreign_key="usuarios.id_usuario")
     id_estado: int = Field(foreign_key="estados_ticket.id_estado")
     id_motivo_novedad: Optional[int] = Field(default=None, foreign_key="motivo_novedad.id_motivo")
-
+    id_ambiente_origen: Optional[int] = Field(default=None, foreign_key="ambientes.id_ambiente")
+    id_ambiente_destino: Optional[int] = Field(default=None, foreign_key="ambientes.id_ambiente")
+    traslado_definitivo: Optional[bool] = Field(default=None)
+    id_instructor_prestamo: Optional[int] = Field(default=None, foreign_key="usuarios.id_usuario")
+    fecha_devolucion: Optional[date] = Field(default=None)
 
 class tickets(TicketsBase, table=True):
     __tablename__ = "tickets"
     id_ticket: Optional[int] = Field(default=None, primary_key=True)
-
+    
 
 class TicketsCrear(TicketsBase):
     pass

@@ -47,6 +47,7 @@ import AmbientesCuentadante from './pages/Cuentadante/AmbientesCuentadante.jsx'
 import HistorialEquiposCuentadante from './pages/Cuentadante/HistorialEquiposCuentadante.jsx'
 import ReportesCuentadante from './pages/Cuentadante/ReportesCuentadante.jsx'
 import RegistrarSalidaCuentadante from './pages/Cuentadante/RegistrarSalidaCuentadante.jsx'
+import RegistrarSalidaAdministrador from './pages/Administrador/RegistrarSalidaAdministrador.jsx'
 import MisTicketsCuentadante from './pages/Cuentadante/MisTicketsCuentadante.jsx'
 
 // ✅ IMPORTACIÓN ÚNICA (Compartida por Instructor y Cuentadante)
@@ -71,6 +72,7 @@ function App() {
         <Route path="/administrador/ambientes" element={<ProtectedRoute roles={['administrador']}><AmbientesAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/equipos" element={<ProtectedRoute roles={['administrador']}><EquiposAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/tickets" element={<ProtectedRoute roles={['administrador']}><TicketsAdministrador /></ProtectedRoute>} />
+        <Route path="/administrador/salida" element={<ProtectedRoute roles={['administrador']}><RegistrarSalidaAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/reportes" element={<ProtectedRoute roles={['administrador']}><ReportesAdministrador /></ProtectedRoute>} />
         <Route path="/administrador/configuracion" element={<ProtectedRoute roles={['administrador']}><ConfiguracionAdministrador /></ProtectedRoute>} />
 

@@ -6,7 +6,7 @@
 // equipo como dañado de una vez.
 import { useEffect, useState } from 'react'
 import {
-  listarAmbientes, listarEquipos,listarMobiliario, listarEstadosTicket, listarMotivosNovedad,
+  listarAmbientes, listarEquipos, listarMobiliario, listarInstructores, listarEstadosTicket, listarMotivosNovedad,
   crearTicket, obtenerUsuarioActual,
 } from '../services/adminService.js'
 
@@ -36,18 +36,27 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [errorEnvio, setErrorEnvio] = useState('')
+  const usuarioActual = obtenerUsuarioActual()
+  const esAdmin = usuarioActual?.rol === 'administrador'
+  const [instructores, setInstructores] = useState([])
+  const [ambienteDestinoId, setAmbienteDestinoId] = useState('')
+  const [tipoTraslado, setTipoTraslado] = useState('')   // 'temporal' | 'definitivo'
+  const [instructorId, setInstructorId] = useState('')
+  const [fechaDevolucion, setFechaDevolucion] = useState('')
 
   useEffect(() => {
     async function cargar() {
       try {
-        const [a, e, mob, mn, es] = await Promise.all([
+        const [a, e, mob, mn, es, ins] = await Promise.all([
           listarAmbientes(), listarEquipos(), listarMobiliario(), listarMotivosNovedad(), listarEstadosTicket(),
+          listarInstructores().catch(() => []),
         ])
         setAmbientes(ambientesPermitidos ? a.filter((amb) => ambientesPermitidos.includes(amb.id_ambiente)) : a)
         setEquipos(e || [])
         setMobiliario(mob || [])
         setMotivosNovedad(mn || [])
         setEstados(es || [])
+        setInstructores(ins || [])
       } catch (err) {
         setError(err.message)
       } finally {
@@ -62,6 +71,12 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
   const mobiliarioDelAmbiente = mobiliario.filter((m) => String(m.id_ambiente) === ambienteId)
   const mobiliarioElegido = mobiliario.find((m) => String(m.id_mobiliario) === mobiliarioId)
   const itemElegido = tipoItem === 'equipo' ? equipoId : mobiliarioId
+  const faltanDatosSalida =
+    (tipoSalida === 'traslado' && (!ambienteDestinoId || !tipoTraslado)) ||
+    (tipoSalida === 'prestamo' && (!instructorId || !fechaDevolucion))
+
+  const hoy = new Date()
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
 
   function buscarIdEstado(nombreBuscado) {
     const encontrado = estados.find((es) => es.nombre_e.toLowerCase() === nombreBuscado.toLowerCase())
@@ -70,13 +85,12 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
   async function handleEnviar(e) {
     e.preventDefault()
-    if (!ambienteId || !itemElegido || !tipoSalida || !motivo) return
+    if (!ambienteId || !itemElegido || !tipoSalida || !motivo || faltanDatosSalida) return
 
     setEnviando(true)
     setErrorEnvio('')
 
     try {
-      const usuarioActual = obtenerUsuarioActual()
 
       const idEstado = tipoSalida === 'dano'
         ? buscarIdEstado('Pendiente')
@@ -92,11 +106,23 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
         creado_por: usuarioActual?.id_usuario,
         atendido: false,
         fecha_salida: new Date().toISOString(),
+        id_ambiente_destino: tipoSalida === 'traslado' ? Number(ambienteDestinoId) : null,
+        traslado_definitivo: tipoSalida === 'traslado' ? tipoTraslado === 'definitivo' : null,
+        id_instructor_prestamo: tipoSalida === 'prestamo' ? Number(instructorId) : null,
+        fecha_devolucion: tipoSalida === 'prestamo' ? fechaDevolucion : null,
       }, imagen)
-
+      if (tipoSalida === 'traslado' && tipoTraslado === 'definitivo') {
+        const destino = Number(ambienteDestinoId)
+        if (tipoItem === 'equipo') {
+          setEquipos((prev) => prev.map((e) => (e.id_equipo === Number(equipoId) ? { ...e, id_ambiente: destino } : e)))
+        } else {
+          setMobiliario((prev) => prev.map((m) => (m.id_mobiliario === Number(mobiliarioId) ? { ...m, id_ambiente: destino } : m)))
+        }
+      }
             setEnviado(true)
       setAmbienteId(''); setTipoItem(''); setEquipoId(''); setMobiliarioId('')
       setTipoSalida(''); setIdMotivoNovedad(''); setMotivo(''); setImagen(null)
+      setAmbienteDestinoId(''); setTipoTraslado(''); setInstructorId(''); setFechaDevolucion('')
       setTimeout(() => setEnviado(false), 4000)
     } catch (err) {
       setErrorEnvio(err.message)
@@ -127,7 +153,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
           <div className="pa-form-field">
             <label>1. Ambiente</label>
-            <select className="pa-select" value={ambienteId} onChange={(e) => { setAmbienteId(e.target.value); setEquipoId(''); setMobiliarioId('') }} required>
+            <select className="pa-select" value={ambienteId} onChange={(e) => { setAmbienteId(e.target.value); setEquipoId(''); setMobiliarioId(''); setAmbienteDestinoId('') }} required>
               <option value="">Seleccionar ambiente...</option>
               {ambientes.map((a) => <option key={a.id_ambiente} value={a.id_ambiente}>{a.nombre_a}</option>)}
             </select>
@@ -209,7 +235,9 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
                 <button
                   type="button"
                   key={t.valor}
-                  onClick={() => setTipoSalida(t.valor)}
+                  onClick={() => {setTipoSalida(t.valor)
+                    setAmbienteDestinoId(''); setTipoTraslado(''); setInstructorId(''); setFechaDevolucion('')
+                  }}
                   className={`pa-select-card${tipoSalida === t.valor ? ' selected' : ''}`}
                   style={{ textAlign: 'center' }}
                 >
@@ -224,7 +252,76 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
               </p>
             )}
           </div>
+          {tipoSalida === 'traslado' && (
+            <>
+              <div className="pa-form-field">
+                <label>5. Ambiente destino</label>
+                <select className="pa-select" value={ambienteDestinoId} onChange={(e) => setAmbienteDestinoId(e.target.value)} required>
+                  <option value="">Seleccionar ambiente destino...</option>
+                  {ambientes
+                    .filter((a) => String(a.id_ambiente) !== ambienteId)
+                    .map((a) => <option key={a.id_ambiente} value={a.id_ambiente}>{a.nombre_a}</option>)}
+                </select>
+              </div>
 
+              <div className="pa-form-field">
+                <label>Tipo de traslado</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setTipoTraslado('temporal')}
+                    className={`pa-select-card${tipoTraslado === 'temporal' ? ' selected' : ''}`}
+                    style={{ textAlign: 'center' }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>Temporal</div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!esAdmin}
+                    title={esAdmin ? '' : 'Solo el administrador puede hacer traslados definitivos'}
+                    onClick={() => setTipoTraslado('definitivo')}
+                    className={`pa-select-card${tipoTraslado === 'definitivo' ? ' selected' : ''}`}
+                    style={{ textAlign: 'center', opacity: esAdmin ? 1 : 0.5 }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>Definitivo</div>
+                  </button>
+                </div>
+                <p style={{ fontSize: 12, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
+                  {tipoTraslado === 'definitivo'
+                    ? 'El elemento quedará registrado en el ambiente destino.'
+                    : tipoTraslado === 'temporal'
+                      ? 'El elemento sigue registrado en su ambiente de origen.'
+                      : esAdmin ? 'Elige si el traslado es temporal o definitivo.' : 'Los traslados definitivos los hace el administrador.'}
+                </p>
+              </div>
+            </>
+          )}
+
+          {tipoSalida === 'prestamo' && (
+            <>
+              <div className="pa-form-field">
+                <label>5. Instructor que recibe el préstamo</label>
+                <select className="pa-select" value={instructorId} onChange={(e) => setInstructorId(e.target.value)} required>
+                  <option value="">Seleccionar instructor...</option>
+                  {instructores
+                    .filter((i) => i.id_usuario !== usuarioActual?.id_usuario)
+                    .map((i) => <option key={i.id_usuario} value={i.id_usuario}>{i.nombre_u} {i.apellidos_u}</option>)}
+                </select>
+              </div>
+
+              <div className="pa-form-field">
+                <label>Fecha de devolución</label>
+                <input
+                  type="date"
+                  className="pa-input"
+                  min={hoyStr}
+                  value={fechaDevolucion}
+                  onChange={(e) => setFechaDevolucion(e.target.value)}
+                  required
+                />
+              </div>
+            </>
+          )}
           <div className="pa-form-field">
             <label>Descripción</label>
             <textarea className="pa-textarea" rows={4} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Describe qué pasó con el equipo..." required />
@@ -270,7 +367,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
             </div>
           )}
 
-          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !itemElegido || !tipoSalida || !motivo || enviando}>
+          <button type="submit" className="pa-btn-primary" style={{ width: '100%' }} disabled={!ambienteId || !itemElegido || !tipoSalida || !motivo || faltanDatosSalida || enviando}>
             {enviando ? 'Registrando...' : 'Registrar Salida'}
           </button>
         </div>

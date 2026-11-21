@@ -130,8 +130,6 @@ GRANT INSERT ON TABLE public.notificaciones TO tecnico, administrador_mesa_ayuda
 GRANT USAGE ON SEQUENCE public.notificaciones_id_notificacion_seq
 TO tecnico, administrador_mesa_ayuda;
 
-
-
 -- MOBILIARIO (sillas y mesa del instructor): mismos permisos que equipos.
 GRANT SELECT ON TABLE public.tipo_mobiliario
 TO instructor, tecnico, administrador_mesa_ayuda, cuentadante;
@@ -141,3 +139,8 @@ GRANT INSERT, UPDATE ON TABLE public.mobiliario TO cuentadante;
 GRANT USAGE ON SEQUENCE public.mobiliario_id_mobiliario_seq TO cuentadante;
 -- El instructor solo cambia el estado (al reportar un daño).
 GRANT UPDATE (estado) ON TABLE public.mobiliario TO instructor;
+
+-- Préstamos: instructor y cuentadante eligen a qué instructor se presta.
+-- Solo ven el rol y si está activo; no el documento, el correo ni la clave.
+GRANT SELECT (id_rol, activo) ON TABLE public.usuarios
+TO instructor, cuentadante;
