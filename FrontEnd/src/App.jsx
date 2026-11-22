@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import HistorialGeneralEquipos from './pages/HistorialGeneralEquipos.jsx'
 import { navItemsCuentadante } from './pages/Cuentadante/navItems.js'
+import ReportesAmbientesCuentadante from './pages/Cuentadante/ReportesAmbientesCuentadante.jsx'
 // Auth
 import Login from './pages/Login.jsx'
 import Registrarse from './pages/Registrarse.jsx'
@@ -112,6 +113,7 @@ function App() {
         {/* Rutas de Cuentadante */}
         <Route path="/cuentadante" element={<ProtectedRoute roles={['cuentadante']}><PanelCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/inventario" element={<ProtectedRoute roles={['cuentadante']}><InventarioCuentadante /></ProtectedRoute>} />
+        <Route path="/cuentadante/reportes-ambientes" element={<ProtectedRoute roles={['cuentadante']}><ReportesAmbientesCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/ambientes" element={<ProtectedRoute roles={['cuentadante']}><AmbientesCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/salida" element={<ProtectedRoute roles={['cuentadante']}><RegistrarSalidaCuentadante /></ProtectedRoute>} />
         <Route path="/cuentadante/mis-reportes" element={<ProtectedRoute roles={['cuentadante']}><MisTicketsCuentadante /></ProtectedRoute>} />
