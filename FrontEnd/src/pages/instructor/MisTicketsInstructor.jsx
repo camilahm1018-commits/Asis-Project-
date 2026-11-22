@@ -35,25 +35,11 @@ function MisTicketsInstructor() {
   }, []);
 
   // 🔍 DIAGNÓSTICO: Ver la estructura real que llega del backend
-  if (tickets.length > 0) {
-    console.log("🎫 ESTRUCTURA REAL DEL PRIMER TICKET:", tickets[0]);
-  }
-
-  // ✅ FILTRO CORREGIDO: Busca EXCLUSIVAMENTE el ID numérico, ignorando el nombre
-  const misTickets = tickets.filter((t) => {
-    // Usamos ?? para que tome el primer valor que NO sea null o undefined
-    const idCreador = t.idCreadoPor ?? t.creado_por ?? t.id_creador;
-    
-    console.log(`Ticket #${t.id}: idCreador=${idCreador}, tu usuario=${usuario?.id_usuario}`);
-    
-    // Si no hay usuario logueado, mostramos todos (para depuración)
-    if (!usuario?.id_usuario) return true;
-    
-    // Comparamos como strings para evitar errores de tipo (ej: 22 === "22")
-    return String(idCreador) === String(usuario.id_usuario);
-  });
-
-  console.log("📋 Tickets filtrados (mis tickets):", misTickets);
+  // Solo los reportes creados por este instructor
+  const idUsuario = usuario?.id_usuario;
+  const misTickets = tickets.filter(
+    (t) => idUsuario != null && String(t.idCreadoPor) === String(idUsuario)
+  );
 
   const estadosDisponibles = ['Todos', ...new Set(misTickets.map((t) => t.estado))];
   const filtered = filtro === 'Todos' ? misTickets : misTickets.filter((t) => t.estado === filtro);
@@ -111,7 +97,7 @@ function MisTicketsInstructor() {
                     </span>
                   </div>
                   <RegistrarEntradaBoton ticket={t} onRegistrada={cargar} />
-                  {t.estado === 'Pendiente' && (
+                  {t.estado === 'Pendiente' && t.idTecnico == null && (
                     <button
                       type="button"
                       className="pa-btn-secondary"
