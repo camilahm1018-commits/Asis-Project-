@@ -463,7 +463,7 @@ async def desasignar_tecnico(
 
 # Devolución de un equipo al ambiente (RF-007 / RF-010).
 
-@asis.put("/{id}/registrar-entrada", response_model=tickets,dependencies=[Depends(solo_gestion_tickets)])
+@asis.put("/{id}/registrar-entrada", response_model=tickets)
 async def registrar_entrada(
     id: int,
     session: Sesion_por_rol,
