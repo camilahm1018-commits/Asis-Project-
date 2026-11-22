@@ -12,9 +12,21 @@ const campos = [
 ];
 const initialForm = { numero_documento: '', nombres: '', apellidos: '', correo: '' };
 
+const estiloAviso = {
+  background: 'rgba(69, 179, 191, 0.12)',
+  border: '1px solid rgba(69, 179, 191, 0.4)',
+  color: '#bfeaf0',
+  borderRadius: 8,
+  padding: '12px 14px',
+  marginBottom: 16,
+  fontSize: 13,
+  lineHeight: 1.5,
+  textAlign: 'center',
+};
+
 function Registrarse() {
   const [form, setForm] = useState(initialForm);
-  const [mensaje, setMensaje] = useState('');
+  const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
 
@@ -26,7 +38,7 @@ function Registrarse() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMensaje('');
+    setEnviado(false);
     setError('');
     const datos = Object.fromEntries(
       Object.entries(form).map(([campo, valor]) => [campo, valor.trim()])
@@ -38,8 +50,8 @@ function Registrarse() {
 
     setCargando(true);
     try {
-      const respuesta = await confirmarDatosActivacion(datos);
-      setMensaje(respuesta.mensaje);
+      await confirmarDatosActivacion(datos);
+      setEnviado(true);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -55,7 +67,16 @@ function Registrarse() {
           <form className="registroForm" onSubmit={handleSubmit}>
             <h2>Activar cuenta ASIS</h2>
             <p className="formSubtitle">Ingresa los datos con los que el administrador pre-registró tu cuenta.</p>
-            {mensaje && <p className="mensajeExito" role="status">{mensaje}</p>}
+            {enviado && (
+              <div role="status" style={estiloAviso}>
+                <p style={{ margin: '0 0 6px' }}>
+                  Si tus datos coinciden con un pre-registro pendiente, te enviaremos un correo con el enlace de activación.
+                </p>
+                <p style={{ margin: 0 }}>
+                  Si no llega en unos minutos, revisa la carpeta de spam y que los datos estén escritos igual que en tu pre-registro, o contacta al administrador.
+                </p>
+              </div>
+            )}
             {error && <p className="mensajeError" role="alert">{error}</p>}
             {campos.map(({ clave, etiqueta, maxLength, tipo = 'text' }) => (
               <div className="formField" key={clave}>
