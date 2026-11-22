@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { login } from '../services/api'
 import api from '../services/api'
 import Header from '../components/Header.jsx'
@@ -9,6 +9,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 
 function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mensajeError, setMensajeError] = useState('')
@@ -16,6 +17,7 @@ function Login() {
 //msotrar contraseña visualizar boton
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [mostrarPolitica, setMostrarPolitica] = useState(false);
+  const [avisoInactividad, setAvisoInactividad] = useState(location.state?.motivo === 'inactividad')
 
   useEffect(() => {
     document.body.classList.add('page-login')
@@ -29,6 +31,7 @@ function Login() {
     onSuccess: async (tokenResponse) => {
       setCargando(true)
       setMensajeError('')
+      setAvisoInactividad(false)
       try {
         // Enviamos el access_token al backend
         const respuesta = await api.post('/auth/google-login', {
@@ -68,6 +71,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMensajeError('')
+    setAvisoInactividad(false)
     if (!correo.trim() || !contrasena.trim()) {
       setMensajeError('Ingresa tu correo y contraseña.')
       return
@@ -107,7 +111,11 @@ function Login() {
         <div className="loginContainer">
           <form className="loginForm" id="loginForm" onSubmit={handleSubmit}>
             <h1>INICIAR SESIÓN</h1>
-
+              {avisoInactividad && (
+                <p role="status" style={{ color: '#facc15', textAlign: 'center', marginBottom: '15px', fontSize: '14px' }}>
+                  Tu sesión se cerró por inactividad. Inicia sesión de nuevo.
+                </p>
+              )}
             {mensajeError && (
               <p className="mensaje-error" style={{ color: '#f87171', textAlign: 'center', marginBottom: '15px', fontSize: '14px' }}>
                 {mensajeError}
@@ -310,6 +318,8 @@ function Login() {
               <p>
                 Los usuarios deben cerrar su sesión al terminar de utilizar
                 ASIS, especialmente cuando accedan desde equipos compartidos.
+                Por seguridad, ASIS cierra la sesión automáticamente tras
+                15 minutos sin actividad en la aplicación.
               </p>
 
               <h3>8. Reporte de incidentes</h3>

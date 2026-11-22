@@ -1,38 +1,47 @@
 // src/hooks/useAutoLogout.js
-//
-// Lo uso en los layouts de cada rol para que, si alguien deja la
-// sesión abierta y no toca nada, ASIS lo saque solo por seguridad
-// (RF-017). Reinicio el contador con cualquier click, tecla o
-// movimiento del mouse.
-import { useEffect, useRef } from 'react'
+// RF-017: cierra la sesión tras 15 minutos sin actividad del usuario.
+// La última actividad se guarda en localStorage, así todas las pestañas
+// comparten el contador. Se revisa con un intervalo corto, no con un
+// setTimeout largo, para que funcione tras segundo plano o suspensión.
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { limpiarSesion, CLAVE_ACTIVIDAD } from '../services/sesion.js'
 
 const MINUTOS_INACTIVIDAD = 15
+const EVENTOS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart']
+const INTERVALO_GUARDADO = 5000   // no escribir en cada movimiento del mouse
+const INTERVALO_REVISION = 15000  // cada cuánto se comprueba la inactividad
 
 function useAutoLogout() {
   const navigate = useNavigate()
-  const temporizador = useRef(null)
 
   useEffect(() => {
-    function cerrarSesion() {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('usuario')
-      navigate('/login')
+    const limite = MINUTOS_INACTIVIDAD * 60 * 1000
+    let ultimoGuardado = 0
+
+    function marcarActividad() {
+      const ahora = Date.now()
+      if (ahora - ultimoGuardado < INTERVALO_GUARDADO) return
+      ultimoGuardado = ahora
+      try { localStorage.setItem(CLAVE_ACTIVIDAD, String(ahora)) } catch { /* sin acceso al storage */ }
     }
 
-    function reiniciarTemporizador() {
-      if (temporizador.current) clearTimeout(temporizador.current)
-      temporizador.current = setTimeout(cerrarSesion, MINUTOS_INACTIVIDAD * 60 * 1000)
+    function revisar() {
+      let ultima = Date.now()
+      try { ultima = Number(localStorage.getItem(CLAVE_ACTIVIDAD)) || ultima } catch { /* idem */ }
+      if (Date.now() - ultima >= limite) {
+        limpiarSesion()
+        navigate('/login', { replace: true, state: { motivo: 'inactividad' } })
+      }
     }
 
-    const eventos = ['mousedown', 'keydown', 'scroll', 'touchstart']
-    eventos.forEach((evento) => window.addEventListener(evento, reiniciarTemporizador))
-
-    reiniciarTemporizador()
+    marcarActividad() // entrar a una página protegida cuenta como actividad
+    EVENTOS.forEach((e) => window.addEventListener(e, marcarActividad, { passive: true, capture: true }))
+    const intervalo = setInterval(revisar, INTERVALO_REVISION)
 
     return () => {
-      if (temporizador.current) clearTimeout(temporizador.current)
-      eventos.forEach((evento) => window.removeEventListener(evento, reiniciarTemporizador))
+      EVENTOS.forEach((e) => window.removeEventListener(e, marcarActividad, { capture: true }))
+      clearInterval(intervalo)
     }
   }, [navigate])
 }

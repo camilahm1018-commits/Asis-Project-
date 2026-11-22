@@ -4,9 +4,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme.js';
 import { useNotificaciones } from '../hooks/useNotificaciones.js';
 import '../styles/panelAdmin.css';
+import useAutoLogout from '../hooks/useAutoLogout.js';
+import { limpiarSesion } from '../services/sesion.js';
+
 
 function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
   const navigate = useNavigate();
+  useAutoLogout(); 
   const [usuario, setUsuario] = useState(null);
   const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -41,9 +45,8 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
   const { notificaciones, noLeidasCount, marcarComoLeida } = useNotificaciones(usuario?.id_usuario);
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('usuario');
-    navigate('/login');
+    limpiarSesion();
+    navigate('/login', { replace: true });
   };
 
   if (!usuario) return null;
