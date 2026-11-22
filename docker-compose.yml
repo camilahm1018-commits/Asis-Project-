@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: asis_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${ASIS_POSTGRES_PASSWORD:-1234}
+      POSTGRES_DB: asisdb
+      ASIS_DB_AUTH_PASSWORD: ${ASIS_DB_AUTH_PASSWORD:?Falta ASIS_DB_AUTH_PASSWORD}
+      ASIS_DB_ADMIN_PASSWORD: ${ASIS_DB_ADMIN_PASSWORD:?Falta ASIS_DB_ADMIN_PASSWORD}
+      ASIS_DB_INSTRUCTOR_PASSWORD: ${ASIS_DB_INSTRUCTOR_PASSWORD:?Falta ASIS_DB_INSTRUCTOR_PASSWORD}
+      ASIS_DB_TECNICO_PASSWORD: ${ASIS_DB_TECNICO_PASSWORD:?Falta ASIS_DB_TECNICO_PASSWORD}
+      ASIS_DB_MESA_PASSWORD: ${ASIS_DB_MESA_PASSWORD:?Falta ASIS_DB_MESA_PASSWORD}
+      ASIS_DB_CUENTADANTE_PASSWORD: ${ASIS_DB_CUENTADANTE_PASSWORD:?Falta ASIS_DB_CUENTADANTE_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./base_de_datos/insert_datos.sql:/docker-entrypoint-initdb.d/01_insert_datos.sql:ro
+      - ./base_de_datos/z_roles_postgres.sql:/docker-entrypoint-initdb.d/02_roles.sql:ro
+      - ./base_de_datos/asis_permisos_roles.sql:/docker-entrypoint-initdb.d/03_permisos.sql:ro
+      - ./base_de_datos/actualizar_claves_roles.sql:/opt/asis/actualizar_claves_roles.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d asisdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: dockerfile
+    container_name: asis_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./Backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:${ASIS_POSTGRES_PASSWORD:-1234}@db:5432/asisdb
+      ASIS_JWT_SECRET: ${ASIS_JWT_SECRET:?Falta ASIS_JWT_SECRET}
+      ASIS_INITIAL_ADMIN_EMAIL: ${ASIS_INITIAL_ADMIN_EMAIL:-admin@sena.edu.co}
+      ASIS_INITIAL_ADMIN_PASSWORD: ${ASIS_INITIAL_ADMIN_PASSWORD:-}
+      ASIS_DB_AUTH_PASSWORD: ${ASIS_DB_AUTH_PASSWORD:?Falta ASIS_DB_AUTH_PASSWORD}
+      ASIS_DB_ADMIN_PASSWORD: ${ASIS_DB_ADMIN_PASSWORD:?Falta ASIS_DB_ADMIN_PASSWORD}
+      ASIS_DB_INSTRUCTOR_PASSWORD: ${ASIS_DB_INSTRUCTOR_PASSWORD:?Falta ASIS_DB_INSTRUCTOR_PASSWORD}
+      ASIS_DB_TECNICO_PASSWORD: ${ASIS_DB_TECNICO_PASSWORD:?Falta ASIS_DB_TECNICO_PASSWORD}
+      ASIS_DB_MESA_PASSWORD: ${ASIS_DB_MESA_PASSWORD:?Falta ASIS_DB_MESA_PASSWORD}
+      ASIS_DB_CUENTADANTE_PASSWORD: ${ASIS_DB_CUENTADANTE_PASSWORD:?Falta ASIS_DB_CUENTADANTE_PASSWORD}
+    volumes:
+      - ./Backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./FrontEnd
+      dockerfile: dockerfile
+    container_name: asis_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./FrontEnd:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

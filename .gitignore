@@ -1,0 +1,24 @@
+# Dependencias de Node
+node_modules/
+FrontEnd/node_modules/
+Backend/node_modules/
+
+
+# Logs
+*.log
+npm-debug.log*
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+# Configuración privada y archivos generados
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.venv*/
+dist/
+qa-reportes/
+playwright-report/
+test-results/

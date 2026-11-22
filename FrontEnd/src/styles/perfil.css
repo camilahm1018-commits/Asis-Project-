@@ -1,0 +1,224 @@
+/* ==========================================================
+   PERFIL.CSS - Página "Mi Perfil" (se reutiliza en todos los roles)
+   Usa las variables --pa-* de panelAdmin.css, así que respeta
+   el modo oscuro y el modo claro sin tocar nada más.
+   ========================================================== */
+
+/* ---------------- Contenedor: todo centrado en la pantalla ---------------- */
+.perfil-page {
+  width: 100%;
+  /* alto de la pantalla menos topbar y padding del contenido */
+  min-height: calc(100vh - 130px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Cuando la página agrega contenido debajo (ej. estadísticas del técnico)
+   ya no se centra en vertical, solo en horizontal. */
+.perfil-page--extra {
+  justify-content: flex-start;
+  min-height: 0;
+}
+
+.perfil-encabezado {
+  text-align: center;
+}
+
+/* ---------------- Tarjeta ---------------- */
+.perfil-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 0 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--pa-panel);
+  border: 1px solid var(--pa-border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.perfil-card__banner {
+  width: calc(100% + 48px);
+  height: 92px;
+  margin: 0 -24px;
+  background: linear-gradient(135deg, #1b70a6, #45b3bf);
+}
+
+.perfil-avatar {
+  width: 96px;
+  height: 96px;
+  margin-top: -64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #022859, #1b70a6);
+  border: 4px solid var(--pa-panel);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.perfil-identidad {
+  text-align: center;
+}
+
+.perfil-nombre {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--pa-text);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.perfil-rol {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #45b3bf;
+  background: rgba(69, 179, 191, 0.15);
+  border: 1px solid rgba(69, 179, 191, 0.35);
+}
+
+/* ---------------- Filas de información ---------------- */
+.perfil-datos {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.perfil-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--pa-panel-soft);
+}
+
+.perfil-fila__etiqueta {
+  font-size: 12px;
+  color: var(--pa-text-soft);
+}
+
+.perfil-fila__valor {
+  font-size: 12px;
+  color: var(--pa-text);
+  text-align: right;
+  word-break: break-all;
+}
+
+/* ---------------- Botones ---------------- */
+.perfil-acciones {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* ---------------- Mensajes ---------------- */
+.perfil-aviso,
+.perfil-error-form {
+  width: 100%;
+  max-width: 480px;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.perfil-aviso {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+.perfil-error-form {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+/* ---------------- Modales (editar perfil / cambiar contraseña) ---------------- */
+.perfil-modal .pa-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.perfil-nota,
+.perfil-texto {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pa-text-soft);
+}
+
+.perfil-texto {
+  font-size: 13px;
+}
+
+/* ---------------- Modo claro ---------------- */
+body.light-mode .perfil-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+}
+
+body.light-mode .perfil-avatar {
+  border-color: #ffffff;
+}
+
+body.light-mode .perfil-nombre,
+body.light-mode .perfil-fila__valor {
+  color: #0f172a;
+}
+
+body.light-mode .perfil-fila {
+  background: #f1f5f9;
+}
+
+body.light-mode .perfil-fila__etiqueta,
+body.light-mode .perfil-nota,
+body.light-mode .perfil-texto {
+  color: #64748b;
+}
+
+body.light-mode .perfil-rol {
+  color: #0369a1;
+  background: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+body.light-mode .perfil-aviso {
+  color: #15803d;
+}
+
+body.light-mode .perfil-error-form {
+  color: #b91c1c;
+}
+
+/* ---------------- Pantallas pequeñas ---------------- */
+@media (max-width: 560px) {
+  .perfil-page {
+    min-height: 0;
+  }
+
+  .perfil-modal .pa-modal__row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,60 @@
+from sqlmodel import SQLModel, Field
+from datetime import datetime, date
+from typing import Optional
+from pydantic import field_validator
+from Modelos.validacion import TextoObligatorio
+
+
+class TicketsBase(SQLModel):
+    motivo: str
+    fecha_salida: Optional[datetime] = Field(default=None)
+    fecha_retorno: Optional[datetime] = Field(default=None)
+    creado_en: Optional[datetime] = Field(default_factory=datetime.now)
+    atendido: bool = False
+    # por qué salió el equipo del ambiente: dano, traslado o prestamo (RF-006)
+    tipo_salida: Optional[str] = Field(default=None)
+    imagen: Optional[str] = Field(default=None)
+    id_equipo: Optional[int] = Field(default=None, foreign_key="equipos.id_equipo")
+    id_mobiliario: Optional[int] = Field(default=None, foreign_key="mobiliario.id_mobiliario")
+    creado_por: int = Field(foreign_key="usuarios.id_usuario")
+    asignado_a: Optional[int] = Field(default=None, foreign_key="usuarios.id_usuario")
+    id_estado: int = Field(foreign_key="estados_ticket.id_estado")
+    id_motivo_novedad: Optional[int] = Field(default=None, foreign_key="motivo_novedad.id_motivo")
+    id_ambiente_origen: Optional[int] = Field(default=None, foreign_key="ambientes.id_ambiente")
+    id_ambiente_destino: Optional[int] = Field(default=None, foreign_key="ambientes.id_ambiente")
+    traslado_definitivo: Optional[bool] = Field(default=None)
+    id_instructor_prestamo: Optional[int] = Field(default=None, foreign_key="usuarios.id_usuario")
+    fecha_devolucion: Optional[date] = Field(default=None)
+
+class tickets(TicketsBase, table=True):
+    __tablename__ = "tickets"
+    id_ticket: Optional[int] = Field(default=None, primary_key=True)
+    
+
+class TicketsCrear(TicketsBase):
+    pass
+
+class TicketsEditar(SQLModel):
+    motivo: TextoObligatorio | None = None
+
+    @field_validator("motivo")
+    @classmethod
+    def validar_motivo(cls, valor):
+        if valor is None:
+            raise ValueError("El motivo es obligatorio")
+        return valor
+
+    fecha_salida: Optional[datetime] = None
+    fecha_retorno: Optional[datetime] = None
+    atendido: Optional[bool] = None
+    id_equipo: Optional[int] = None
+    creado_por: Optional[int] = None
+    asignado_a: Optional[int] = None
+    id_estado: Optional[int] = None
+    id_motivo_novedad: Optional[int] = None
+    tipo_salida: Optional[str] = None
+    imagen: Optional[str] = None
+
+class TicketsLeer(TicketsBase):
+    id_ticket: int
+    puede_registrar_entrada: bool = False

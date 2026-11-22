@@ -1,0 +1,255 @@
+/* =========================================
+   NOSOTROS.CSS - CON SOPORTE MODO OSCURO/CLARO
+   ========================================= */
+
+.asis-nosotros-seccion {
+  padding: 4rem 2rem;
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 50% 0%, var(--bg-secondary) 0%, var(--bg-primary) 40%);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+/* Modo claro */
+body.light-mode .asis-nosotros-seccion {
+  background-color: #f0f4f8;
+  background-image: radial-gradient(circle at 50% 0%, #e2e8f0 0%, #f0f4f8 40%);
+  color: #1a202c;
+}
+
+.asis-contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Botón de volver */
+.btn-volver-nosotros {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+  text-decoration: none;
+}
+
+.btn-volver-nosotros:hover {
+  background: var(--accent-color);
+  color: var(--btn-primary-text);
+  transform: translateX(-4px);
+}
+
+body.light-mode .btn-volver-nosotros {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+body.light-mode .btn-volver-nosotros:hover {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+/* =========================================
+   SECCIÓN: ¿QUÉ ES ASIS?
+   ========================================= */
+.asis-info-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  padding: 2.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+body.light-mode .asis-info-header {
+  background-color: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
+}
+
+.asis-badge {
+  display: inline-block;
+  background-color: rgba(59, 130, 246, 0.15);
+  color: var(--accent-color);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--accent-color);
+}
+
+.asis-titulo-principal {
+  font-size: 2.2rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  transition: color 0.3s ease;
+}
+
+.asis-descripcion-proyecto {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+  transition: color 0.3s ease;
+}
+
+.asis-descripcion-proyecto strong {
+  color: var(--accent-color);
+}
+
+/* =========================================
+   SECCIÓN: EL EQUIPO
+   ========================================= */
+.equipo-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.equipo-titulo {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.equipo-subtitulo {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  transition: color 0.3s ease;
+}
+
+/* Rejilla responsiva */
+.equipo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* Tarjeta de cada integrante */
+.tarjeta-integrante {
+  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color);
+}
+
+body.light-mode .tarjeta-integrante {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+}
+
+.tarjeta-integrante:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent-color);
+}
+
+/* Contenedor de la imagen */
+.tarjeta-imagen-contenedor {
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+  position: relative;
+}
+
+body.light-mode .tarjeta-imagen-contenedor {
+  background-color: #f1f5f9;
+}
+
+.tarjeta-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.4s ease;
+  filter: brightness(0.9);
+}
+
+.tarjeta-integrante:hover .tarjeta-imagen {
+  transform: scale(1.05);
+  filter: brightness(1);
+}
+
+/* Información del integrante */
+.tarjeta-info {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.integrante-nombre {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.integrante-rol {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background-color: var(--accent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.integrante-descripcion {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+/* =========================================
+   RESPONSIVE (Móviles)
+   ========================================= */
+@media (max-width: 768px) {
+  .asis-nosotros-seccion {
+    padding: 2rem 1rem;
+  }
+
+  .asis-info-header {
+    padding: 1.5rem;
+  }
+
+  .asis-titulo-principal {
+    font-size: 1.8rem;
+  }
+
+  .equipo-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}

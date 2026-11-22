@@ -1,0 +1,354 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { login } from '../services/api'
+import api from '../services/api'
+import Header from '../components/Header.jsx'
+import '../styles/login.css'
+import { useGoogleLogin } from '@react-oauth/google';
+
+
+function Login() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [correo, setCorreo] = useState('')
+  const [contrasena, setContrasena] = useState('')
+  const [mensajeError, setMensajeError] = useState('')
+  const [cargando, setCargando] = useState(false)
+//msotrar contraseña visualizar boton
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [mostrarPolitica, setMostrarPolitica] = useState(false);
+  const [avisoInactividad, setAvisoInactividad] = useState(location.state?.motivo === 'inactividad')
+
+  useEffect(() => {
+    document.body.classList.add('page-login')
+    return () => {
+      document.body.classList.remove('page-login')
+    }
+  }, [])
+
+  // 🔵 LOGIN CON GOOGLE (botón manual para evitar el error 403)
+  const loginConGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setCargando(true)
+      setMensajeError('')
+      setAvisoInactividad(false)
+      try {
+        // Enviamos el access_token al backend
+        const respuesta = await api.post('/auth/google-login', {
+          credential: tokenResponse.access_token
+        });
+        
+        // Guardar el token y los datos del usuario
+        localStorage.setItem('access_token', respuesta.data.access_token);
+        localStorage.setItem('usuario', JSON.stringify(respuesta.data));
+        
+        // Redirigir según el rol
+        const rolNombre = respuesta.data.rol.toLowerCase().trim();
+        if (rolNombre === 'administrador_mesa_ayuda') navigate('/mesa-ayuda/panel');
+        else if (rolNombre === 'administrador') navigate('/administrador');
+        else if (rolNombre === 'cuentadante') navigate('/cuentadante');
+        else if (rolNombre === 'instructor') navigate('/instructor');
+        else if (rolNombre === 'tecnico') navigate('/tecnico');
+        else {
+          setMensajeError(`Rol no reconocido: "${respuesta.data.rol}"`);
+          navigate('/');
+        }
+        
+      } catch (error) {
+        setMensajeError("Error al iniciar sesión con Google: " + (error.response?.data?.detail || error.message));
+      } finally {
+        setCargando(false)
+      }
+    },
+    onError: (error) => {
+      console.log('Error en el login de Google:', error);
+      setMensajeError("Error en el login de Google. Intenta de nuevo.");
+    },
+    flow: 'implicit' // Esto fuerza el popup y evita el iframe problemático
+  });
+
+  // 🔵 LOGIN NORMAL CON CORREO Y CONTRASEÑA
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setMensajeError('')
+    setAvisoInactividad(false)
+    if (!correo.trim() || !contrasena.trim()) {
+      setMensajeError('Ingresa tu correo y contraseña.')
+      return
+    }
+    setCargando(true)
+
+    try {
+      const data = await login(correo.trim(), contrasena)
+      localStorage.setItem('access_token', data.access_token)
+      localStorage.setItem('usuario', JSON.stringify(data))
+
+      const rolNombre = data.rol.toLowerCase().trim()
+      if (rolNombre === 'administrador_mesa_ayuda') navigate('/mesa-ayuda/panel')
+      else if (rolNombre === 'administrador') navigate('/administrador')
+      else if (rolNombre === 'cuentadante') navigate('/cuentadante')
+      else if (rolNombre === 'instructor') navigate('/instructor')
+      else if (rolNombre === 'tecnico') navigate('/tecnico')
+      else {
+        setMensajeError(`Rol no reconocido: "${data.rol}"`)
+        navigate('/')
+      }
+    } catch (error) {
+      setMensajeError(error.message || 'Error al iniciar sesión. Verifica tus credenciales.')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  return (
+    <>
+      <Header authTo="/registrarse" authLabel="Registrarse" />
+      <div className="container">
+        <div className="infoContainer">
+          <h3>INGRESO DE USUARIOS</h3>
+        </div>
+
+        <div className="loginContainer">
+          <form className="loginForm" id="loginForm" onSubmit={handleSubmit}>
+            <h1>INICIAR SESIÓN</h1>
+              {avisoInactividad && (
+                <p role="status" style={{ color: '#facc15', textAlign: 'center', marginBottom: '15px', fontSize: '14px' }}>
+                  Tu sesión se cerró por inactividad. Inicia sesión de nuevo.
+                </p>
+              )}
+            {mensajeError && (
+              <p className="mensaje-error" style={{ color: '#f87171', textAlign: 'center', marginBottom: '15px', fontSize: '14px' }}>
+                {mensajeError}
+              </p>
+            )}
+
+            <label htmlFor="correo_usuario">Correo</label>
+            <div className="inputContenedor">
+              <svg className="inputIcono" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+              </svg>
+              <input 
+                type="email" 
+                id="correo_usuario" 
+                name="correo_usuario" 
+                placeholder="usuario@sena.edu.co" 
+                required 
+                value={correo} 
+                onChange={(e) => setCorreo(e.target.value)} 
+                disabled={cargando} 
+              />
+            </div>
+
+
+          <label htmlFor="contrasena_usuario">Contraseña</label>
+
+            <div className="inputContenedor">
+              <svg
+                className="inputIcono"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                />
+              </svg>
+
+              <input
+                type={mostrarContrasena ? "text" : "password"}
+                id="contrasena_usuario"
+                name="contrasena_usuario"
+                placeholder="Contraseña"
+                required
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                disabled={cargando}
+              />
+
+
+              <button
+                type="button"
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                disabled={cargando}
+                aria-label={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+                title={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+                className="btnMostrarContrasena"
+              >
+                <span className="material-symbols-rounded">
+                  {mostrarContrasena ? "visibility_off" : "visibility"}
+                </span>
+              </button>
+
+            </div>
+
+
+            <button type="submit" className="btnPrincipal" disabled={cargando}>
+              {cargando ? 'Verificando...' : 'Continuar'}
+            </button>
+
+            {/* 🔵 BOTÓN MANUAL DE GOOGLE (evita el error 403 del iframe) */}
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                type="button"
+                onClick={loginConGoogle}
+                disabled={cargando}
+                style={{
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '10px',
+                  padding: '10px 20px', 
+                  border: '1px solid #dadce0', 
+                  borderRadius: '4px',
+                  backgroundColor: 'white', 
+                  color: '#3c4043', 
+                  fontWeight: '500',
+                  cursor: cargando ? 'not-allowed' : 'pointer', 
+                  fontSize: '14px',
+                  fontFamily: 'Roboto, Arial, sans-serif'
+                }}
+              >
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                  <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                  <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                  <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                  <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                </svg>
+                {cargando ? 'Verificando...' : 'Iniciar sesión con Google'}
+              </button>
+            </div>
+          </form>
+
+          <p className="textoSecundario">
+            ¿No tienes una cuenta? <Link to="/registrarse">Regístrate</Link>
+          </p>
+          <p className="textoSecundario">
+            <Link to="/recuperar">¿Olvidaste tu contraseña?</Link>
+          </p>
+          <p className="textoSecundario">
+              <button
+                type="button"
+                className="enlacePolitica"
+                onClick={() => setMostrarPolitica(true)}
+              >
+                Política de Seguridad
+              </button>
+          </p>
+        </div>
+      </div>
+
+        {mostrarPolitica && (
+          <div
+            className="politica-overlay"
+            onClick={() => setMostrarPolitica(false)}
+          >
+            <section
+              className="politica-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="politica-titulo"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="politica-cerrar"
+                onClick={() => setMostrarPolitica(false)}
+                aria-label="Cerrar política"
+              >
+                ×
+              </button>
+
+              <h2 id="politica-titulo">
+                Política de Seguridad de ASIS
+              </h2>
+
+              <p>
+                La aplicación ASIS establece esta política para orientar
+                el uso seguro y responsable de la información y de las
+                funcionalidades disponibles en el sistema.
+              </p>
+
+              <h3>1. Objetivo</h3>
+              <p>
+                Proteger la información gestionada en ASIS y promover
+                el uso adecuado de la aplicación por parte de sus usuarios.
+              </p>
+
+              <h3>2. Alcance</h3>
+              <p>
+                Esta política aplica a todos los usuarios autorizados
+                que ingresan a ASIS, independientemente del rol que tengan
+                asignado.
+              </p>
+
+              <h3>3. Acceso y credenciales</h3>
+              <ul>
+                <li>Las credenciales de acceso son personales e intransferibles.</li>
+                <li>No se deben compartir contraseñas con otras personas.</li>
+                <li>Se recomienda utilizar contraseñas seguras.</li>
+                <li>Si sospecha que alguien conoce sus credenciales, debe reportarlo.</li>
+              </ul>
+
+              <h3>4. Uso de permisos y roles</h3>
+              <p>
+                Cada usuario debe utilizar únicamente las opciones y
+                funcionalidades autorizadas para su rol dentro del sistema.
+                No debe intentar acceder a información o funciones restringidas.
+              </p>
+
+              <h3>5. Protección de la información</h3>
+              <ul>
+                <li>La información consultada debe manejarse de forma responsable.</li>
+                <li>No se debe divulgar información institucional sin autorización.</li>
+                <li>No se deben modificar ni eliminar registros sin contar con los permisos correspondientes.</li>
+              </ul>
+
+              <h3>6. Uso responsable del sistema</h3>
+              <p>
+                ASIS debe utilizarse para las actividades relacionadas con
+                la gestión y seguimiento de tickets de mantenimiento.
+                No está permitido utilizar la aplicación para actividades
+                no autorizadas.
+              </p>
+
+              <h3>7. Seguridad de las sesiones</h3>
+              <p>
+                Los usuarios deben cerrar su sesión al terminar de utilizar
+                ASIS, especialmente cuando accedan desde equipos compartidos.
+                Por seguridad, ASIS cierra la sesión automáticamente tras
+                15 minutos sin actividad en la aplicación.
+              </p>
+
+              <h3>8. Reporte de incidentes</h3>
+              <p>
+                Cualquier acceso sospechoso, uso indebido de credenciales
+                o comportamiento inusual del sistema debe ser informado
+                al administrador o al responsable autorizado.
+              </p>
+
+              <h3>9. Cumplimiento y actualización</h3>
+              <p>
+                Los usuarios deben cumplir esta política y las disposiciones
+                institucionales aplicables. Su contenido deberá ser revisado
+                y validado por los responsables correspondientes.
+              </p>
+
+              <button
+                type="button"
+                className="politica-boton"
+                onClick={() => setMostrarPolitica(false)}
+              >
+                Entendido
+              </button>
+            </section>
+          </div>
+        )}
+
+    </>
+  )
+}
+
+export default Login

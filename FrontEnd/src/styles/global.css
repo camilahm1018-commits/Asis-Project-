@@ -1,0 +1,200 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body {
+  min-height: 2vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body:has(.panel-admin) {
+  display: block;
+  justify-content: initial;
+  align-items: initial;
+  background: none;
+}
+
+body:has(.panel-admin)::before {
+  content: none;
+}
+
+/* ---------------- HEADER / NAV COMPARTIDO ---------------- */
+
+.mainHeader {
+  width: 100%;
+  background: rgba(1, 30, 69, 0.95);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 20;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .mainHeader {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mainHeaderContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 32px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mainHeaderLogo .logoAsis {
+  height: 55px;
+  border-radius: 10px;
+}
+
+.mainHeaderToggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.mainHeaderBar {
+  width: 22px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+}
+
+.mainNav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.mainNavList {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mainNavLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.mainNavLink:hover {
+  color: var(--accent-color);
+}
+
+.mainNav .login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mainNavLinkSecondary {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid var(--accent-color); 
+  padding: 10px 20px; 
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.mainNavLinkSecondary:hover {
+  background: rgba(69, 179, 191, 0.15);
+}
+
+.logImg {
+  width: 18px;
+  height: 18px;
+}
+/* Botón circular de cambio de tema */
+.theme-toggle-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.theme-toggle-circle:hover {
+  background: var(--accent-color);
+  color: var(--bg-primary);
+  transform: rotate(15deg) scale(1.1);
+}
+
+body.light-mode .theme-toggle-circle {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+body.light-mode .theme-toggle-circle:hover {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+
+@media (max-width: 768px) {
+  .mainHeaderToggle {
+    display: flex;
+  }
+
+  .mainNav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(1, 30, 69, 0.98);
+    padding: 16px 24px;
+    display: none;
+    gap: 16px;
+  }
+
+  body.light-mode .mainNav {
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  .mainNav.mainNavOpen {
+    display: flex;
+  }
+
+  .mainNavList {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

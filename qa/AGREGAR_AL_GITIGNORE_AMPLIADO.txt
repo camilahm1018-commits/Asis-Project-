@@ -1,0 +1,14 @@
+# Añadir a .gitignore (no sobrescribir el existente)
+qa-reportes/
+**/.pytest_cache/
+**/__pycache__/
+**/coverage.xml
+**/resultado-pytest.xml
+**/htmlcov/
+**/.coverage
+**/playwright-report/
+**/test-results/
+**/coverage/
+.env
+Backend/.env
+FrontEnd/.env
