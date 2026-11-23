@@ -225,6 +225,8 @@ CREATE TABLE tickets (
 CREATE TABLE asignacion_tecnico(
     id_asignacion SERIAL PRIMARY KEY,
     fecha_asignacion TIMESTAMP DEFAULT NOW(),
+    fecha_reasignacion TIMESTAMP,
+    fecha_desasignacion TIMESTAMP,
     id_ticket INT NOT NULL,
     id_tecnico INT NOT NULL,
     asignado_por INT NOT NULL,

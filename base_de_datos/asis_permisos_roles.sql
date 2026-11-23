@@ -133,3 +133,7 @@ GRANT UPDATE (estado) ON TABLE public.mobiliario TO instructor;
 -- Solo ven el rol y si está activo; no el documento, el correo ni la clave.
 GRANT SELECT (id_rol, activo) ON TABLE public.usuarios
 TO instructor, cuentadante;
+
+GRANT UPDATE (fecha_reasignacion, fecha_desasignacion)
+ON TABLE public.asignacion_tecnico
+TO administrador_mesa_ayuda;

@@ -3,7 +3,9 @@ services:
     image: postgres:15-alpine
     container_name: asis_db
     restart: unless-stopped
+    command: ["postgres", "-c", "timezone=America/Bogota"]
     environment:
+      TZ: America/Bogota
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${ASIS_POSTGRES_PASSWORD:-1234}
       POSTGRES_DB: asisdb
@@ -38,6 +40,7 @@ services:
     env_file:
       - ./Backend/.env
     environment:
+      TZ: America/Bogota
       DATABASE_URL: postgresql+psycopg2://postgres:${ASIS_POSTGRES_PASSWORD:-1234}@db:5432/asisdb
       ASIS_JWT_SECRET: ${ASIS_JWT_SECRET:?Falta ASIS_JWT_SECRET}
       ASIS_INITIAL_ADMIN_EMAIL: ${ASIS_INITIAL_ADMIN_EMAIL:-admin@sena.edu.co}

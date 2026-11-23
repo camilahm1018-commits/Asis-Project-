@@ -14,6 +14,7 @@ from servicios.correo import enviar_correo_asignacion
 from servicios.validaciones_roles import validar_tecnico_activo
 from servicios.notificaciones_ticket import avisar_evento_ticket
 from sesiones_roles import Sesion_por_rol
+from datetime import datetime
 
 asis = APIRouter(
     prefix="/asignacion",
@@ -68,6 +69,28 @@ def registrar_asignacion(
     sesion.flush()
 
     return nueva_asignacion
+
+def cerrar_asignacion_vigente(sesion: Session, id_ticket: int, id_tecnico: int, motivo: str):
+    """Pone fecha al fin de la asignación abierta del técnico en ese ticket.
+    motivo: 'reasignacion' o 'desasignacion'."""
+    vigente = sesion.exec(
+        select(Asig_tec)
+        .where(
+            Asig_tec.id_ticket == id_ticket,
+            Asig_tec.id_tecnico == id_tecnico,
+            Asig_tec.fecha_reasignacion.is_(None),
+            Asig_tec.fecha_desasignacion.is_(None),
+        )
+        .order_by(Asig_tec.id_asignacion.desc())
+    ).first()
+    if vigente is None:
+        return  # asignaciones antiguas que ya no tienen fila abierta
+    ahora = datetime.now()
+    if motivo == "reasignacion":
+        vigente.fecha_reasignacion = ahora
+    else:
+        vigente.fecha_desasignacion = ahora
+    sesion.add(vigente)
 
 @asis.get("/", response_model=list[Asig_tec], dependencies=[Depends(solo_gestion_tickets)])
 async def listar_asig(session: Sesion_por_rol):

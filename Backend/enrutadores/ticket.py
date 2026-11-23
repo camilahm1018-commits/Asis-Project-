@@ -16,10 +16,7 @@ from Modelos.notificaciones import Notificacion
 from Modelos.validacion import TextoObligatorio
 from sqlalchemy import delete, func
 from sqlalchemy.exc import IntegrityError
-from enrutadores.asig_tec import (
-    registrar_asignacion,
-    _enviar_notificacion_asignacion
-)
+from enrutadores.asig_tec import (registrar_asignacion,cerrar_asignacion_vigente,_enviar_notificacion_asignacion)
 from conexion_db import motor_admin
 from sqlmodel import Session, select
 from seguridad import verificar_token, solo_admin, solo_gestion_tickets
@@ -419,6 +416,7 @@ async def reasignar_tecnico(
             raise HTTPException(status_code=409, detail="El técnico ya está asignado")
         validar_tecnico_activo(session, datos.id_tecnico)
         tecnico_anterior = ticket.asignado_a
+        cerrar_asignacion_vigente(session, id, tecnico_anterior, "reasignacion")
         ticket.asignado_a = datos.id_tecnico
         nueva_asig = Asig_tec(id_ticket=id, id_tecnico=datos.id_tecnico,
                                asignado_por=usuario_actual["id_usuario"])
@@ -451,6 +449,7 @@ async def desasignar_tecnico(
         if ticket.asignado_a is None:
             raise HTTPException(status_code=409, detail="El ticket ya está sin asignar")
         anterior = ticket.asignado_a
+        cerrar_asignacion_vigente(session, id, anterior, "desasignacion")
         ticket.asignado_a = None
         session.add(ticket)
         session.add(His_ticket(
