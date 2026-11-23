@@ -114,14 +114,17 @@ GRANT cuentadante TO asis_app_cuentadante;
 
 -- 5. PERMITIR CONEXION A LA BASE DE DATOS
 
-GRANT CONNECT ON DATABASE asisdb TO
-    asis_app_auth,
-    asis_app_admin,
-    asis_app_instructor,
-    asis_app_tecnico,
-    asis_app_mesa,
-    asis_app_cuentadante;
-
+SELECT format(
+    'GRANT CONNECT ON DATABASE %I TO
+        asis_app_auth,
+        asis_app_admin,
+        asis_app_instructor,
+        asis_app_tecnico,
+        asis_app_mesa,
+        asis_app_cuentadante',
+    current_database()
+)
+\gexec
 
 -- 6. ACCESO AL ESQUEMA
 
