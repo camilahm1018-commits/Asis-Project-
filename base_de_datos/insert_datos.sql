@@ -472,42 +472,42 @@ INSERT INTO usuarios
  telefono_u, id_rol, id_tipo_identificacion, activo)
 VALUES
 -- cuentadantes
-('Laura', 'Martínez Rojas', 'laura.martinez01@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000001', '3000000001', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Andrés', 'Gómez Torres', 'andres.gomez02@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000002', '3000000002', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Diana', 'Rodríguez Pérez', 'diana.rodriguez03@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000003', '3000000003', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Carlos', 'Hernández López', 'carlos.hernandez04@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000004', '3000000004', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Natalia', 'Ramírez Díaz', 'natalia.ramirez05@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000005', '3000000005', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Julián', 'Castro Moreno', 'julian.castro06@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000006', '3000000006', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Paola', 'Vargas Silva', 'paola.vargas07@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000007', '3000000007', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Miguel', 'Ortiz Romero', 'miguel.ortiz08@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000008', '3000000008', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Valentina', 'Morales Ruiz', 'valentina.morales09@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000009', '3000000009', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Felipe', 'Jiménez Acosta', 'felipe.jimenez10@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000010', '3000000010', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Camila', 'Suárez Méndez', 'camila.suarez11@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000011', '3000000011', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Santiago', 'Navarro León', 'santiago.navarro12@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000012', '3000000012', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Laura', 'Martínez Rojas', 'laura.martinez01@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000001', '3000000001', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrés', 'Gómez Torres', 'andres.gomez02@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000002', '3000000002', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Diana', 'Rodríguez Pérez', 'diana.rodriguez03@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000003', '3000000003', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Carlos', 'Hernández López', 'carlos.hernandez04@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000004', '3000000004', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Natalia', 'Ramírez Díaz', 'natalia.ramirez05@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000005', '3000000005', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Julián', 'Castro Moreno', 'julian.castro06@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000006', '3000000006', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Paola', 'Vargas Silva', 'paola.vargas07@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000007', '3000000007', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Miguel', 'Ortiz Romero', 'miguel.ortiz08@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000008', '3000000008', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Valentina', 'Morales Ruiz', 'valentina.morales09@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000009', '3000000009', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Felipe', 'Jiménez Acosta', 'felipe.jimenez10@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000010', '3000000010', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Camila', 'Suárez Méndez', 'camila.suarez11@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000011', '3000000011', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Santiago', 'Navarro León', 'santiago.navarro12@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000012', '3000000012', (SELECT id_rol FROM rol WHERE nombre_rol='cuentadante'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
 -- instructores
-('María', 'Fernández Castro', 'maria.fernandez13@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000013', '3000000013', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('David', 'Pardo Sánchez', 'david.pardo14@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000014', '3000000014', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Andrea', 'Cárdenas Gil', 'andrea.cardenas15@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000015', '3000000015', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Sebastián', 'Rojas Vega', 'sebastian.rojas16@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000016', '3000000016', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Paula', 'Mendoza Ortiz', 'paula.mendoza17@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000017', '3000000017', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Juan', 'Bautista Reyes', 'juan.bautista18@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000018', '3000000018', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Daniela', 'Peña Vargas', 'daniela.pena19@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000019', '3000000019', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Óscar', 'Medina Cruz', 'oscar.medina20@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000020', '3000000020', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Luisa', 'Herrera Campos', 'luisa.herrera21@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000021', '3000000021', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Nicolás', 'Duarte Rincón', 'nicolas.duarte22@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000022', '3000000022', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('María', 'Fernández Castro', 'maria.fernandez13@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000013', '3000000013', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('David', 'Pardo Sánchez', 'david.pardo14@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000014', '3000000014', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrea', 'Cárdenas Gil', 'andrea.cardenas15@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000015', '3000000015', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Sebastián', 'Rojas Vega', 'sebastian.rojas16@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000016', '3000000016', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Paula', 'Mendoza Ortiz', 'paula.mendoza17@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000017', '3000000017', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Juan', 'Bautista Reyes', 'juan.bautista18@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000018', '3000000018', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Daniela', 'Peña Vargas', 'daniela.pena19@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000019', '3000000019', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Óscar', 'Medina Cruz', 'oscar.medina20@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000020', '3000000020', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Luisa', 'Herrera Campos', 'luisa.herrera21@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000021', '3000000021', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Nicolás', 'Duarte Rincón', 'nicolas.duarte22@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000022', '3000000022', (SELECT id_rol FROM rol WHERE nombre_rol='instructor'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
 -- Técnicos
-('Kevin', 'Ramírez Torres', 'kevin.ramirez23@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000023', '3000000023', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Wilson', 'García Moreno', 'wilson.garcia24@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000024', '3000000024', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Esteban', 'López Rojas', 'esteban.lopez25@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000025', '3000000025', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Andrés', 'Molina Pérez', 'andres.molina26@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000026', '3000000026', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Jorge', 'Salazar Díaz', 'jorge.salazar27@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000027', '3000000027', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Mateo', 'Cruz Herrera', 'mateo.cruz28@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000028', '3000000028', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Kevin', 'Ramírez Torres', 'kevin.ramirez23@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000023', '3000000023', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Wilson', 'García Moreno', 'wilson.garcia24@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000024', '3000000024', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Esteban', 'López Rojas', 'esteban.lopez25@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000025', '3000000025', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Andrés', 'Molina Pérez', 'andres.molina26@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000026', '3000000026', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Jorge', 'Salazar Díaz', 'jorge.salazar27@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000027', '3000000027', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Mateo', 'Cruz Herrera', 'mateo.cruz28@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000028', '3000000028', (SELECT id_rol FROM rol WHERE nombre_rol='tecnico'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
 
 -- Administración
-('Sandra', 'Beltrán Ríos', 'sandra.beltran29@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000029', '3000000029', (SELECT id_rol FROM rol WHERE nombre_rol='administrador'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
-('Ricardo', 'Vélez Castro', 'ricardo.velez30@soy.sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000030', '3000000030', (SELECT id_rol FROM rol WHERE nombre_rol='administrador_mesa_ayuda'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE);
+('Sandra', 'Beltrán Ríos', 'sandra.beltran29@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000029', '3000000029', (SELECT id_rol FROM rol WHERE nombre_rol='administrador'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE),
+('Ricardo', 'Vélez Castro', 'ricardo.velez30@sena.edu.co', crypt('AsisDemo2026*', gen_salt('bf', 12)), '1000000030', '3000000030', (SELECT id_rol FROM rol WHERE nombre_rol='administrador_mesa_ayuda'), (SELECT id_tipo_id FROM tipo_identificacion WHERE iniciales='CC'), TRUE);
 
 -- ==========================================================
 -- 4. AMBIENTES: 12 POR PISO, DESDE 101 HASTA 612
@@ -685,7 +685,7 @@ SELECT
     t.asignado_a,
     (SELECT id_usuario
      FROM usuarios
-     WHERE correo_u = 'ricardo.velez30@soy.sena.edu.co')
+     WHERE correo_u = 'ricardo.velez30@sena.edu.co')
 FROM tickets t
 WHERE t.asignado_a IS NOT NULL;
 
@@ -736,7 +736,7 @@ SELECT
     t.creado_por,
     (SELECT id_usuario
      FROM usuarios
-     WHERE correo_u = 'ricardo.velez30@soy.sena.edu.co')
+     WHERE correo_u = 'ricardo.velez30@sena.edu.co')
 FROM tickets t;
 
 COMMIT;
