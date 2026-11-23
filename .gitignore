@@ -22,3 +22,6 @@ dist/
 qa-reportes/
 playwright-report/
 test-results/
+
+# Respaldo local de la base de datos ASIS
+asisdb_backup.dump
