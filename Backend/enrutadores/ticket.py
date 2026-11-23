@@ -1,5 +1,6 @@
 import os
 import shutil
+import unicodedata
 from fastapi import APIRouter, HTTPException, status, BackgroundTasks, UploadFile, File, Form, Depends
 from Modelos.tickets import tickets, TicketsEditar, TicketsLeer
 from Modelos.esquemas_asignacion import AsignacionSchema
@@ -32,6 +33,17 @@ from servicios.acceso_tickets import (
 )
 from sesiones_roles import Sesion_por_rol
 from typing import Annotated, Optional
+
+# Estado en el que no se permite reasignar el técnico (se compara sin tildes ni mayúsculas).
+ESTADO_EN_REPARACION = "en reparacion"
+
+
+def _sin_tildes(texto: str) -> str:
+    """Minúsculas, sin tildes y sin espacios sobrantes, para comparar nombres de estado."""
+    base = unicodedata.normalize("NFD", texto or "")
+    sin_marcas = "".join(c for c in base if unicodedata.category(c) != "Mn")
+    return " ".join(sin_marcas.split()).lower()
+
 
 asis = APIRouter(
     prefix="/tickets",
@@ -414,6 +426,10 @@ async def reasignar_tecnico(
             raise HTTPException(status_code=409, detail="Utiliza asignar para tickets sin técnico")
         if ticket.asignado_a == datos.id_tecnico:
             raise HTTPException(status_code=409, detail="El técnico ya está asignado")
+        # Un ticket en reparación no se puede reasignar.
+        estado_ticket = session.get(estados_ticket, ticket.id_estado)
+        if estado_ticket and _sin_tildes(estado_ticket.nombre_e) == ESTADO_EN_REPARACION:
+            raise HTTPException(status_code=409, detail="No se puede reasignar un ticket que está en reparación")
         validar_tecnico_activo(session, datos.id_tecnico)
         tecnico_anterior = ticket.asignado_a
         cerrar_asignacion_vigente(session, id, tecnico_anterior, "reasignacion")

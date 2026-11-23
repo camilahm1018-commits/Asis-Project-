@@ -60,11 +60,14 @@ services:
   frontend:
     build:
       context: ./FrontEnd
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:?Falta VITE_GOOGLE_CLIENT_ID}
     container_name: asis_frontend
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "5173:80"
     volumes:
       - ./FrontEnd:/app
       - /app/node_modules
