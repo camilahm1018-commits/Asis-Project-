@@ -10,7 +10,8 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
 import { navItemsInstructor } from './navItems.js';
-import { listarEquipos, listarTicketsAdministrador, listarAmbientes } from '../../services/adminService.js';
+import EquipoDetalleCard from '../../components/EquipoDetalleCard.jsx';
+import { listarEquipos, listarTicketsAdministrador, listarAmbientes, listarTiposEquipo } from '../../services/adminService.js';
 
 const badgeColorPorEstado = {
   activo: 'pa-badge--success',
@@ -25,14 +26,17 @@ function MisEquiposInstructor() {
   const [equipos, setEquipos] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [ambientes, setAmbientes] = useState([]);
+  const [tiposEquipo, setTiposEquipo] = useState([]);
+  const [seleccionado, setSeleccionado] = useState(null);
 
   useEffect(() => {
     async function cargar() {
       try {
-        const [e, t, a] = await Promise.all([listarEquipos(), listarTicketsAdministrador(), listarAmbientes()]);
+        const [e, t, a, te] = await Promise.all([listarEquipos(), listarTicketsAdministrador(), listarAmbientes(), listarTiposEquipo()]);
         setEquipos(e || []);
-        setTickets(t);
+        setTickets(t || []);
         setAmbientes(a || []);
+        setTiposEquipo(te || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -43,6 +47,7 @@ function MisEquiposInstructor() {
   }, []);
 
   const mapaAmbientes = Object.fromEntries(ambientes.map((a) => [a.id_ambiente, a.nombre_a]));
+  const mapaTipos = Object.fromEntries(tiposEquipo.map((t) => [t.id_tipo, t.nombre_t]));
 
   return (
     <PanelLayout title="Equipos" rol="instructor" sidebarLabel="Instructor" navItems={navItemsInstructor}>
@@ -59,9 +64,16 @@ function MisEquiposInstructor() {
       {!cargando && !error && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {equipos.map((e) => {
-            const ticketsEquipo = tickets.filter((t) => t.equipo === e.nombre && !t.atendido);
+            const ticketsEquipo = tickets.filter((t) => t.idEquipo === e.id_equipo && !t.atendido);
             return (
-              <div key={e.id_equipo} className="pa-card" style={{ padding: 20 }}>
+              <div
+                key={e.id_equipo}
+                className="pa-card pa-equipo-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => setSeleccionado(e)}
+                onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); setSeleccionado(e); } }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{e.nombre}</p>
@@ -105,6 +117,14 @@ function MisEquiposInstructor() {
           )}
         </div>
       )}
+
+      <EquipoDetalleCard
+        equipo={seleccionado}
+        tipo={seleccionado ? mapaTipos[seleccionado.id_tipo] : ''}
+        ambiente={seleccionado ? mapaAmbientes[seleccionado.id_ambiente] : ''}
+        tickets={seleccionado ? tickets.filter((t) => t.idEquipo === seleccionado.id_equipo) : []}
+        onClose={() => setSeleccionado(null)}
+      />
     </PanelLayout>
   );
 }

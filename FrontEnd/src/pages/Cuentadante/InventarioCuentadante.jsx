@@ -2,6 +2,7 @@
 // Ruta: /cuentadante/inventario
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout.jsx';
+import EquipoDetalleCard from '../../components/EquipoDetalleCard.jsx';
 import { navItemsCuentadante } from './navItems.js';
 import {
   listarEquipos, crearEquipo, listarAmbientes, listarTiposEquipo, listarTicketsAdministrador,
@@ -157,49 +158,13 @@ function InventarioCuentadante() {
         </div>
       )}
 
-      {seleccionado && (
-        <div className="pa-slideover-overlay" onClick={() => setSeleccionado(null)}>
-          <div className="pa-slideover" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
-            <div className="pa-slideover__header">
-              <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Detalle del Equipo</p>
-              <button className="pa-modal__close" onClick={() => setSeleccionado(null)} type="button">✕</button>
-            </div>
-            <div className="pa-slideover__body">
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span className="pa-table-mono" style={{ fontSize: 12, color: '#45B3BF' }}>{seleccionado.codigo}</span>
-                <span className={`pa-badge ${badgeColorPorEstado[seleccionado.estado] || 'pa-badge--neutral'}`}>{seleccionado.estado}</span>
-              </div>
-              <div>
-                <p style={{ fontWeight: 600, fontSize: 15, margin: 0 }}>{seleccionado.nombre}</p>
-                {seleccionado.descripcion && <p style={{ fontSize: 12, marginTop: 4, color: 'rgba(255,255,255,0.45)' }}>{seleccionado.descripcion}</p>}
-              </div>
-              {[
-                { label: 'Marca', value: seleccionado.marca },
-                { label: 'Serial', value: seleccionado.serial },
-                { label: 'Tipo', value: mapaTipos[seleccionado.id_tipo] },
-                { label: 'Ambiente', value: mapaAmbientes[seleccionado.id_ambiente] },
-              ].map((f) => (
-                <div key={f.label}>
-                  <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#45B3BF', margin: '0 0 2px' }}>{f.label}</p>
-                  <p style={{ fontSize: 13, margin: 0, color: 'rgba(255,255,255,0.8)' }}>{f.value || '—'}</p>
-                </div>
-              ))}
-              <div>
-                <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#45B3BF', marginBottom: 8 }}>Tickets del equipo</p>
-                {tickets.filter((t) => t.id_equipo === seleccionado.id_equipo).length === 0 ? (
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Sin tickets registrados</p>
-                ) : tickets.filter((t) => t.id_equipo === seleccionado.id_equipo).map((t) => (
-                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span className="pa-table-mono" style={{ fontSize: 11, color: '#45B3BF' }}>#{t.id}</span>
-                    <span style={{ fontSize: 12, flex: 1, margin: '0 8px', color: 'rgba(255,255,255,0.6)' }}>{t.titulo}</span>
-                    <span className="pa-badge" style={{ background: `${t.estadoColor}26`, color: t.estadoColor, borderColor: `${t.estadoColor}4d` }}>{t.estado}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <EquipoDetalleCard
+        equipo={seleccionado}
+        tipo={seleccionado ? mapaTipos[seleccionado.id_tipo] : ''}
+        ambiente={seleccionado ? mapaAmbientes[seleccionado.id_ambiente] : ''}
+        tickets={seleccionado ? tickets.filter((t) => t.idEquipo === seleccionado.id_equipo) : []}
+        onClose={() => setSeleccionado(null)}
+      />
 
       <div className="pa-section-header">
         <div>
@@ -236,7 +201,7 @@ function InventarioCuentadante() {
             </thead>
             <tbody>
               {filtered.map((e) => {
-                const tkActivos = tickets.filter((t) => t.id_equipo === e.id_equipo && !t.atendido).length;
+                const tkActivos = tickets.filter((t) => t.idEquipo === e.id_equipo && !t.atendido).length;
                 return (
                   <tr key={e.id_equipo} onClick={() => setSeleccionado(e)} style={{ cursor: 'pointer' }}>
                     <td className="pa-table-mono" style={{ color: '#45B3BF' }}>{e.codigo}</td>
