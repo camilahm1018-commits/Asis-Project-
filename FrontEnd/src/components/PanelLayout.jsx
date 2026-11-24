@@ -55,6 +55,17 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
     try { return localStorage.getItem('asis_menu_colapsado') === '1'; } catch { return false; }
   });
 
+  // Al pasar de escritorio a móvil, cerrar el panel lateral para que
+  // no cubra automáticamente la página. No cambia las rutas ni los roles.
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    const ajustar = (evento) => {
+      if (evento.matches) setMenuColapsado(true);
+    };
+    media.addEventListener('change', ajustar);
+    return () => media.removeEventListener('change', ajustar);
+  }, []);
+
   function alternarMenu() {
     const nuevo = !menuColapsado;
     setMenuColapsado(nuevo);
@@ -93,7 +104,7 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
 
       <main className="panel-admin__main">
         <header className="panel-admin__topbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="panel-admin__topbar-left">
             <button
               type="button"
               className="panel-admin__menu-toggle"

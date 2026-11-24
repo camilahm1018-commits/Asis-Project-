@@ -49,7 +49,7 @@ function TecnicosMesaAyuda() {
 
       {!cargando && !error && (
         <>
-          <div className="pa-stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div className="pa-stat-grid pa-responsive-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <div className="pa-stat-card">
               <span className="pa-stat-card__label">Total Técnicos</span>
               <span className="pa-stat-card__value">{tecnicos.length}</span>
@@ -64,7 +64,7 @@ function TecnicosMesaAyuda() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          <div className="pa-responsive-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {tecnicos.map((tec) => {
               const nombreCompleto = `${tec.nombre_u} ${tec.apellidos_u}`;
               const tkTecnico = tickets.filter((t) => t.tecnico === nombreCompleto);
@@ -81,7 +81,7 @@ function TecnicosMesaAyuda() {
                     </div>
                     <span className={`pa-badge ${estado.className}`}>{estado.label}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                  <div className="pa-responsive-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                     <div className="pa-ambiente-card__stat">
                       <p className="pa-ambiente-card__stat-value" style={{ color: '#45B3BF' }}>{activos}</p>
                       <p className="pa-ambiente-card__stat-label">Activos</p>

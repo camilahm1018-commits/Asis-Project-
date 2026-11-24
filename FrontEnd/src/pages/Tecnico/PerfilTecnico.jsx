@@ -36,7 +36,7 @@ function PerfilTecnico() {
         <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="pa-card">
             <div className="pa-card__header">Estadísticas de Rendimiento</div>
-            <div className="pa-card__body" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+            <div className="pa-card__body pa-responsive-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               <div className="pa-ambiente-card__stat" style={{ padding: 16 }}>
                 <p className="pa-ambiente-card__stat-value" style={{ fontSize: 22, color: '#45B3BF' }}>{misTickets.length}</p>
                 <p className="pa-ambiente-card__stat-label">Asignados</p>

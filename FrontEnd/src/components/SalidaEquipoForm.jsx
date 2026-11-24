@@ -161,7 +161,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
           <div className="pa-form-field">
             <label>2. ¿Qué sale?</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            <div className="pa-responsive-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {[
                 { valor: 'equipo', label: 'Equipo', icono: '💻' },
                 { valor: 'mobiliario', label: 'Mobiliario', icono: '🪑' },
@@ -230,7 +230,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
           <div className="pa-form-field">
             <label>4. Motivo de la salida</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            <div className="pa-responsive-three-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               {TIPOS_SALIDA.map((t) => (
                 <button
                   type="button"
@@ -266,7 +266,7 @@ function SalidaEquipoForm({ ambientesPermitidos }) {
 
               <div className="pa-form-field">
                 <label>Tipo de traslado</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                <div className="pa-responsive-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
                   <button
                     type="button"
                     onClick={() => setTipoTraslado('temporal')}

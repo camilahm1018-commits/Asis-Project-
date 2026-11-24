@@ -88,7 +88,7 @@ function ReportesMesaAyuda() {
 
         <div className="pa-card pa-chart-card--span2">
           <div className="pa-card__header">Tickets por Técnico</div>
-          <div className="pa-card__body" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12 }}>
+          <div className="pa-card__body pa-responsive-tiny-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12 }}>
             {tecnicos.map((tec) => {
               const nombreCompleto = `${tec.nombre_u} ${tec.apellidos_u}`;
               const totalTecnico = tickets.filter((t) => t.tecnico === nombreCompleto).length;

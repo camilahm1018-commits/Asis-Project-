@@ -51,7 +51,7 @@ function PanelTecnico() {
         </div>
       </div>
 
-      <div className="pa-stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+      <div className="pa-stat-grid pa-responsive-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <div className="pa-stat-card">
           <span className="pa-stat-card__label">Tickets Asignados</span>
           <span className="pa-stat-card__value">{misTickets.length}</span>

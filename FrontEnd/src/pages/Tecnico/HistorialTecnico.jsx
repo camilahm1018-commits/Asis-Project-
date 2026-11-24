@@ -41,7 +41,7 @@ function HistorialTecnico() {
 
       {!cargando && !error && (
         <>
-          <div className="pa-stat-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+          <div className="pa-stat-grid pa-responsive-stats" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
             <div className="pa-stat-card">
               <span className="pa-stat-card__label">Total Resueltos</span>
               <span className="pa-stat-card__value" style={{ color: '#4ade80' }}>{cerrados.length}</span>

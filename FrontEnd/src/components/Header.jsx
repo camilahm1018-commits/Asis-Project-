@@ -16,7 +16,10 @@ function Header({ authTo, authLabel }) {
         <button
           className="mainHeaderToggle"
           id="menu-toggle"
-          aria-label="Abrir menú"
+          type="button"
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-controls="main-nav"
+          aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
         >
           <div className="mainHeaderBar"></div>

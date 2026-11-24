@@ -62,7 +62,7 @@ function MisEquiposInstructor() {
       {error && <p className="pa-error">{error}</p>}
 
       {!cargando && !error && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+        <div className="pa-responsive-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {equipos.map((e) => {
             const ticketsEquipo = tickets.filter((t) => t.idEquipo === e.id_equipo && !t.atendido);
             return (

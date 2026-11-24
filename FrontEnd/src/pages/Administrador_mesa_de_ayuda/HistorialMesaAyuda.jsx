@@ -48,7 +48,7 @@ function HistorialMesaAyuda() {
       {!cargando && !error && (
         <>
           {/* Estadísticas rápidas */}
-          <div className="pa-stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '24px' }}>
+          <div className="pa-stat-grid pa-responsive-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '24px' }}>
             <div className="pa-stat-card">
               <span className="pa-stat-card__label">Total Cerrados</span>
               <span className="pa-stat-card__value">{cerrados.length}</span>

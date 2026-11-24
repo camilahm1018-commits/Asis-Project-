@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './styles/theme.css'
 import './styles/global.css'
 import './styles/ticketsGlobal.css'
+import './styles/responsive.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // 2. Leer el ID desde tu archivo .env

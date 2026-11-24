@@ -44,7 +44,7 @@ function AmbientesCuentadante() {
       {error && <p className="pa-error">{error}</p>}
 
       {!cargando && !error && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+        <div className="pa-responsive-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
           
           {ambientes.map((a) => {
             // Filtrar equipos de este ambiente
@@ -76,7 +76,7 @@ function AmbientesCuentadante() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                <div className="pa-responsive-counts" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                   {[
                     { label: 'Total', value: eqAmbiente.length, color: 'rgba(255,255,255,0.8)' },
                     { label: 'Activos', value: activos, color: '#4ade80' },

@@ -1,0 +1,274 @@
+/* =============================================================
+   ASIS - adaptaciones responsive compartidas
+   Cobertura: 5 roles, páginas públicas, formularios, tablas,
+   modales, reportes y gráficas. No altera lógica de negocio.
+   Puntos de control: tablet <= 1024 / móvil <= 768 / <= 480.
+   ============================================================= */
+
+/* Elementos fluidos: evitar que una cadena larga o una imagen
+   aumente el ancho del viewport en cualquier sección. */
+#root { min-width: 0; }
+.panel-admin__main,
+.panel-admin__content,
+.panel-admin__content > *,
+.pa-card,
+.pa-card__body,
+.pa-stat-card,
+.pa-chart-card,
+.pa-chart-card__body,
+.pa-ambiente-card,
+.pa-form-field,
+.pa-section-header > * { min-width: 0; }
+
+img, video, canvas { max-width: 100%; }
+.pa-card__body img, .pa-modal img, .td-modal img { height: auto; }
+.pa-card__body, .pa-ambiente-card, .pa-modal__body, .pa-eqd__body {
+  overflow-wrap: break-word;
+}
+.pa-table-mono, .pa-usuarios-correo, .perfil-fila__valor {
+  overflow-wrap: anywhere;
+}
+
+/* Tablas: en vez de recortar las columnas se navegan horizontalmente.
+   Es más seguro que transformar filas, ya que ASIS usa acciones CRUD. */
+.panel-admin .pa-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.panel-admin .pa-table { min-width: 580px; }
+.panel-admin .pa-table th,
+.panel-admin .pa-table td { vertical-align: middle; }
+.panel-admin .pa-usuarios-tabla .pa-table { min-width: 850px; }
+.panel-admin .pa-usuarios-acciones { display: inline-flex; flex-wrap: nowrap; gap: 8px; }
+
+/* Respetar el espacio de los gráficos y evitar desbordes de Recharts. */
+.pa-chart-grid > *, .pa-grid-2 > *, .pa-ambiente-grid > * { min-width: 0; }
+.pa-chart-card__body .recharts-responsive-container { min-width: 0; }
+
+/* Los modales deben funcionar incluso con poca altura (teclado móvil).
+   No tapar los botones que confirman acciones o formularios. */
+.panel-admin .pa-modal-overlay {
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.panel-admin .pa-modal,
+.panel-admin .pa-eqd {
+  min-width: 0;
+  max-height: min(90vh, 90dvh);
+}
+.panel-admin .pa-modal__body {
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.panel-admin .pa-modal__actions {
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.panel-admin .pa-ambiente-form { min-height: 0; }
+.panel-admin .pa-ambiente-form > .pa-modal__body { overflow-y: auto; }
+
+/* Formularios comunes y selectores táctiles. */
+.panel-admin input,
+.panel-admin textarea,
+.panel-admin select,
+.formContainer input,
+.formContainer select,
+.contacto-card input,
+.contacto-card textarea,
+.contacto-card select { max-width: 100%; }
+
+/* Encabezado: la campanita, el menú, el tema y salir siguen accesibles. */
+.panel-admin__topbar-left {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+.panel-admin__topbar-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.panel-admin__topbar-user { flex-shrink: 0; }
+.panel-admin .notification-dropdown {
+  width: min(320px, calc(100vw - 24px));
+  max-height: min(440px, calc(100dvh - 90px));
+  overflow: hidden;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 12px 32px rgba(0,0,0,.25);
+}
+.panel-admin .notification-list { max-height: min(350px, calc(100dvh - 160px)); }
+.panel-admin .notif-message { color: var(--text-primary); overflow-wrap: anywhere; }
+.panel-admin .notif-date { color: var(--text-secondary); }
+.panel-admin .notification-item:hover { background: var(--bg-tertiary); }
+
+/* Equivalentes claros; no forzar texto oscuro en el tema oscuro. */
+body.light-mode .panel-admin .notification-dropdown { background: #fff; }
+body.light-mode .panel-admin .notif-message { color: #0f172a; }
+body.light-mode .panel-admin .notif-date { color: #64748b; }
+
+/* Public pages also have fixed-width legacy forms. */
+body .container { width: min(600px, calc(100% - 32px)); }
+body.page-login .container { width: min(480px, calc(100% - 32px)); }
+.formContainer, .contacto-card, .perfil-card { min-width: 0; }
+.mainHeaderContainer, .mainNav, .mainNavList { min-width: 0; }
+
+/* ---------- TABLETS Y PANTALLAS PEQUEÑAS ---------- */
+@media (max-width: 1024px) {
+  .panel-admin__content { padding: 22px; }
+  .panel-admin__topbar { padding: 12px 20px; gap: 12px; }
+  .panel-admin__topbar-user { gap: 8px; }
+  .panel-admin .pa-chart-grid { grid-template-columns: minmax(0, 1fr); }
+  .panel-admin .pa-chart-card--span2 { grid-column: auto; }
+  .panel-admin .pa-grid-2 { grid-template-columns: minmax(0, 1fr) !important; }
+  .panel-admin .pa-ambiente-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  }
+  .panel-admin .pa-stat-grid.pa-responsive-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .cr-lista { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+}
+
+/* ---------- TELÉFONOS Y TABLETS VERTICALES ---------- */
+@media (max-width: 768px) {
+  .panel-admin { width: 100%; min-height: 100dvh; }
+  .panel-admin__main { width: 100%; min-width: 0; overflow-x: clip; }
+  .panel-admin__content { padding: 16px; }
+  .panel-admin__topbar { gap: 6px; padding: 10px 12px; }
+  .panel-admin__topbar-left { flex: 1 1 auto; gap: 6px; }
+  .panel-admin__topbar-title { font-size: 10px; letter-spacing: 0.05em; white-space: nowrap; }
+  .panel-admin__topbar-user { flex: 0 0 auto; gap: 6px; }
+  .panel-admin__topbar .notification-container { margin-right: 0; }
+  .panel-admin__topbar .notification-bell-btn { padding: 6px; }
+  .panel-admin__topbar .theme-toggle-btn { flex-shrink: 0; }
+  .panel-admin__logout { padding: 7px 9px; }
+  .panel-admin__sidebar { max-width: min(280px, 85vw); }
+  .panel-admin__nav { -webkit-overflow-scrolling: touch; }
+
+  .pa-section-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .pa-section-header__title { font-size: clamp(20px, 5vw, 24px); }
+  .pa-section-header > button, .pa-section-header > a { align-self: flex-start; }
+  .pa-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pa-stat-card { padding: 14px; }
+  .pa-stat-card__value { font-size: clamp(20px, 5vw, 28px); }
+  .pa-chart-card__body, .pa-card__body { padding: 14px; }
+  .pa-chart-card__header, .pa-card__header { padding: 12px 14px; }
+  .pa-chart-card--span2 { grid-column: auto; }
+  .pa-modal-overlay { padding: 12px; }
+  .panel-admin .pa-modal, .panel-admin .pa-eqd {
+    width: min(100%, 560px);
+    max-height: calc(100dvh - 24px);
+  }
+  .pa-modal__body { padding: 16px; }
+  .pa-modal__header { padding: 14px 16px; }
+  .pa-modal__row { grid-template-columns: minmax(0, 1fr); }
+  .pa-modal__actions { justify-content: stretch; }
+  .pa-modal__actions > button,
+  .pa-modal__actions > a { flex: 1 1 135px; }
+  .pa-ambiente-form > .pa-modal__actions { padding: 12px 16px; }
+  .pa-eqd__header, .pa-eqd__body { padding: 14px; }
+  .panel-admin .pa-responsive-card-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .panel-admin .pa-responsive-detail-grid,
+  .panel-admin .pa-responsive-three-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .pa-ambiente-card { padding: 14px; }
+  .pa-table th, .pa-table td { padding: 10px 12px; }
+  .pa-filter-row { gap: 7px; }
+  .pa-filter-pill { padding: 8px 12px; }
+  .pa-btn-primary, .pa-btn-secondary { min-height: 40px; }
+
+  /* Encabezados públicos y formularios de registro/contraseña. */
+  .mainHeaderContainer { padding: 12px 16px; }
+  .mainNav.mainNavOpen { max-height: calc(100dvh - 70px); overflow-y: auto; }
+  .mainNavList, .mainNav .login { width: 100%; }
+  .mainNav .login { justify-content: flex-start; flex-wrap: wrap; }
+  .container { max-width: calc(100% - 24px); margin: 36px auto 24px; padding: 28px 20px; }
+  .asis-nosotros-seccion { padding: 28px 14px; }
+  .asis-info-header { padding: 24px 16px; margin-bottom: 32px; }
+  .equipo-grid { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+  .panel-admin input, .panel-admin select, .panel-admin textarea,
+  .container input, .registroForm input, .registroForm select,
+  .formulario-contacto input, .formulario-contacto select,
+  .formulario-contacto textarea { font-size: 16px; }
+  .contentWrapper { padding: 72px 12px 24px; }
+  .formContainer { padding: 24px 18px; }
+  .contacto-page { padding: 70px 12px 20px; }
+  .contacto-card { padding: 24px 18px; }
+  .formGroupFlex { flex-direction: column; }
+  .registroForm input, .registroForm select { min-width: 0; }
+  .cr-filtros { grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); }
+  .cr-lista { grid-template-columns: minmax(0, 1fr); }
+
+  /* Componentes de tickets que no comparten panelAdmin. */
+  .barraSuperior { padding: 12px; gap: 10px; }
+  .barraSuperiorIzq, .barraSuperiorDer { max-width: 100%; }
+  .ticket { width: calc(100% - 24px); max-width: 100%; margin: 20px auto; padding: 16px; }
+  .td-modal { max-width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+  .perfil-page { min-height: 0; }
+  .perfil-card { padding-left: 16px; padding-right: 16px; }
+  .perfil-card__banner { width: calc(100% + 32px); margin-left: -16px; margin-right: -16px; }
+}
+
+/* ---------- TELÉFONOS COMPACTOS ---------- */
+@media (max-width: 480px) {
+  .panel-admin__content { padding: 12px; }
+  .panel-admin__topbar { padding: 8px; }
+  .panel-admin__topbar-title { font-size: 10px; }
+  .panel-admin__topbar-user { gap: 4px; }
+  .panel-admin__topbar .pa-avatar--sm { display: none; }
+  .panel-admin__topbar .notification-bell-btn svg { width: 20px; height: 20px; }
+  .panel-admin__topbar .theme-toggle-btn { width: 34px; height: 34px; padding: 0; }
+  .panel-admin__logout { font-size: 12px; padding: 6px 8px; }
+  .panel-admin .notification-dropdown {
+    position: fixed;
+    top: 62px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-height: calc(100dvh - 74px);
+  }
+  .pa-section-header__title { font-size: 21px; }
+  .pa-stat-grid,
+  .panel-admin .pa-stat-grid.pa-responsive-stats { grid-template-columns: minmax(0, 1fr) !important; }
+  .pa-card__body, .pa-chart-card__body { padding: 12px; }
+  .pa-modal-overlay { padding: 8px; align-items: center; }
+  .panel-admin .pa-modal, .panel-admin .pa-eqd {
+    max-height: calc(100dvh - 16px);
+    border-radius: 12px;
+  }
+  .pa-modal__body { padding: 12px; }
+  .pa-modal__row { gap: 12px; }
+  .panel-admin .pa-responsive-counts { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .panel-admin .pa-responsive-tiny-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .pa-eqd__grid { grid-template-columns: minmax(0, 1fr); }
+  .pa-filter-row { align-items: stretch; }
+  .pa-filter-pill { font-size: 12px; }
+  .pa-usuarios-acciones { gap: 6px; }
+  .formContainer { padding: 18px 14px; }
+  .container { padding: 22px 16px; margin: 26px auto 20px; }
+  .contacto-card { padding: 18px 14px; }
+  .step h2, .loginForm h1 { font-size: 22px; }
+  .titulo { font-size: 23px; }
+  .perfil-fila { align-items: flex-start; flex-direction: column; }
+  .perfil-fila__valor { text-align: left; }
+  .perfil-acciones > button { flex: 1 1 100%; }
+  .cr-barra > button { flex: 1 1 auto; }
+  .cr-item { flex-wrap: wrap; }
+  .cr-item__filas { white-space: normal; }
+}
+
+/* Ajustes de altura dinámica y espacios de móviles con notch. */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .panel-admin__content { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+}
