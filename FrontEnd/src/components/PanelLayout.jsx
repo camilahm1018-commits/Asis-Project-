@@ -7,6 +7,7 @@ import '../styles/panelAdmin.css';
 import useAutoLogout from '../hooks/useAutoLogout.js';
 import { limpiarSesion } from '../services/sesion.js';
 
+const esMovil = () => window.matchMedia('(max-width: 768px)').matches;
 
 function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
   const navigate = useNavigate();
@@ -49,13 +50,27 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
     navigate('/login', { replace: true });
   };
 
+    const [menuColapsado, setMenuColapsado] = useState(() => {
+    if (esMovil()) return true;
+    try { return localStorage.getItem('asis_menu_colapsado') === '1'; } catch { return false; }
+  });
+
+  function alternarMenu() {
+    const nuevo = !menuColapsado;
+    setMenuColapsado(nuevo);
+    if (!esMovil()) {
+      try { localStorage.setItem('asis_menu_colapsado', nuevo ? '1' : '0'); } catch { /* sin acceso al storage */ }
+    }
+  }
+
   if (!usuario) return null;
 
   const iniciales = `${usuario.nombre?.[0] ?? ''}${usuario.apellidos?.[0] ?? ''}`.toUpperCase();
 
   return (
-    <div className="panel-admin">
-      <aside className="panel-admin__sidebar">
+    <div className={`panel-admin${menuColapsado ? ' panel-admin--colapsado' : ''}`}>
+      {!menuColapsado && <div className="panel-admin__backdrop" onClick={alternarMenu} />}
+      <aside className="panel-admin__sidebar" id="menu-lateral">
         <div className="panel-admin__sidebar-title">{sidebarLabel}</div>
         <nav className="panel-admin__nav">
           {navItems.map((item) => (
@@ -63,6 +78,8 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
               key={item.to}
               to={item.to}
               end={item.end}
+              title={item.label}
+              onClick={() => { if (esMovil()) setMenuColapsado(true); }}
               className={({ isActive }) =>
                 `panel-admin__nav-item${isActive ? ' active' : ''}`
               }
@@ -76,7 +93,19 @@ function PanelLayout({ title, rol, sidebarLabel, navItems, children }) {
 
       <main className="panel-admin__main">
         <header className="panel-admin__topbar">
-          <p className="panel-admin__topbar-title">{title}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              type="button"
+              className="panel-admin__menu-toggle"
+              onClick={alternarMenu}
+              aria-label={menuColapsado ? 'Mostrar menú' : 'Ocultar menú'}
+              aria-expanded={!menuColapsado}
+              aria-controls="menu-lateral"
+            >
+              <span className="material-symbols-rounded">{menuColapsado ? 'menu' : 'menu_open'}</span>
+            </button>
+            <p className="panel-admin__topbar-title">{title}</p>
+          </div>
           <div className="panel-admin__topbar-user">
             <div className="notification-container">
               <button 

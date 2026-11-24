@@ -1495,6 +1495,119 @@ body.light-mode .pa-modal__close { color: #475569; }
 body.light-mode .pa-modal__close:hover { background: #f1f5f9; }
 body.light-mode .pa-equipo-card:hover,
 body.light-mode .pa-equipo-card:focus-visible { box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12); border-color: #0284c7 !important; }
+/* ==========================================================
+   MENÚ LATERAL DESPLEGABLE
+   ========================================================== */
+
+/* Evita que tablas anchas empujen el contenido fuera de pantalla */
+.panel-admin__main {
+  min-width: 0;
+}
+
+.panel-admin__sidebar {
+  overflow: hidden;
+  transition: width 0.2s ease, transform 0.2s ease, background 0.3s ease;
+}
+
+/* Botón de hamburguesa en la barra superior */
+.panel-admin__menu-toggle {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--pa-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--pa-accent);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.panel-admin__menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.panel-admin__menu-toggle .material-symbols-rounded {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* El fondo oscuro solo existe en móvil */
+.panel-admin__backdrop {
+  display: none;
+}
+
+/* ---------- ESCRITORIO: menú angosto de solo íconos ---------- */
+@media (min-width: 769px) {
+  .panel-admin--colapsado .panel-admin__sidebar {
+    width: 64px;
+  }
+  .panel-admin--colapsado .panel-admin__sidebar-title {
+    visibility: hidden;
+  }
+  .panel-admin--colapsado .panel-admin__nav-label {
+    display: none;
+  }
+  .panel-admin--colapsado .panel-admin__nav-item {
+    justify-content: center;
+    padding: 10px 0;
+  }
+}
+
+/* ---------- MÓVIL: el menú se desliza encima del contenido ---------- */
+@media (max-width: 768px) {
+  .panel-admin__sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 240px;
+    z-index: 40;
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Cerrado: fuera de pantalla y sin que el teclado pueda entrar a sus enlaces */
+  .panel-admin--colapsado .panel-admin__sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+    box-shadow: none;
+    transition: transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+
+  .panel-admin__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(1, 20, 50, 0.6);
+  }
+
+  .panel-admin__topbar {
+    padding: 10px 16px;
+  }
+  .panel-admin__content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .panel-admin__username {
+    display: none;
+  }
+}
+
+/* Modo claro */
+body.light-mode .panel-admin__menu-toggle {
+  border-color: #cbd5e1;
+  color: #0284c7;
+}
+body.light-mode .panel-admin__menu-toggle:hover {
+  background: #f1f5f9;
+}
 
 @media (max-width: 480px) {
   .pa-eqd__grid { grid-template-columns: 1fr; }
